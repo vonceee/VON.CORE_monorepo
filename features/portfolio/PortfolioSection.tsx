@@ -18,7 +18,7 @@ const PortfolioSection: React.FC = () => {
       <AnimatedText
         text={t.portfolio.title}
         className="text-6xl md:text-8xl font-bold mb-12"
-        direction="top"
+        type="decode"
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-20 max-w-[110rem] w-full px-6 md:px-10">
         {t.portfolio.items.map((item, i) => (

@@ -1,22 +1,23 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
 interface AnimatedTextProps {
   text: string;
-  type?: 'decode' | 'directional';
-  direction?: 'left' | 'right' | 'top' | 'bottom';
+  type?: "decode" | "directional";
+  direction?: "left" | "right" | "top" | "bottom";
   className?: string;
   delay?: number;
   once?: boolean;
+  speed?: number;
 }
 
-const AnimatedText: React.FC<AnimatedTextProps> = ({ 
-  text, 
-  type = 'directional', 
-  direction = 'bottom', 
-  className = "", 
+const AnimatedText: React.FC<AnimatedTextProps> = ({
+  text,
+  type = "directional",
+  direction = "bottom",
+  className = "",
   delay = 0,
-  once = true
+  once = true,
+  speed = 0.3,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [displayText, setDisplayText] = useState("");
@@ -44,48 +45,55 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
   }, [once]);
 
   useEffect(() => {
-    if (isVisible && type === 'decode') {
+    if (isVisible && type === "decode") {
       let iteration = 0;
       const interval = setInterval(() => {
         setDisplayText(
-          text.split("")
+          text
+            .split("")
             .map((char, index) => {
               if (index < iteration) return text[index];
               return chars[Math.floor(Math.random() * chars.length)];
             })
             .join("")
         );
-        
+
         if (iteration >= text.length) {
           clearInterval(interval);
         }
-        iteration += 1 / 3;
+        iteration += speed;
       }, 30);
       return () => clearInterval(interval);
     } else {
       setDisplayText(text);
     }
-  }, [isVisible, text, type]);
+  }, [isVisible, text, type, speed]);
 
   const getDirectionStyles = () => {
     if (!isVisible) {
       switch (direction) {
-        case 'left': return 'translate-x-[-40px] opacity-0';
-        case 'right': return 'translate-x-[40px] opacity-0';
-        case 'top': return 'translate-y-[-40px] opacity-0';
-        case 'bottom': return 'translate-y-[40px] opacity-0';
+        case "left":
+          return "translate-x-[-40px] opacity-0";
+        case "right":
+          return "translate-x-[40px] opacity-0";
+        case "top":
+          return "translate-y-[-40px] opacity-0";
+        case "bottom":
+          return "translate-y-[40px] opacity-0";
       }
     }
-    return 'translate-x-0 translate-y-0 opacity-100';
+    return "translate-x-0 translate-y-0 opacity-100";
   };
 
   return (
-    <div 
+    <div
       ref={elementRef}
-      className={`transition-all duration-1000 ease-out ${className} ${type === 'directional' ? getDirectionStyles() : ''}`}
+      className={`transition-all duration-1000 ease-out ${className} ${
+        type === "directional" ? getDirectionStyles() : ""
+      }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
-      {type === 'decode' ? displayText : text}
+      {type === "decode" ? displayText : text}
     </div>
   );
 };

@@ -1,27 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ThemeProvider } from './context/ThemeContext';
-import { LanguageProvider } from './context/LanguageContext';
-import { useAppMode } from './hooks/useAppMode';
-import { SectionId } from './types';
+import React, { useState, useEffect, useRef } from "react";
+import { ThemeProvider } from "./context/ThemeContext";
+import { LanguageProvider } from "./context/LanguageContext";
+import { useAppMode } from "./hooks/useAppMode";
+import { SectionId } from "./types";
 
 // Features
-import Terminal from './features/terminal/Terminal';
-import DevDashboard from './features/dashboard/DevDashboard';
-import HeroSection from './features/portfolio/HeroSection';
-import AboutSection from './features/portfolio/AboutSection';
-import PortfolioSection from './features/portfolio/PortfolioSection';
-import ContactSection from './features/portfolio/ContactSection';
-import MainLayout from './components/layout/MainLayout';
+import Terminal from "./features/terminal/Terminal";
+import DevDashboard from "./features/dashboard/DevDashboard";
+import HeroSection from "./features/portfolio/HeroSection";
+import AboutSection from "./features/portfolio/AboutSection";
+import PortfolioSection from "./features/portfolio/PortfolioSection";
+import ContactSection from "./features/portfolio/ContactSection";
+import MainLayout from "./components/layout/MainLayout";
+import BootSequence from "./components/BootSequence";
 
 const AppContent: React.FC = () => {
   const { mode, setMode } = useAppMode();
-  const [activeSection, setActiveSection] = useState<SectionId>('HERO');
+  const [activeSection, setActiveSection] = useState<SectionId>("HERO");
+  const [isBooting, setIsBooting] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Scroll Spy Logic
   useEffect(() => {
-    if (mode === 'public') {
+    if (mode === "public") {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -33,7 +35,7 @@ const AppContent: React.FC = () => {
         { threshold: 0.6 }
       );
 
-      const sections = document.querySelectorAll('.snap-section');
+      const sections = document.querySelectorAll(".snap-section");
       sections.forEach((section) => observer.observe(section));
 
       return () => observer.disconnect();
@@ -42,31 +44,35 @@ const AppContent: React.FC = () => {
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleDevModeOn = () => {
-    setMode('dev');
+    setIsBooting(true);
+    setMode("dev");
     setIsTerminalOpen(false);
   };
 
   const handleDevModeOff = () => {
-    setMode('public');
+    setMode("public");
     setIsTerminalOpen(false);
   };
 
-  if (mode === 'dev') {
+  if (mode === "dev") {
+    if (isBooting)
+      return <BootSequence onComplete={() => setIsBooting(false)} />;
+
     return (
       <>
         <DevDashboard onExit={handleDevModeOff} />
-        <Terminal 
-          isOpen={isTerminalOpen} 
-          onClose={() => setIsTerminalOpen(false)} 
+        <Terminal
+          isOpen={isTerminalOpen}
+          onClose={() => setIsTerminalOpen(false)}
           onDevModeSuccess={handleDevModeOn}
           onDevModeOff={handleDevModeOff}
           isDevMode={true}
         />
-        <button 
+        <button
           onClick={() => setIsTerminalOpen(true)}
           className="fixed bottom-10 right-10 z-[70] w-12 h-12 bg-orange-600 text-black rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform opacity-30 hover:opacity-100"
         >
@@ -77,9 +83,9 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <MainLayout 
-      activeSection={activeSection} 
-      onScrollTo={scrollTo} 
+    <MainLayout
+      activeSection={activeSection}
+      onScrollTo={scrollTo}
       onOpenTerminal={() => setIsTerminalOpen(true)}
     >
       <div ref={containerRef} className="snap-container">
@@ -89,9 +95,9 @@ const AppContent: React.FC = () => {
         <ContactSection />
       </div>
 
-      <Terminal 
-        isOpen={isTerminalOpen} 
-        onClose={() => setIsTerminalOpen(false)} 
+      <Terminal
+        isOpen={isTerminalOpen}
+        onClose={() => setIsTerminalOpen(false)}
         onDevModeSuccess={handleDevModeOn}
         onDevModeOff={handleDevModeOff}
         isDevMode={false}

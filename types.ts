@@ -1,9 +1,8 @@
-
-export type Language = 'ENG' | 'JPN' | 'KOR' | 'RUS' | 'PH';
-export type Theme = 'dark' | 'light';
-export type SectionId = 'HERO' | 'ABOUT' | 'PORTFOLIO' | 'CONTACT';
-export type AppMode = 'public' | 'dev';
-export type ToolId = 'MAGNETIC' | 'LUCKY_GIRL_SYNDROME' | 'MIDNIGHT_FICTION';
+export type Language = "ENG" | "JPN" | "KOR" | "RUS" | "PH";
+export type Theme = "dark" | "light";
+export type SectionId = "HERO" | "ABOUT" | "PORTFOLIO" | "CONTACT";
+export type AppMode = "public" | "dev";
+export type ToolId = "MAGNETIC" | "LUCKY_GIRL_SYNDROME" | "MIDNIGHT_FICTION";
 
 export interface Translation {
   hero: {
@@ -35,6 +34,9 @@ export interface Task {
 
 export interface ScheduleItem {
   id: string;
-  time: string;
-  activity: string;
+  time: string; // "09:00"
+  activity: string; // "Deep Work"
+  intention?: string; // "I create value effortlessly"
+  completed: boolean;
+  type?: "routine" | "work" | "wellness";
 }

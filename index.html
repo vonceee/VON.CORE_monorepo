@@ -25,7 +25,14 @@
       .snap-section {
         scroll-snap-align: start;
         scroll-snap-stop: always;
-        height: 100vh;
+        min-height: 100vh;
+        height: auto;
+      }
+      @media (min-width: 1024px) {
+        .snap-section {
+          height: 100vh;
+          overflow: hidden;
+        }
       }
       /* Hide scrollbar */
       .snap-container::-webkit-scrollbar {

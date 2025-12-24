@@ -19,9 +19,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, activeSection, onScro
   return (
     <div className={`${theme === 'dark' ? 'bg-black text-white' : 'bg-white text-black'} transition-colors duration-500`}>
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full z-50 flex flex-col md:flex-row items-center justify-between p-6 md:p-8 xl:p-10 mix-blend-difference">
-        <div className="flex items-center space-x-6 text-sm md:text-base xl:text-lg font-bold tracking-widest">
-          <div className="text-xl md:text-2xl xl:text-3xl mr-8">VON.CORE</div>
+      <nav className="fixed top-0 left-0 w-full z-50 flex flex-col md:flex-row items-center justify-between p-8 md:p-10 xl:p-12 mix-blend-difference">
+        <div className="flex items-center space-x-6 text-base md:text-lg xl:text-xl font-bold tracking-widest">
+          <div className="text-3xl md:text-4xl xl:text-5xl mr-8">VON.CORE</div>
           <div className="hidden md:flex space-x-4">
             {availableLanguages.map((l) => (
               <button 
@@ -35,7 +35,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, activeSection, onScro
           </div>
         </div>
 
-        <div className="flex items-center space-x-8 text-sm md:text-base xl:text-lg font-bold tracking-widest mt-4 md:mt-0">
+        <div className="flex items-center space-x-8 text-base md:text-lg xl:text-xl font-bold tracking-widest mt-4 md:mt-0">
           <div className="flex space-x-6">
             <button onClick={() => onScrollTo('ABOUT')} className="hover:text-orange-500 transition-colors">ABOUT</button>
             <button onClick={() => onScrollTo('PORTFOLIO')} className="hover:text-orange-500 transition-colors">PORTFOLIO</button>
@@ -48,10 +48,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, activeSection, onScro
       </nav>
 
       {/* Dynamic Subheader */}
-      <div className="fixed top-24 left-6 z-40 hidden md:block">
+      <div className="fixed top-28 left-8 md:top-28 md:left-10 xl:top-32 xl:left-12 z-40 hidden md:block">
         <AnimatedText 
           text={`// CURRENT: ${activeSection}`} 
-          className="text-[10px] tracking-[0.3em] font-mono text-orange-500"
+          className="text-lg md:text-xl xl:text-2xl tracking-[0.4em] font-mono text-orange-500"
           type="decode"
           once={false}
         />

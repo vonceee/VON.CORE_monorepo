@@ -15,13 +15,13 @@ const HeroSection: React.FC = () => {
       </div>
       <AnimatedText 
         text={t.hero.title} 
-        className="text-7xl md:text-9xl font-extrabold tracking-tighter"
+        className="text-8xl md:text-[10rem] lg:text-[13rem] font-extrabold tracking-tighter"
         type="directional"
         direction="bottom"
       />
       <AnimatedText 
         text={t.hero.subtitle} 
-        className="text-xs md:text-sm tracking-[0.5em] text-orange-500 mt-4 font-light"
+        className="text-lg md:text-2xl tracking-[0.5em] text-orange-500 mt-4 font-light"
         type="decode"
         delay={500}
       />

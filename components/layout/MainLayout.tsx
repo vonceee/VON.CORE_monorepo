@@ -19,9 +19,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, activeSection, onScro
   return (
     <div className={`${theme === 'dark' ? 'bg-black text-white' : 'bg-white text-black'} transition-colors duration-500`}>
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full z-50 flex flex-col md:flex-row items-center justify-between p-6 mix-blend-difference">
-        <div className="flex items-center space-x-6 text-xs font-bold tracking-widest">
-          <div className="text-xl mr-8">VON.CORE</div>
+      <nav className="fixed top-0 left-0 w-full z-50 flex flex-col md:flex-row items-center justify-between p-6 md:p-8 xl:p-10 mix-blend-difference">
+        <div className="flex items-center space-x-6 text-sm md:text-base xl:text-lg font-bold tracking-widest">
+          <div className="text-xl md:text-2xl xl:text-3xl mr-8">VON.CORE</div>
           <div className="hidden md:flex space-x-4">
             {availableLanguages.map((l) => (
               <button 
@@ -35,13 +35,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, activeSection, onScro
           </div>
         </div>
 
-        <div className="flex items-center space-x-8 text-xs font-bold tracking-widest mt-4 md:mt-0">
+        <div className="flex items-center space-x-8 text-sm md:text-base xl:text-lg font-bold tracking-widest mt-4 md:mt-0">
           <div className="flex space-x-6">
             <button onClick={() => onScrollTo('ABOUT')} className="hover:text-orange-500 transition-colors">ABOUT</button>
             <button onClick={() => onScrollTo('PORTFOLIO')} className="hover:text-orange-500 transition-colors">PORTFOLIO</button>
             <button onClick={() => onScrollTo('CONTACT')} className="hover:text-orange-500 transition-colors">CONTACT</button>
           </div>
-          <button onClick={toggleTheme} className="p-2 border border-current rounded-full w-10 h-10 flex items-center justify-center">
+          <button onClick={toggleTheme} className="p-2 border border-current rounded-full w-10 h-10 md:w-11 md:h-11 xl:w-12 xl:h-12 flex items-center justify-center">
             {theme === 'dark' ? '☀' : '☾'}
           </button>
         </div>

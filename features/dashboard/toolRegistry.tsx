@@ -2,6 +2,7 @@ import React from "react";
 import { Tool } from "../../types";
 import { Magnetic, MagneticSidebar } from "./tools/Magnetic";
 import { MidnightFiction } from "./tools/MidnightFiction";
+import NotCuteAnymore from "./tools/NotCuteAnymore/NotCuteAnymore";
 
 const Icons = {
   Magnetic: (
@@ -50,6 +51,21 @@ const Icons = {
       />
     </svg>
   ),
+  NotCuteAnymore: (
+    <svg
+      className="w-6 h-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+      />
+    </svg>
+  ),
 };
 
 export const TOOLS_CONFIG: Tool[] = [
@@ -65,5 +81,11 @@ export const TOOLS_CONFIG: Tool[] = [
     label: "Midnight Fiction",
     icon: Icons.MidnightFiction,
     component: MidnightFiction,
+  },
+  {
+    id: "NOT_CUTE_ANYMORE",
+    label: "Not Cute Anymore",
+    icon: Icons.NotCuteAnymore,
+    component: NotCuteAnymore,
   },
 ];

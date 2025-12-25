@@ -1,6 +1,7 @@
 import React from "react";
 import { EditorGroup as EditorGroupType } from "../types/dashboard";
 import { Tool } from "../../../types/index";
+import { Divide } from "lucide-react";
 
 interface EditorGroupProps {
   group: EditorGroupType;
@@ -148,11 +149,15 @@ export const EditorGroupComponent: React.FC<EditorGroupProps> = ({
       {/* Editor Content */}
       <div className="flex-1 bg-[#1e1e1e] relative overflow-hidden">
         {group.activeTabId ? (
-          <div className="absolute inset-0 overflow-y-auto p-8 animate-fadeIn">
+          <div className="absolute inset-0 overflow-y-auto p-2 animate-fadeIn">
             {/* Render Active Tool */}
             {(() => {
               const ActiveComponent = getTool(group.activeTabId)?.component;
-              return ActiveComponent ? <ActiveComponent /> : null;
+              return (
+                <div className="flex items-center justify-center h-full text-[#333333] border rounded-lg border-gray-100 p-1">
+                  {ActiveComponent ? <ActiveComponent /> : null}
+                </div>
+              );
             })()}
           </div>
         ) : (

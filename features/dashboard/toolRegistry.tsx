@@ -1,7 +1,6 @@
 import React from "react";
 import { Tool } from "../../types";
 import { Magnetic, MagneticSidebar } from "./tools/Magnetic";
-import { LuckyGirl, LuckyGirlSidebar } from "./tools/LuckyGirl";
 import { MidnightFiction } from "./tools/MidnightFiction";
 
 const Icons = {
@@ -11,6 +10,7 @@ const Icons = {
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      a
     >
       <path
         strokeLinecap="round"
@@ -59,13 +59,6 @@ export const TOOLS_CONFIG: Tool[] = [
     icon: Icons.Magnetic,
     component: Magnetic,
     sidebarComponent: MagneticSidebar,
-  },
-  {
-    id: "LUCKY_GIRL_SYNDROME",
-    label: "Lucky Girl Syndrome",
-    icon: Icons.LuckyGirl,
-    component: LuckyGirl,
-    sidebarComponent: LuckyGirlSidebar,
   },
   {
     id: "MIDNIGHT_FICTION",

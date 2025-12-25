@@ -4,54 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VON.CORE | Portfolio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap"
       rel="stylesheet"
     />
-    <style>
-      body {
-        font-family: "Poppins", sans-serif;
-        overflow: hidden;
-      }
-      .snap-container {
-        scroll-snap-type: y mandatory;
-        overflow-y: scroll;
-        height: 100vh;
-        scroll-behavior: smooth;
-      }
-      .snap-section {
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-        min-height: 100vh;
-        height: auto;
-      }
-      @media (min-width: 1024px) {
-        .snap-section {
-          height: 100vh;
-          overflow: hidden;
-        }
-      }
-      /* Hide scrollbar */
-      .snap-container::-webkit-scrollbar {
-        display: none;
-      }
-      .snap-container {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .orange-text {
-        color: #ff5f1f;
-      }
-      .orange-bg {
-        background-color: #ff5f1f;
-      }
-      .terminal-blur {
-        backdrop-filter: blur(10px);
-      }
-    </style>
   </head>
   <body>
     <div id="root"></div>

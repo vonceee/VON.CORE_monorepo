@@ -27,7 +27,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       } transition-colors duration-500`}
     >
       {/* Navbar */}
-      {/* Navbar */}
       <nav
         className={`fixed top-0 left-0 w-full z-50 flex flex-col md:flex-row items-center justify-between p-6 lg:p-8 2xl:p-12 transition-all duration-300 ${
           theme === "dark" ? "mix-blend-difference text-white" : "text-black"
@@ -97,7 +96,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       {/* Floating Button */}
       <button
         onClick={onOpenTerminal}
-        className="fixed bottom-10 right-10 z-50 w-14 h-14 bg-orange-500 text-black rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform group"
+        className="fixed bottom-10 right-10 z-50 w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform group"
       >
         <span className="font-mono text-xl group-hover:animate-pulse">
           &gt;_

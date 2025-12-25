@@ -24,7 +24,7 @@ const PortfolioSection: React.FC = () => {
         {t.portfolio.items.map((item, i) => (
           <div
             key={i}
-            className="group relative overflow-hidden aspect-[2/3] bg-neutral-900 border border-white/10 flex flex-col justify-end p-8 lg:p-10 2xl:p-14 cursor-pointer"
+            className="group relative overflow-hidden aspect-[2/3] bg-neutral-900 border border-white/10 flex flex-col justify-end p-4 lg:p-6 2xl:p-8 cursor-pointer"
           >
             {/* Background Image */}
             <img

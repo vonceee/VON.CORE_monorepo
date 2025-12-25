@@ -38,8 +38,8 @@ const Terminal: React.FC<TerminalProps> = ({
     if (!cleanInput && !isAuthenticating) return;
 
     if (isAuthenticating) {
-      // Prototype-level password check
-      if (cleanInput === "voncore123") {
+      // prototype-level password check
+      if (cleanInput === "yunah.dev") {
         setLines((prev) => [
           ...prev,
           "*******",
@@ -108,7 +108,7 @@ const Terminal: React.FC<TerminalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 terminal-blur bg-black/40">
-      <div className="w-full max-w-2xl h-[500px] bg-black border border-white/20 rounded shadow-2xl flex flex-col font-mono text-xl md:text-2xl overflow-hidden">
+      <div className="w-full max-w-2xl h-auto max-h-[500px] bg-black border border-white/20 rounded shadow-2xl flex flex-col font-mono text-xl md:text-2xl overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2 bg-neutral-900 border-b border-white/10 lowercase">
           <span className="text-white/60">
             terminal.sh {isDevMode ? "[dev]" : ""}
@@ -120,7 +120,7 @@ const Terminal: React.FC<TerminalProps> = ({
 
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-4 space-y-2 lowercase"
+          className="flex-1 overflow-y-auto p-4 space-y-2 lowercase scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 scrollbar-thumb-rounded-md"
         >
           {lines.map((line, i) => (
             <div

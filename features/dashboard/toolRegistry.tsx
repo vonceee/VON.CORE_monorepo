@@ -3,6 +3,7 @@ import { Tool } from "../../types";
 import { Magnetic, MagneticSidebar } from "./tools/Magnetic";
 import { MidnightFiction } from "./tools/MidnightFiction";
 import NotCuteAnymore from "./tools/NotCuteAnymore/NotCuteAnymore";
+import { NotCuteAnymoreSidebar } from "./tools/NotCuteAnymore/NotCuteAnymoreSidebar";
 
 const Icons = {
   Magnetic: (
@@ -87,5 +88,6 @@ export const TOOLS_CONFIG: Tool[] = [
     label: "Not Cute Anymore",
     icon: Icons.NotCuteAnymore,
     component: NotCuteAnymore,
+    sidebarComponent: NotCuteAnymoreSidebar,
   },
 ];

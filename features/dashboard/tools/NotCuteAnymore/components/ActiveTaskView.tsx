@@ -52,7 +52,7 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({ task }) => {
           <Zap className="w-16 h-16 text-[#5f6368]" />
         </div>
         <h2 className="text-2xl font-black text-[#e8eaed] uppercase tracking-tight">
-          Mission On Standby
+          N★t Cute On Standby
         </h2>
         <p className="text-[#9aa0a6] mt-3 max-w-xs text-sm font-medium leading-relaxed">
           System core waiting for next instruction block. No execution cycles

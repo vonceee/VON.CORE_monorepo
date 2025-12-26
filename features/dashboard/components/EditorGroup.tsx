@@ -1,7 +1,6 @@
 import React from "react";
 import { EditorGroup as EditorGroupType } from "../types/dashboard";
 import { Tool } from "../../../types/index";
-import { Divide } from "lucide-react";
 
 interface EditorGroupProps {
   group: EditorGroupType;

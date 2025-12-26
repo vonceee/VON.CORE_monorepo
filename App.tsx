@@ -72,12 +72,6 @@ const AppContent: React.FC = () => {
           onDevModeOff={handleDevModeOff}
           isDevMode={true}
         />
-        <button
-          onClick={() => setIsTerminalOpen(true)}
-          className="fixed bottom-10 right-10 z-[70] w-12 h-12 bg-orange-600 text-black rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform opacity-30 hover:opacity-100"
-        >
-          <span className="font-mono text-sm">&gt;_</span>
-        </button>
       </>
     );
   }

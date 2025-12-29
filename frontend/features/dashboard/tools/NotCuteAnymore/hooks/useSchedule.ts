@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Task, TaskStatus, DailyRoutines, DayOfWeek } from "../types";
+import { routineApi } from "../../../../../services/api/routine";
 
 export const DEFAULT_TASKS: Task[] = [
   {
@@ -56,10 +57,7 @@ export const DAYS: DayOfWeek[] = [
 
 export const useSchedule = () => {
   // --- State ---
-  const [routines, setRoutines] = useState<DailyRoutines>(() => {
-    const saved = localStorage.getItem("life_router_routines");
-    return saved ? JSON.parse(saved) : INITIAL_ROUTINES;
-  });
+  const [routines, setRoutines] = useState<DailyRoutines>(INITIAL_ROUTINES);
 
   const [currentDay, setCurrentDay] = useState<DayOfWeek>(() => {
     return new Date().toLocaleDateString("en-US", {
@@ -77,12 +75,29 @@ export const useSchedule = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Window Event Listener for Synchronization
+  // Fetch Routines on Mount
   useEffect(() => {
-    const handleScheduleUpdate = () => {
-      const saved = localStorage.getItem("life_router_routines");
-      if (saved) {
-        setRoutines(JSON.parse(saved));
+    const loadRoutines = async () => {
+      try {
+        const data = await routineApi.fetchRoutines();
+        setRoutines(data);
+      } catch (error) {
+        console.error("Failed to load routines:", error);
+        // Fallback or error handling could go here
+      }
+    };
+    loadRoutines();
+  }, []);
+
+  // Window Event Listener for Synchronization (Frontend-only sync, maybe deprecated if API is truth)
+  // Keeping it for now if we want optimistic UI updates across components
+  useEffect(() => {
+    const handleScheduleUpdate = async () => {
+      try {
+        const data = await routineApi.fetchRoutines();
+        setRoutines(data);
+      } catch (error) {
+        console.error("Failed to sync routines:", error);
       }
     };
 
@@ -102,20 +117,32 @@ export const useSchedule = () => {
   // --- Actions ---
 
   const saveDayRoutine = useCallback(
-    (newTasks: Task[]) => {
-      const updatedRoutines = { ...routines, [currentDay]: newTasks };
+    async (newTasks: Task[]) => {
+      // NCA-001: Isolation & Cloning
+      // Ensure we are only touching the `currentDay` and deep cloning tasks to prevent ref leakage
+      const tasksToSave = JSON.parse(JSON.stringify(newTasks));
 
-      // Update state
-      setRoutines(updatedRoutines);
+      try {
+        // Optimistic Update
+        setRoutines((prev) => ({
+          ...prev,
+          [currentDay]: tasksToSave,
+        }));
 
-      // Update storage
-      localStorage.setItem(
-        "life_router_routines",
-        JSON.stringify(updatedRoutines)
-      );
+        // Persist to Backend
+        await routineApi.saveRoutine(currentDay, tasksToSave);
 
-      // Notify other components
-      window.dispatchEvent(new Event("schedule-update"));
+        // Notify other components
+        window.dispatchEvent(new Event("schedule-update"));
+
+        // Re-fetch to normalize IDs if backend generated them (optional, but good practice)
+        // const refreshed = await routineApi.fetchRoutines();
+        // setRoutines(refreshed);
+      } catch (error) {
+        console.error("Failed to save routine:", error);
+        // Revert optimistic update?
+        // For MVP, we might just log error.
+      }
     },
     [routines, currentDay]
   );

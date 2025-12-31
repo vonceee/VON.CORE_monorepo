@@ -1,6 +1,6 @@
 import React from "react";
 import { Task } from "../types";
-import { Circle, Calendar, Clock, ChevronRight, Activity } from "lucide-react";
+import { Circle, ChevronRight, Activity } from "lucide-react";
 
 interface QuestLogProps {
   tasks: Task[];
@@ -26,13 +26,22 @@ export const QuestLog: React.FC<QuestLogProps> = ({ tasks, currentTime }) => {
 
   return (
     <div className="app-card h-full flex flex-col overflow-hidden border-[#3c4043]">
-      <div className="border-b border-[#3c4043] bg-[#0e1113]/50 flex justify-between items-center mb-2">
-        <h2 className="text-[#9aa0a6] text-[11px] uppercase font-bold tracking-widest flex items-center gap-2">
-          Objective Queue
-        </h2>
-        <span className="text-[10px] font-mono text-[#5f6368] tabular-nums">
-          {sortedTasks.length} UNITS
-        </span>
+      <div className="flex justify-between items-center mb-2">
+        <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap');
+        
+        body {
+          font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        h1 {
+          font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+      `}</style>
+
+        <h1 className="text-[#e8eaed] font-bold tracking-widest flex items-center gap-2">
+          ToDo Queue
+        </h1>
       </div>
 
       <div className="flex-1 overflow-y-auto terminal-scroll space-y-1">
@@ -46,18 +55,19 @@ export const QuestLog: React.FC<QuestLogProps> = ({ tasks, currentTime }) => {
               key={task.id}
               className={`p-2 rounded-lg transition-all border ${
                 isActive
-                  ? "border-[#8ab4f8]/50 bg-[#8ab4f8]/10 shadow-2xl scale-[1.02]"
+                  ? "border-[#8ab4f8]/50 bg-[#8ab4f8]/10 shadow-2xl "
                   : isCompleted
                   ? "border-[#3c4043]/30 bg-[#0e1113]/20 opacity-40"
                   : "border-[#3c4043] bg-[#0e1113]/40"
               }`}
             >
+              {/* Time and Status Row */}
               <div className="flex justify-between items-center">
                 <span
-                  className={`text-[10px] px-2 py-1 rounded-full uppercase ${
+                  className={`text-[10px] uppercase ${
                     isActive
-                      ? "bg-[#8ab4f8] text-[#202124]"
-                      : "bg-[#3c4043] text-[#e8eaed]"
+                      ? "rounded-full px-2 py-1 bg-[#8ab4f8] text-[#202124]"
+                      : "text-[#e8eaed]"
                   }`}
                 >
                   {task.startTime}
@@ -79,14 +89,16 @@ export const QuestLog: React.FC<QuestLogProps> = ({ tasks, currentTime }) => {
                   </span>
                 </div>
               </div>
+              {/* Task Title */}
               <h3
-                className={`font-black tracking-tight uppercase ${
-                  isActive ? "text-[#e8eaed] text-lg" : "text-[#9aa0a6]"
+                className={`font-medium leading-relaxed lowercase ${
+                  isActive
+                    ? "text-[#e8eaed] text-base sm:text-lg"
+                    : "text-[#bdc1c6] text-sm sm:text-base"
                 }`}
               >
                 {task.title}
               </h3>
-
               <div className="flex items-center gap-3 mt-4">
                 <div className="flex items-center gap-1.5 text-[10px]">
                   {task.durationMinutes}m

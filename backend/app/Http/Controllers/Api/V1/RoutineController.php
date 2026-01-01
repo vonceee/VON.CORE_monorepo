@@ -52,7 +52,7 @@ class RoutineController extends Controller
             foreach ($validated['tasks'] as $taskData) {
                 $routine->tasks()->create([
                     'title' => $taskData['title'],
-                    'description' => $taskData['description'] ?? null,
+                    'notes' => $taskData['notes'] ?? null,
                     'start_time' => $taskData['start_time'],
                     'duration_minutes' => $taskData['duration_minutes'],
                     'status' => $taskData['status'],

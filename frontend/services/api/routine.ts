@@ -28,7 +28,7 @@ export const routineApi = {
         (task: any) => ({
           id: task.id,
           title: task.title,
-          description: task.description,
+          notes: task.notes,
           startTime: task.start_time,
           durationMinutes: task.duration_minutes,
           status: task.status,
@@ -45,7 +45,7 @@ export const routineApi = {
     const payload = {
       tasks: tasks.map((task) => ({
         title: task.title,
-        description: task.description,
+        notes: task.notes,
         start_time: task.startTime,
         duration_minutes: task.durationMinutes,
         status: task.status,

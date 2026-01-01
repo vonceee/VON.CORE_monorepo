@@ -19,7 +19,7 @@ type DayOfWeek =
 interface Task {
   id: string;
   title: string;
-  description: string;
+  notes: string;
   startTime: string;
   durationMinutes: number;
   status: TaskStatus;
@@ -60,7 +60,7 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
     const newTask: Task = {
       id: Math.random().toString(36).substr(2, 9),
       title: "New Task",
-      description: "Task description...",
+      notes: "Task notes...",
       startTime: "09:00",
       durationMinutes: 60,
       status: TaskStatus.PENDING,
@@ -218,18 +218,18 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
                     </div>
                   </div>
 
-                  {/* Description */}
+                  {/* Notes */}
                   <div>
                     <label className="text-xs font-medium text-[#9aa0a6] mb-2 block">
-                      Description
+                      Notes
                     </label>
                     <textarea
-                      value={task.description}
+                      value={task.notes}
                       onChange={(e) =>
-                        updateTask(task.id, { description: e.target.value })
+                        updateTask(task.id, { notes: e.target.value })
                       }
                       className="w-full px-4 py-2.5 bg-[#202124] border border-[#3c4043] rounded-lg text-sm text-[#e8eaed] placeholder-[#5f6368] focus:outline-none focus:border-[#8ab4f8] focus:ring-1 focus:ring-[#8ab4f8] transition-colors resize-none"
-                      placeholder="Add task description..."
+                      placeholder="Add task notes..."
                       rows={3}
                     />
                   </div>

@@ -1,23 +1,29 @@
-
 export enum TaskStatus {
-  PENDING = 'PENDING',
-  ACTIVE = 'ACTIVE',
-  COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED',
-  SKIPPED = 'SKIPPED'
+  PENDING = "PENDING",
+  ACTIVE = "ACTIVE",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+  SKIPPED = "SKIPPED",
 }
 
-export type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
+export type DayOfWeek =
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday"
+  | "Saturday"
+  | "Sunday";
 
 export interface TaskDependency {
   taskId: string;
-  type: 'finish_to_start';
+  type: "finish_to_start";
 }
 
 export interface Task {
   id: string;
   title: string;
-  description: string;
+  notes: string;
   startTime: string; // HH:mm
   durationMinutes: number;
   status: TaskStatus;
@@ -29,7 +35,7 @@ export interface SystemLog {
   id: string;
   timestamp: string;
   message: string;
-  level: 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS';
+  level: "INFO" | "WARN" | "ERROR" | "SUCCESS";
 }
 
 export interface ScheduleMetrics {

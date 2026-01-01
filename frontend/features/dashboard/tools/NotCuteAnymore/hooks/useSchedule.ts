@@ -6,7 +6,7 @@ export const DEFAULT_TASKS: Task[] = [
   {
     id: "1",
     title: "Calibration",
-    description: "Systems check and focus initialization.",
+    notes: "Systems check and focus initialization.",
     startTime: "08:00",
     durationMinutes: 30,
     status: TaskStatus.PENDING,
@@ -16,7 +16,7 @@ export const DEFAULT_TASKS: Task[] = [
   {
     id: "2",
     title: "Deep Work A",
-    description: "High-leverage engineering or research.",
+    notes: "High-leverage engineering or research.",
     startTime: "08:30",
     durationMinutes: 120,
     status: TaskStatus.PENDING,
@@ -26,7 +26,7 @@ export const DEFAULT_TASKS: Task[] = [
   {
     id: "3",
     title: "Recovery",
-    description: "Biological replenishment.",
+    notes: "Biological replenishment.",
     startTime: "10:30",
     durationMinutes: 15,
     status: TaskStatus.PENDING,

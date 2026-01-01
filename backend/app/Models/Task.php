@@ -13,7 +13,7 @@ class Task extends Model
     protected $fillable = [
         'routine_id',
         'title',
-        'description',
+        'notes',
         'start_time',
         'duration_minutes',
         'status',

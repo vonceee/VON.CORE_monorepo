@@ -12,7 +12,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('routine_id')->constrained()->onDelete('cascade');
             $table->string('title');
-            $table->text('description')->nullable();
+            $table->text('notes')->nullable();
             $table->string('start_time'); // HH:mm
             $table->integer('duration_minutes');
             $table->string('status')->default('PENDING');

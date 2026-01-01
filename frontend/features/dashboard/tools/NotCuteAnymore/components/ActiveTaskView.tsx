@@ -97,67 +97,15 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({ task }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-16 flex-1 min-h-0">
-          <div className="col-span-1 lg:col-span-3 space-y-8 lg:space-y-10 overflow-y-auto pr-2">
-            <section>
-              <h3 className="text-[#9aa0a6] text-[10px] lg:text-[11px] uppercase font-bold mb-4 flex items-center gap-2 tracking-widest">
-                <Play className="w-4 h-4 text-[#8ab4f8]" /> Script Definition
-              </h3>
-              <p className="text-2xl lg:text-3xl text-[#e8eaed] leading-relaxed font-bold tracking-tight">
-                {task.description}
-              </p>
-            </section>
-
-            <section>
-              <h3 className="text-[#9aa0a6] text-[10px] lg:text-[11px] uppercase font-bold mb-6 flex items-center gap-2 tracking-widest">
-                <ListChecks className="w-4 h-4 text-[#8ab4f8]" /> Hard
-                Constraints
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {task.requirements.length > 0 ? (
-                  task.requirements.map((req, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 p-4 lg:p-5 bg-[#0e1113] border border-[#3c4043] rounded-xl text-sm font-bold text-[#e8eaed] shadow-inner"
-                    >
-                      <div className="w-2.5 h-2.5 bg-[#81c995] rounded-full shadow-[0_0_8px_rgba(129,201,149,0.3)]" />
-                      {req}
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-1 sm:col-span-2 text-[#5f6368] text-sm italic py-4 border border-dashed border-[#3c4043] rounded-xl flex items-center justify-center">
-                    No specific constraints defined for this module.
-                  </div>
-                )}
-              </div>
-            </section>
-          </div>
-
-          <div className="col-span-1 lg:col-span-2 flex flex-col justify-end space-y-6 pb-6 lg:pb-0">
-            <div className="p-6 lg:p-8 border border-[#3c4043] bg-[#1e1f20] rounded-2xl flex flex-col items-center justify-center space-y-4 shadow-xl">
-              <div className="text-[#5f6368] text-[10px] font-bold uppercase tracking-[0.4em]">
-                Cycle Integrity
-              </div>
-              <div className="w-full h-1.5 bg-[#3c4043] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#8ab4f8] transition-all duration-1000"
-                  style={{ width: `${percentDone}%` }}
-                />
-              </div>
-              <div className="text-[#e8eaed] text-xs font-mono uppercase tracking-widest">
-                Sector {task.id.substring(0, 4).toUpperCase()}
-              </div>
-            </div>
-
-            <div className="p-4 border border-[#3c4043]/50 rounded-xl text-center">
-              <div className="text-[#5f6368] text-[9px] font-bold uppercase tracking-[0.3em] mb-1">
-                Operation Reference
-              </div>
-              <div className="text-[#9aa0a6] text-xs font-mono">
-                UUID: {task.id.toUpperCase()}
-              </div>
-            </div>
-          </div>
+        <div className="flex-1 min-h-0 mt-8 lg:mt-12">
+          <section className="h-full overflow-y-auto pr-2 custom-scroll">
+            <h3 className="text-[#9aa0a6] text-[10px] lg:text-[11px] uppercase font-bold mb-4 flex items-center gap-2 tracking-widest">
+              <ListChecks className="w-4 h-4 text-[#8ab4f8]" /> Notes
+            </h3>
+            <p className="text-lg lg:text-xl text-[#e8eaed] leading-relaxed tracking-tight whitespace-pre-wrap">
+              {task.notes}
+            </p>
+          </section>
         </div>
       </div>
     </div>

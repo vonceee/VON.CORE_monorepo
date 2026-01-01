@@ -90,9 +90,9 @@ export const EditorGroupComponent: React.FC<EditorGroupProps> = ({
           );
         })}
 
-        {/* Split / Actions Area (Right aligned in header) */}
+        {/* split / actions area (right aligned in header) */}
         <div className="ml-auto flex items-center px-2 space-x-1 h-full bg-[#252526]">
-          {/* Only show split button on the first group or if we can split */}
+          {/* only show split button on the first group or if we can split */}
           {canSplit && (
             <button
               onClick={(e) => {
@@ -117,7 +117,7 @@ export const EditorGroupComponent: React.FC<EditorGroupProps> = ({
               </svg>
             </button>
           )}
-          {/* Allow closing a split pane if it's not the only one */}
+          {/* allow closing a split pane if it's not the only one */}
           {canClose && (
             <button
               onClick={(e) => {
@@ -153,7 +153,7 @@ export const EditorGroupComponent: React.FC<EditorGroupProps> = ({
             {(() => {
               const ActiveComponent = getTool(group.activeTabId)?.component;
               return (
-                <div className="flex items-center justify-center h-full text-[#333333] border rounded-lg border-gray-100 p-1">
+                <div className="flex items-center justify-center h-full text-[#333333] rounded-lg border border-white/20 p-1">
                   {ActiveComponent ? <ActiveComponent /> : null}
                 </div>
               );

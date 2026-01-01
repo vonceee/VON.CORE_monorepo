@@ -46,9 +46,9 @@ const NotCuteAnymore: React.FC = () => {
   };
 
   return (
-    <div className="h-full w-full flex flex-col bg-[#0e1113] relative overflow-hidden rounded-lg">
+    <div className="h-full w-full flex flex-col bg-black relative overflow-hidden rounded-lg">
       {/* Header */}
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between app-card px-2 lg:px-2 shadow-xl border-[#3c4043] gap-2 lg:gap-0">
+      <header className="flex flex-col lg:flex-row lg:items-center justify-between app-card px-2 lg:px-2 shadow-xl border-white/20 gap-2 lg:gap-0">
         <div className="flex items-center gap-2 lg:gap-2 justify-between lg:justify-start">
           <div className="flex items-center gap-3">
             <img
@@ -58,24 +58,24 @@ const NotCuteAnymore: React.FC = () => {
             />
           </div>
 
-          <div className="hidden lg:block h-8 w-[1px] bg-[#3c4043]" />
+          <div className="hidden lg:block h-8 w-[1px] bg-white/20" />
 
           <div className="relative group">
-            <button className="flex items-center gap-2 bg-[#1e1f20] border border-[#3c4043] px-3 py-1.5 lg:px-4 rounded-lg hover:bg-[#3c4043] transition-colors">
-              <Calendar className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-[#8ab4f8]" />
-              <span className="text-xs lg:text-sm font-bold uppercase tracking-wide text-[#e8eaed]">
+            <button className="flex items-center gap-2 bg-[#121212] border border-white/20 px-3 py-1.5 lg:px-4 rounded-lg hover:border-[#E1306C] transition-colors group">
+              <Calendar className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-[#e8eaed] group-hover:text-[#E1306C] transition-colors" />
+              <span className="text-xs lg:text-sm font-bold uppercase tracking-wide text-[#e8eaed] group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#f09433] group-hover:to-[#bc1888]">
                 {currentDay}
               </span>
               <ChevronDown className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-[#9aa0a6]" />
             </button>
-            <div className="absolute top-full left-0 mt-2 w-48 bg-[#1e1f20] border border-[#3c4043] rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
+            <div className="absolute top-full left-0 mt-2 w-48 bg-[#121212] border border-white/20 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
               {DAYS.map((day) => (
                 <button
                   key={day}
                   onClick={() => setCurrentDay(day)}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-[#3c4043] transition-colors ${
+                  className={`w-full text-left px-4 py-3 text-sm hover:bg-[#262626] transition-colors ${
                     currentDay === day
-                      ? "text-[#8ab4f8] font-bold bg-[#8ab4f8]/5"
+                      ? "text-[#E1306C] font-bold bg-[#E1306C]/10"
                       : "text-[#9aa0a6]"
                   }`}
                 >
@@ -86,17 +86,11 @@ const NotCuteAnymore: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-[#8ab4f8]">
-            {currentTime.toLocaleTimeString([], { hour12: false })}
-          </span>
-        </div>
-
         <div className="flex justify-between lg:justify-end gap-6 lg:gap-12">
-          <div className="flex items-center gap-4 border-l border-[#3c4043] pl-6 lg:pl-8">
+          <div className="flex items-center gap-4 pl-6 lg:pl-8">
             <button
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 px-3 py-1.5 lg:px-4 lg:py-2 bg-[#3c4043] hover:bg-[#5f6368] rounded-lg text-xs font-bold uppercase tracking-wider text-[#e8eaed] transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 lg:px-4 lg:py-2 hover:opacity-90 rounded-lg text-xs font-bold uppercase tracking-wider text-white transition-opacity shadow-lg"
             >
               <Edit3 className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
             </button>

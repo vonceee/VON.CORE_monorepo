@@ -120,7 +120,7 @@ const Terminal: React.FC<TerminalProps> = ({
 
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-4 space-y-2 lowercase scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900 scrollbar-thumb-rounded-md"
+          className="flex-1 overflow-y-auto p-4 space-y-2 lowercase custom-scroll"
         >
           {lines.map((line, i) => (
             <div

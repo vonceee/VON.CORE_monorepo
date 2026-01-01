@@ -117,25 +117,6 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
         input, textarea {
           font-family: 'Roboto', sans-serif;
         }
-
-        /* Custom scrollbar */
-        .custom-scroll::-webkit-scrollbar {
-          width: 12px;
-        }
-        
-        .custom-scroll::-webkit-scrollbar-track {
-          background: #292a2d;
-        }
-        
-        .custom-scroll::-webkit-scrollbar-thumb {
-          background: #3c4043;
-          border-radius: 6px;
-          border: 2px solid #292a2d;
-        }
-        
-        .custom-scroll::-webkit-scrollbar-thumb:hover {
-          background: #5f6368;
-        }
       `}</style>
 
       <div className="bg-[#202124] w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl rounded-2xl border border-[#3c4043]">
@@ -166,7 +147,7 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
         </div>
 
         {/* Content - 24dp padding */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll bg-[#17181a]">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll">
           {!isCopyMode ? (
             <>
               {localTasks.map((task, index) => (

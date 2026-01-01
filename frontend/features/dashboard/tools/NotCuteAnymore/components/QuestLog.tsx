@@ -44,7 +44,7 @@ export const QuestLog: React.FC<QuestLogProps> = ({ tasks, currentTime }) => {
         </h1>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto custom-scroll">
         {sortedTasks.map((task) => {
           const status = getTaskStatus(task);
           const isActive = status === "ACTIVE";

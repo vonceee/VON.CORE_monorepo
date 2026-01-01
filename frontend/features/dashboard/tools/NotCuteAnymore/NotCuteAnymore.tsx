@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Task } from "./types";
+import { Task, DayOfWeek } from "./types";
 import { ActiveTaskView } from "./components/ActiveTaskView";
 import { RoutineEditor } from "./components/RoutineEditor";
 import { useSchedule } from "./hooks/useSchedule";
@@ -12,6 +12,7 @@ const NotCuteAnymore: React.FC = () => {
     currentTime,
     currentDayTasks,
     saveDayRoutine,
+    copyRoutineToDays,
     DAYS,
   } = useSchedule();
 
@@ -34,6 +35,13 @@ const NotCuteAnymore: React.FC = () => {
 
   const handleSaveRoutine = (newTasks: Task[]) => {
     saveDayRoutine(newTasks);
+    setIsEditing(false);
+  };
+
+  const handleCopyRoutine = (tasks: Task[], targetDays: DayOfWeek[]) => {
+    copyRoutineToDays(tasks, targetDays);
+    // Editor closes itself via its own logic or we can ensure it here if needed,
+    // but RoutineEditor calls onClose() internally after copy confirm.
     setIsEditing(false);
   };
 
@@ -108,6 +116,7 @@ const NotCuteAnymore: React.FC = () => {
           day={currentDay}
           tasks={currentDayTasks}
           onSave={handleSaveRoutine}
+          onCopy={handleCopyRoutine}
           onClose={() => setIsEditing(false)}
         />
       )}

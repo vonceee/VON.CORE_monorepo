@@ -7,7 +7,7 @@ export const NotCuteAnymoreSidebar: React.FC = () => {
 
   return (
     <div className="h-full w-full flex flex-col bg-[#0e1113]">
-      <div className="p-2 flex-1 min-h-0 overflow-y-auto">
+      <div className="p-2 flex-1 min-h-0">
         <QuestLog tasks={currentDayTasks} currentTime={currentTime} />
       </div>
     </div>

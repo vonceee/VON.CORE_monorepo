@@ -147,12 +147,44 @@ export const useSchedule = () => {
     [routines, currentDay]
   );
 
+  const copyRoutineToDays = useCallback(
+    async (sourceTasks: Task[], targetDays: DayOfWeek[]) => {
+      // NCA-002: Batch Copy
+      const tasksToSave = JSON.parse(JSON.stringify(sourceTasks));
+
+      try {
+        // Optimistic Update for all targets
+        setRoutines((prev) => {
+          const newRoutines = { ...prev };
+          targetDays.forEach((day) => {
+            newRoutines[day] = JSON.parse(JSON.stringify(tasksToSave));
+          });
+          return newRoutines;
+        });
+
+        // Backend persistence (parallel requests)
+        // Note: For large batches/users, a batch API endpoint would be better,
+        // but for <10 items x 7 days, parallel requests are acceptable for MVP.
+        await Promise.all(
+          targetDays.map((day) => routineApi.saveRoutine(day, tasksToSave))
+        );
+
+        window.dispatchEvent(new Event("schedule-update"));
+      } catch (error) {
+        console.error("Failed to copy routine:", error);
+        // In a real app, we'd revert or show a toast
+      }
+    },
+    []
+  );
+
   return {
     routines,
     currentDay,
     setCurrentDay,
     currentTime,
     saveDayRoutine,
+    copyRoutineToDays,
     currentDayTasks,
     DEFAULT_TASKS,
     INITIAL_ROUTINES,

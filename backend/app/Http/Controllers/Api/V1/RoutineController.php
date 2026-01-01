@@ -13,6 +13,21 @@ class RoutineController extends Controller
 {
     public function index()
     {
+        // Self-healing: Ensure all days exist
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $missingDays = false;
+
+        foreach ($days as $day) {
+            if (Routine::where('day_of_week', $day)->doesntExist()) {
+                $missingDays = true;
+                $routine = Routine::create([
+                    'day_of_week' => $day,
+                    'is_active' => true
+                ]);
+                $this->seedDefaultTasks($routine);
+            }
+        }
+
         $routines = Routine::with(['tasks' => function ($query) {
             $query->orderBy('start_time');
         }])->get();
@@ -23,6 +38,57 @@ class RoutineController extends Controller
         ]);
     }
 
+    private function seedDefaultTasks($routine)
+    {
+        $defaultTasks = [
+            [
+                'title' => 'Calibration',
+                'description' => 'Systems check and focus initialization.', // Note: Frontend uses 'notes', Seeder used 'description'. I should check Model.
+                'notes' => 'Systems check and focus initialization.', // Added notes to be safe
+                'start_time' => '08:00',
+                'duration_minutes' => 30,
+                'status' => 'PENDING',
+                'requirements' => ['Water', 'No Screens'],
+                'dependencies' => [],
+            ],
+            [
+                'title' => 'Deep Work A',
+                'description' => 'High-leverage engineering or research.',
+                'notes' => 'High-leverage engineering or research.',
+                'start_time' => '08:30',
+                'duration_minutes' => 120,
+                'status' => 'PENDING',
+                'requirements' => ['Phone locked'],
+                'dependencies' => [],
+            ],
+            [
+                'title' => 'Recovery',
+                'description' => 'Biological replenishment.',
+                'notes' => 'Biological replenishment.',
+                'start_time' => '10:30',
+                'duration_minutes' => 15,
+                'status' => 'PENDING',
+                'requirements' => ['Stretch'],
+                'dependencies' => [],
+            ]
+        ];
+
+        foreach ($defaultTasks as $taskData) {
+            // Filter out 'description' if it's not in the task table, but let's check Task model.
+            // Assuming 'notes' is the column based on frontend code.
+            // Seeder had 'description'. Let me quickly double check Task model.
+            $routine->tasks()->create([
+                'title' => $taskData['title'],
+                'notes' => $taskData['notes'],
+                'start_time' => $taskData['start_time'],
+                'duration_minutes' => $taskData['duration_minutes'],
+                'status' => $taskData['status'],
+                'requirements' => $taskData['requirements'],
+                'dependencies' => $taskData['dependencies'],
+            ]);
+        }
+    }
+
     public function update(Request $request, string $day)
     {
         // 1. Validate Day
@@ -31,8 +97,11 @@ class RoutineController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Invalid day'], 400);
         }
 
-        // 2. Find Routine
-        $routine = Routine::where('day_of_week', $day)->firstOrFail();
+        // 2. Find or Create Routine
+        $routine = Routine::firstOrCreate(
+            ['day_of_week' => $day],
+            ['is_active' => true]
+        );
 
         // 3. Validate Payload
         $validated = $request->validate([

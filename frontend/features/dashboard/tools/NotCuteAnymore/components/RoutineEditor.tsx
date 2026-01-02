@@ -33,6 +33,7 @@ interface RoutineEditorProps {
   onSave: (tasks: Task[]) => void;
   onCopy?: (tasks: Task[], targetDays: DayOfWeek[]) => void;
   onClose: () => void;
+  isEmbedded?: boolean;
 }
 
 export const RoutineEditor: React.FC<RoutineEditorProps> = ({
@@ -41,10 +42,15 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
   onSave,
   onCopy,
   onClose,
+  isEmbedded = false,
 }) => {
   const [localTasks, setLocalTasks] = React.useState<Task[]>([...tasks]);
   const [isCopyMode, setIsCopyMode] = React.useState(false);
   const [selectedDays, setSelectedDays] = React.useState<DayOfWeek[]>([]);
+
+  React.useEffect(() => {
+    setLocalTasks([...tasks]);
+  }, [tasks]);
 
   const ALL_DAYS: DayOfWeek[] = [
     "Monday",
@@ -60,7 +66,7 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
     const newTask: Task = {
       id: Math.random().toString(36).substr(2, 9),
       title: "New Task",
-      notes: "Task notes...",
+      notes: "",
       startTime: "09:00",
       durationMinutes: 60,
       status: TaskStatus.PENDING,
@@ -82,14 +88,14 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
 
   const handleSave = () => {
     onSave(localTasks);
-    onClose();
+    if (!isEmbedded) onClose();
   };
 
   const handleCopyConfirm = () => {
     if (onCopy && selectedDays.length > 0) {
       onCopy(localTasks, selectedDays);
       setIsCopyMode(false);
-      onClose();
+      if (!isEmbedded) onClose();
     }
   };
 
@@ -101,33 +107,45 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
     }
   };
 
+  const Container = isEmbedded ? "div" : "div";
+  const containerClasses = isEmbedded
+    ? "h-full w-full flex flex-col bg-[#09090b] rounded-xl border border-white/5"
+    : "fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4";
+
+  const innerClasses = isEmbedded
+    ? "flex flex-col h-full overflow-hidden"
+    : "bg-[#09090b] w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl shadow-black/50 rounded-xl border border-white/10";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-black w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl rounded-2xl border border-white/20">
+    <Container className={containerClasses}>
+      <div className={innerClasses}>
         {/* Header */}
-        <div className="px-6 py-5 border-b border-white/20 flex justify-between items-center bg-[#121212] flex-shrink-0">
+        <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center flex-shrink-0">
           <div>
-            <h2 className="text-xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#f09433] to-[#bc1888] mb-1">
+            <h2 className="text-lg font-medium text-[#e8eaed] mb-0.5">
               {isCopyMode ? "Copy Routine" : "Edit Routine"}
             </h2>
-            <p className="text-sm text-[#9aa0a6]">
+            <p className="text-xs text-[#9aa0a6]">
               {isCopyMode ? (
-                "Select days to copy the current schedule to."
+                "Select days to copy to"
               ) : (
                 <>
-                  Schedule for{" "}
-                  <span className="text-[#E1306C] font-medium">{day}</span>
+                  <span className="text-[#E1306C] font-medium uppercase tracking-wider">
+                    {day}
+                  </span>
                 </>
               )}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-[#262626] rounded-full transition-colors duration-200"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5 text-[#9aa0a6]" />
-          </button>
+          {!isEmbedded && (
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors duration-200"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4 text-[#9aa0a6]" />
+            </button>
+          )}
         </div>
 
         {/* Content */}
@@ -137,56 +155,53 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
               {localTasks.map((task, index) => (
                 <div
                   key={task.id}
-                  className="p-5 bg-black border border-white/20 rounded-xl space-y-4 hover:border-[#E1306C]/50 transition-all duration-200"
+                  className="p-4 group border-b border-white/5 last:border-0 hover:bg-white/5 transition-all duration-200"
                 >
                   {/* Task Header Row */}
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#262626] flex items-center justify-center text-xs font-medium text-[#9aa0a6]">
+                      <div className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-[10px] font-medium text-[#9aa0a6]">
                         {index + 1}
                       </div>
                       <div className="flex-1">
-                        <label className="text-xs font-medium text-[#9aa0a6] mb-2 block">
-                          Task Title
-                        </label>
                         <input
                           value={task.title}
                           onChange={(e) =>
                             updateTask(task.id, { title: e.target.value })
                           }
-                          className="w-full px-4 py-2.5 bg-[#121212] border border-white/20 rounded-lg text-sm text-[#e8eaed] placeholder-[#5f6368] focus:outline-none focus:border-[#E1306C] focus:ring-1 focus:ring-[#E1306C] transition-colors"
-                          placeholder="Enter task title"
+                          className="w-full bg-transparent border-none text-[#e8eaed] placeholder-[#5f6368] focus:ring-0 text-base font-medium p-0"
+                          placeholder="What needs to be done?"
                         />
                       </div>
                     </div>
                     <button
                       onClick={() => removeTask(task.id)}
-                      className="p-2 text-[#ea4335] hover:bg-[#ea4335]/10 rounded-lg transition-colors duration-200 mt-6"
+                      className="p-1 text-[#5f6368] hover:text-[#ea4335] transition-colors duration-200 opacity-0 group-hover:opacity-100"
                       aria-label="Delete task"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
 
                   {/* Time and Duration Row */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="pl-9 grid grid-cols-2 gap-8">
                     <div>
-                      <label className="text-xs font-medium text-[#9aa0a6] mb-2 block">
-                        Start Time
-                      </label>
+                      <div className="text-[10px] uppercase tracking-wider text-[#5f6368] mb-1 font-medium">
+                        Start
+                      </div>
                       <input
                         type="time"
                         value={task.startTime}
                         onChange={(e) =>
                           updateTask(task.id, { startTime: e.target.value })
                         }
-                        className="w-full px-4 py-2.5 bg-[#121212] border border-white/20 rounded-lg text-sm text-[#e8eaed] focus:outline-none focus:border-[#E1306C] focus:ring-1 focus:ring-[#E1306C] transition-colors"
+                        className="w-full bg-transparent border-b border-white/10 focus:border-[#E1306C] text-sm text-[#9aa0a6] focus:text-[#e8eaed] py-1 transition-colors outline-none [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50 hover:[&::-webkit-calendar-picker-indicator]:opacity-100"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-[#9aa0a6] mb-2 block">
-                        Duration (minutes)
-                      </label>
+                      <div className="text-[10px] uppercase tracking-wider text-[#5f6368] mb-1 font-medium">
+                        Duration (min)
+                      </div>
                       <input
                         type="number"
                         value={task.durationMinutes}
@@ -195,7 +210,7 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
                             durationMinutes: parseInt(e.target.value) || 0,
                           })
                         }
-                        className="w-full px-4 py-2.5 bg-[#121212] border border-white/20 rounded-lg text-sm text-[#e8eaed] placeholder-[#5f6368] focus:outline-none focus:border-[#E1306C] focus:ring-1 focus:ring-[#E1306C] transition-colors"
+                        className="w-full bg-transparent border-b border-white/10 focus:border-[#E1306C] text-sm text-[#9aa0a6] focus:text-[#e8eaed] py-1 transition-colors outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         placeholder="60"
                         min="0"
                       />
@@ -203,18 +218,21 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
                   </div>
 
                   {/* Notes */}
-                  <div>
-                    <label className="text-xs font-medium text-[#9aa0a6] mb-2 block">
-                      Notes
-                    </label>
+                  {/* Notes */}
+                  <div className="pl-9 mt-2">
                     <textarea
                       value={task.notes}
                       onChange={(e) =>
                         updateTask(task.id, { notes: e.target.value })
                       }
-                      className="w-full px-4 py-2.5 bg-[#121212] border border-white/20 rounded-lg text-sm text-[#e8eaed] placeholder-[#5f6368] focus:outline-none focus:border-[#E1306C] focus:ring-1 focus:ring-[#E1306C] transition-colors resize-none"
-                      placeholder="add task notes..."
-                      rows={3}
+                      className="w-full bg-transparent text-sm text-[#9aa0a6] placeholder-[#5f6368]/50 focus:text-[#e8eaed] focus:placeholder-[#5f6368] outline-none resize-none transition-colors"
+                      placeholder="add notes..."
+                      rows={1}
+                      onInput={(e) => {
+                        const target = e.target as HTMLTextAreaElement;
+                        target.style.height = "auto";
+                        target.style.height = target.scrollHeight + "px";
+                      }}
                     />
                   </div>
                 </div>
@@ -222,9 +240,9 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
 
               <button
                 onClick={addTask}
-                className="w-full py-4 border-2 border-dashed border-white/20 rounded-xl text-[#9aa0a6] hover:text-[#E1306C] hover:border-[#E1306C] hover:bg-[#E1306C]/5 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
+                className="w-full py-3 text-[#5f6368] hover:text-[#9aa0a6] hover:bg-white/5 transition-all duration-200 flex items-center justify-center gap-2 text-xs font-medium uppercase tracking-wider rounded-lg mt-2"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4" />
                 Add Task
               </button>
             </>
@@ -267,20 +285,30 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-white/20 flex justify-end gap-3 bg-[#121212] flex-shrink-0">
-          <button
-            onClick={isCopyMode ? () => setIsCopyMode(false) : onClose}
-            className="px-6 py-2.5 text-sm font-medium text-[#E1306C] hover:bg-[#E1306C]/10 rounded-lg transition-all duration-200"
-          >
-            {isCopyMode ? "Back" : "Cancel"}
-          </button>
+        <div className="px-6 py-4 border-t border-white/10 flex justify-end gap-3 flex-shrink-0">
+          {!isEmbedded && (
+            <button
+              onClick={isCopyMode ? () => setIsCopyMode(false) : onClose}
+              className="px-4 py-2 text-xs font-medium text-[#9aa0a6] hover:text-[#e8eaed] rounded-lg transition-all duration-200"
+            >
+              {isCopyMode ? "Back" : "Cancel"}
+            </button>
+          )}
+          {isEmbedded && isCopyMode && (
+            <button
+              onClick={() => setIsCopyMode(false)}
+              className="px-4 py-2 text-xs font-medium text-[#9aa0a6] hover:text-[#e8eaed] rounded-lg transition-all duration-200"
+            >
+              Back
+            </button>
+          )}
 
           {onCopy && !isCopyMode && (
             <button
               onClick={() => setIsCopyMode(true)}
-              className="px-6 py-2.5 bg-[#262626] hover:bg-[#333] text-[#e8eaed] font-medium rounded-lg shadow-md flex items-center gap-2 transition-all duration-200 active:scale-98"
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 text-[#e8eaed] text-xs font-medium rounded-lg flex items-center gap-2 transition-all duration-200"
             >
-              <Copy className="w-4 h-4" />
+              <Copy className="w-3.5 h-3.5" />
               Copy to...
             </button>
           )}
@@ -289,26 +317,26 @@ export const RoutineEditor: React.FC<RoutineEditorProps> = ({
             <button
               onClick={handleCopyConfirm}
               disabled={selectedDays.length === 0}
-              className={`px-6 py-2.5 font-medium rounded-lg shadow-md flex items-center gap-2 transition-all duration-200 active:scale-98 ${
+              className={`px-4 py-2 text-xs font-medium rounded-lg flex items-center gap-2 transition-all duration-200 ${
                 selectedDays.length === 0
-                  ? "bg-[#262626] text-[#9aa0a6] cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#f09433] via-[#dc2743] to-[#bc1888] hover:opacity-90 text-white"
+                  ? "bg-white/5 text-[#5f6368] cursor-not-allowed"
+                  : "bg-[#E1306C] hover:bg-[#C13584] text-white"
               }`}
             >
-              <Copy className="w-4 h-4" />
-              Confirm Copy ({selectedDays.length})
+              <Copy className="w-3.5 h-3.5" />
+              Confirm Copy
             </button>
           ) : (
             <button
               onClick={handleSave}
-              className="px-6 py-2.5 bg-gradient-to-r from-[#f09433] via-[#dc2743] to-[#bc1888] hover:opacity-90 text-white font-medium rounded-lg shadow-md flex items-center gap-2 transition-all duration-200 active:scale-98"
+              className="px-4 py-2 bg-[#E1306C] hover:bg-[#C13584] text-white text-xs font-medium rounded-lg flex items-center gap-2 transition-all duration-200 shadow-lg shadow-[#E1306C]/20"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-3.5 h-3.5" />
               Save Routine
             </button>
           )}
         </div>
       </div>
-    </div>
+    </Container>
   );
 };

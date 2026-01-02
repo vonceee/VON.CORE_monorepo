@@ -1,9 +1,25 @@
+@import url("https://fonts.cdnfonts.com/css/google-sans");
 @import "tailwindcss";
 
 @layer base {
   body {
-    font-family: "Poppins", sans-serif;
-    overflow: hidden;
+    font-family: "Google Sans", "Product Sans", sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  label {
+    font-family: "Google Sans", "Product Sans", sans-serif;
+  }
+
+  input,
+  textarea {
+    font-family: "Google Sans", "Product Sans", sans-serif;
+  }
+
+  button {
+    font-family: "Google Sans", "Product Sans", sans-serif;
   }
 }
 

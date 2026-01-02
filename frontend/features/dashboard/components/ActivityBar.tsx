@@ -17,22 +17,18 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
   onExit,
 }) => {
   return (
-    <div className="w-12 bg-[#333333] flex flex-col items-center py-4 space-y-4 z-20">
+    <div className="w-12 bg-[#09090b] flex flex-col items-center py-4 space-y-4 z-20">
       {tools.map((tool) => (
         <button
           key={tool.id}
           title={tool.label}
           onClick={() => onToolClick(tool.id)}
-          className={`p-2 transition-colors relative ${
+          className={`p-2 transition-all relative rounded-md bg-transparent ${
             activeToolId === tool.id && isSidebarOpen
-              ? "text-white"
-              : "text-[#858585] hover:text-white"
+              ? "text-white bg-white/10"
+              : "text-white/25 hover:text-white hover:bg-white/5"
           }`}
         >
-          {/* Active Border Indicator */}
-          {activeToolId === tool.id && isSidebarOpen && (
-            <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-orange-500" />
-          )}
           {tool.icon}
         </button>
       ))}

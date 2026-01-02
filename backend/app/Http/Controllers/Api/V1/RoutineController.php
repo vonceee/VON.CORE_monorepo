@@ -109,7 +109,10 @@ class RoutineController extends Controller
             'tasks.*.title' => 'required|string',
             'tasks.*.start_time' => ['required', 'regex:/^[0-9]{2}:[0-9]{2}$/'],
             'tasks.*.duration_minutes' => 'required|integer|min:1',
-            'tasks.*.status' => 'required|string', // Pending, etc.
+            'tasks.*.status' => 'required|string',
+            'tasks.*.notes' => 'nullable|string',
+            'tasks.*.requirements' => 'nullable|array',
+            'tasks.*.dependencies' => 'nullable|array',
         ]);
 
         // 4. Sync Strategy: Delete All & Recreate

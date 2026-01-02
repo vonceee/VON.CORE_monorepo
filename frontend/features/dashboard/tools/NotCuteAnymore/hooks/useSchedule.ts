@@ -133,7 +133,7 @@ export const useSchedule = () => {
         await routineApi.saveRoutine(currentDay, tasksToSave);
 
         // Notify other components
-        window.dispatchEvent(new Event("schedule-update"));
+        // window.dispatchEvent(new Event("schedule-update"));
 
         // Re-fetch to normalize IDs if backend generated them (optional, but good practice)
         // const refreshed = await routineApi.fetchRoutines();

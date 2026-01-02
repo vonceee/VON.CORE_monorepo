@@ -212,7 +212,7 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
               <div className="h-full overflow-y-auto custom-scroll">
                 <div className="prose prose-invert max-w-none">
                   <p className="text-lg text-[#9aa0a6] leading-relaxed whitespace-pre-wrap font-light">
-                    {notesDraft || (
+                    {task.notes || notesDraft || (
                       <span className="italic opacity-50">
                         no notes for this task.
                       </span>

@@ -25,3 +25,11 @@ Route::prefix('v1/not-cute-anymore')->group(function () {
     Route::get('/logs', [SystemLogController::class, 'index']);
     Route::post('/logs', [SystemLogController::class, 'store']);
 });
+
+use App\Http\Controllers\Api\V1\TrackerController;
+
+Route::prefix('v1/not-me')->group(function () {
+    Route::get('/trackers', [TrackerController::class, 'index']);
+    Route::get('/history', [TrackerController::class, 'history']);
+    Route::post('/log', [TrackerController::class, 'storeLog']);
+});

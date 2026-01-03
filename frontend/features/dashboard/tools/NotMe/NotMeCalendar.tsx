@@ -9,23 +9,21 @@ import {
   Activity,
   Zap,
 } from "lucide-react";
-import { useNotMe, TrackerConfig } from "./hooks/useNotMe";
+import { TrackerConfig, HistoryState } from "./types";
 
-// Icon Map (Shared - ideally move to a utils file, but duplicating for speed now)
-const ICON_MAP: Record<string, React.ElementType> = {
-  Droplets,
-  Gamepad2,
-  Swords,
-  Trophy: Target, // Fallback
-  Activity,
-  Zap,
-  Target,
-};
+interface NotMeCalendarProps {
+  activeDate: string;
+  setActiveDate: (date: string) => void;
+  history: HistoryState;
+  listItems: TrackerConfig[];
+}
 
-export const NotMeCalendar: React.FC = () => {
-  const { activeDate, setActiveDate, history, listItems, getHistoryValue } =
-    useNotMe();
-
+export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
+  activeDate,
+  setActiveDate,
+  history,
+  listItems,
+}) => {
   const [selectedHabitId, setSelectedHabitId] = useState<string>(
     listItems[0]?.id || ""
   );

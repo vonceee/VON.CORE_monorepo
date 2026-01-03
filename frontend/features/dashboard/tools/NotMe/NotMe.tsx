@@ -29,7 +29,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 const NotMe: React.FC = () => {
   const [activeDate, setActiveDate] = React.useState(new Date().toDateString());
-  const { listItems, updateValue, getValue } = useNotMe(activeDate);
+  const { listItems, updateValue, getValue, history } = useNotMe(activeDate);
   const [showCalendar, setShowCalendar] = React.useState(false);
 
   const isToday = activeDate === new Date().toDateString();
@@ -220,6 +220,8 @@ const NotMe: React.FC = () => {
           <NotMeCalendar
             activeDate={activeDate}
             setActiveDate={setActiveDate}
+            history={history}
+            listItems={listItems}
           />
         </div>
       )}

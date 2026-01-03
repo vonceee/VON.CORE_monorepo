@@ -4,7 +4,11 @@ export type Language = "ENG" | "JPN" | "KOR" | "RUS" | "PH";
 export type Theme = "dark" | "light";
 export type SectionId = "HERO" | "ABOUT" | "PORTFOLIO" | "CONTACT";
 export type AppMode = "public" | "dev";
-export type ToolId = "MAGNETIC" | "LUCKY_GIRL_SYNDROME" | "MIDNIGHT_FICTION";
+export type ToolId =
+  | "MAGNETIC"
+  | "LUCKY_GIRL_SYNDROME"
+  | "MIDNIGHT_FICTION"
+  | "NOT_ME";
 
 export interface Translation {
   hero: {

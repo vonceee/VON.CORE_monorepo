@@ -2,7 +2,9 @@ import React from "react";
 import { Tool } from "../../types/index";
 import NotCuteAnymore from "./tools/NotCuteAnymore/NotCuteAnymore";
 import { NotCuteAnymoreSidebar } from "./tools/NotCuteAnymore/NotCuteAnymoreSidebar";
-import { Annoyed } from "lucide-react";
+import { EyeClosed, ShieldOff } from "lucide-react";
+import NotMe from "./tools/NotMe/NotMe";
+import { NotMeSidebar } from "./tools/NotMe/NotMeSidebar";
 
 const Icons = {
   Terminal: (
@@ -20,7 +22,8 @@ const Icons = {
       />
     </svg>
   ),
-  NotCuteAnymore: <Annoyed className="w-6 h-6" strokeWidth={1.5} />,
+  NotCuteAnymore: <EyeClosed className="w-6 h-6" strokeWidth={1.5} />,
+  NotMe: <ShieldOff className="w-6 h-6" strokeWidth={1.5} />,
 };
 
 export const TOOLS_CONFIG: Tool[] = [
@@ -30,5 +33,12 @@ export const TOOLS_CONFIG: Tool[] = [
     icon: Icons.NotCuteAnymore,
     component: NotCuteAnymore,
     sidebarComponent: NotCuteAnymoreSidebar,
+  },
+  {
+    id: "NOT_ME",
+    label: "Not Me",
+    icon: Icons.NotMe,
+    component: NotMe,
+    sidebarComponent: NotMeSidebar,
   },
 ];

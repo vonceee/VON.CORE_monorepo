@@ -1,5 +1,6 @@
 import React from "react";
 import { useNotMe, TrackerConfig } from "./hooks/useNotMe";
+import { NotMeCalendar } from "./NotMeCalendar";
 import {
   Droplets,
   Gamepad2,
@@ -12,6 +13,7 @@ import {
   Activity,
   Zap,
   Target,
+  Calendar as CalendarIcon,
 } from "lucide-react";
 
 // Icon Map
@@ -26,7 +28,11 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 const NotMe: React.FC = () => {
-  const { listItems, updateValue, getValue } = useNotMe();
+  const [activeDate, setActiveDate] = React.useState(new Date().toDateString());
+  const { listItems, updateValue, getValue } = useNotMe(activeDate);
+  const [showCalendar, setShowCalendar] = React.useState(false);
+
+  const isToday = activeDate === new Date().toDateString();
 
   const renderTracker = (item: TrackerConfig) => {
     const IconComponent = ICON_MAP[item.icon || "Activity"] || Activity;
@@ -149,37 +155,74 @@ const NotMe: React.FC = () => {
   const games = listItems.filter((item) => item.type === "outcome");
 
   return (
-    <div className="h-full w-full flex flex-col bg-[#09090b] text-white p-6 overflow-y-auto custom-scroll">
-      {/* Header */}
-      <h1 className="text-3xl font-bold tracking-tight mb-8 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
-        Not Me.
-      </h1>
-
-      <div className="flex flex-col gap-10 max-w-7xl">
-        {/* Habits Section */}
-        {habits.length > 0 && (
-          <section>
-            <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
-              Daily Habits
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {habits.map(renderTracker)}
+    <div className="h-full w-full flex bg-[#09090b] text-white overflow-hidden">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col p-6 overflow-y-auto custom-scroll">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+              Not Me.
+            </h1>
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-sm font-medium ${
+                  isToday ? "text-gray-500" : "text-blue-400"
+                }`}
+              >
+                {isToday ? "Today's Focus" : `Viewing History: ${activeDate}`}
+              </span>
             </div>
-          </section>
-        )}
+          </div>
 
-        {/* Games Section */}
-        {games.length > 0 && (
-          <section>
-            <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
-              Games & Discipline
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {games.map(renderTracker)}
-            </div>
-          </section>
-        )}
+          <button
+            onClick={() => setShowCalendar(!showCalendar)}
+            className={`p-2 rounded-lg transition-colors border ${
+              showCalendar
+                ? "bg-white/10 border-white/20 text-white"
+                : "text-gray-400 border-transparent hover:bg-white/5"
+            }`}
+          >
+            <CalendarIcon className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-10 max-w-7xl">
+          {/* Habits Section */}
+          {habits.length > 0 && (
+            <section>
+              <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
+                Daily Habits
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {habits.map(renderTracker)}
+              </div>
+            </section>
+          )}
+
+          {/* Games Section */}
+          {games.length > 0 && (
+            <section>
+              <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
+                Games & Discipline
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {games.map(renderTracker)}
+              </div>
+            </section>
+          )}
+        </div>
       </div>
+
+      {/* Calendar Side Panel */}
+      {showCalendar && (
+        <div className="h-full border-l border-white/5 bg-[#09090b] shadow-xl z-10 animate-in slide-in-from-right duration-200">
+          <NotMeCalendar
+            activeDate={activeDate}
+            setActiveDate={setActiveDate}
+          />
+        </div>
+      )}
     </div>
   );
 };

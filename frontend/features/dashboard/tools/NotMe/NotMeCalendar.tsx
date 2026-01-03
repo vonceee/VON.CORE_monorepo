@@ -1,0 +1,237 @@
+import React, { useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Target,
+  Droplets,
+  Gamepad2,
+  Swords,
+  Activity,
+  Zap,
+} from "lucide-react";
+import { useNotMe, TrackerConfig } from "./hooks/useNotMe";
+
+// Icon Map (Shared - ideally move to a utils file, but duplicating for speed now)
+const ICON_MAP: Record<string, React.ElementType> = {
+  Droplets,
+  Gamepad2,
+  Swords,
+  Trophy: Target, // Fallback
+  Activity,
+  Zap,
+  Target,
+};
+
+export const NotMeCalendar: React.FC = () => {
+  const { activeDate, setActiveDate, history, listItems, getHistoryValue } =
+    useNotMe();
+
+  const [selectedHabitId, setSelectedHabitId] = useState<string>(
+    listItems[0]?.id || ""
+  );
+
+  // Deriving current month view from activeDate
+  // If activeDate is today, we show current month?
+  // Or should we have a separate "viewDate" for the calendar navigation?
+  // Let's keep it simple: Calendar view follows activeDate's month initially,
+  // but we might want to browse months without changing activeDate.
+  // For this v1, let's make browser navigate months independently.
+
+  const [currentMonth, setCurrentMonth] = useState(new Date(activeDate));
+
+  const selectedHabit = listItems.find((item) => item.id === selectedHabitId);
+
+  // Month Navigation
+  const nextMonth = () => {
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
+    );
+  };
+
+  const prevMonth = () => {
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
+    );
+  };
+
+  // Generate Calendar Grid
+  const daysInMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
+    0
+  ).getDate();
+
+  const firstDayOfMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth(),
+    1
+  ).getDay(); // 0 = Sunday
+
+  // Array of days to render
+  const days = [];
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    days.push(null); // Empty slots
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i));
+  }
+
+  const renderDot = (dateStr: string, habit?: TrackerConfig) => {
+    if (!habit) return null;
+    const value = history[dateStr]?.[habit.id];
+
+    if (habit.type === "counter") {
+      const count = (value as number) || 0;
+      const goal = habit.goal || 1;
+
+      if (count >= goal) {
+        // Goal reached -> Bright Glow (using Blue as default generic, or we could customize per habit)
+        return (
+          <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]" />
+        );
+      } else if (count > 0) {
+        // Progress -> Dim
+        return <div className="w-1.5 h-1.5 rounded-full bg-blue-400/40" />;
+      }
+      // Empty -> Nothing
+      return null;
+    }
+
+    if (habit.type === "outcome") {
+      const outcome = value as "WIN" | "LOSS" | null;
+      if (outcome === "WIN") {
+        return (
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+        );
+      }
+      if (outcome === "LOSS") {
+        return (
+          <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
+        );
+      }
+    }
+
+    return null;
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-[#09090b] border-l border-white/5 p-6 w-[320px] flex-shrink-0">
+      <h2 className="text-xl font-bold tracking-tight mb-6 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+        History
+      </h2>
+
+      {/* Habit Selector */}
+      <div className="mb-6">
+        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">
+          Visualizing
+        </label>
+        <select
+          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-white/20"
+          value={selectedHabitId}
+          onChange={(e) => setSelectedHabitId(e.target.value)}
+        >
+          {listItems.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.label}
+            </option>
+          ))}
+          {listItems.length === 0 && <option>No habits tracking</option>}
+        </select>
+      </div>
+
+      {/* Calendar Header */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={prevMonth}
+          className="p-1 hover:bg-white/10 rounded-md transition-colors text-gray-400 hover:text-white"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <div className="text-sm font-semibold text-gray-200">
+          {currentMonth.toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric",
+          })}
+        </div>
+        <button
+          onClick={nextMonth}
+          className="p-1 hover:bg-white/10 rounded-md transition-colors text-gray-400 hover:text-white"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-500 mb-2 font-medium">
+        <span>S</span>
+        <span>M</span>
+        <span>T</span>
+        <span>W</span>
+        <span>T</span>
+        <span>F</span>
+        <span>S</span>
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((date, idx) => {
+          if (!date) {
+            return <div key={`empty-${idx}`} />;
+          }
+
+          const dateStr = date.toDateString();
+          const isActive = dateStr === activeDate;
+          const isToday = dateStr === new Date().toDateString();
+
+          return (
+            <button
+              key={dateStr}
+              onClick={() => setActiveDate(dateStr)}
+              className={`
+                aspect-square rounded-md flex flex-col items-center justify-center gap-1 relative overflow-hidden transition-all
+                ${
+                  isActive
+                    ? "bg-white/10 text-white border border-white/20"
+                    : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
+                }
+                ${
+                  isToday && !isActive
+                    ? "border border-blue-500/30 text-blue-400"
+                    : ""
+                }
+              `}
+            >
+              <span className="text-[10px] font-medium z-10 relative">
+                {date.getDate()}
+              </span>
+
+              {/* Dot Indicator */}
+              <div className="h-1.5 flex items-center justify-center">
+                {renderDot(dateStr, selectedHabit)}
+              </div>
+
+              {/* Today Indicator Background (Optional subtle hint) */}
+              {isToday && (
+                <div className="absolute inset-0 bg-blue-500/5 pointer-events-none" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Footer Info */}
+      <div className="mt-auto pt-6 border-t border-white/5">
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <span>Selected:</span>
+          <span
+            className={`${
+              activeDate === new Date().toDateString()
+                ? "text-blue-400 font-bold"
+                : "text-gray-300"
+            }`}
+          >
+            {activeDate === new Date().toDateString() ? "Today" : activeDate}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};

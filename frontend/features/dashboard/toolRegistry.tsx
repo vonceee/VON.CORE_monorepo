@@ -22,8 +22,8 @@ const Icons = {
       />
     </svg>
   ),
-  NotCuteAnymore: <EyeClosed className="w-6 h-6" strokeWidth={1.5} />,
-  NotMe: <ShieldOff className="w-6 h-6" strokeWidth={1.5} />,
+  NotCuteAnymore: <EyeClosed className="w-4 h-4" strokeWidth={1.5} />,
+  NotMe: <ShieldOff className="w-4 h-4" strokeWidth={1.5} />,
 };
 
 export const TOOLS_CONFIG: Tool[] = [

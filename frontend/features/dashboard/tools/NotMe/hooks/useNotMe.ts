@@ -12,10 +12,14 @@ export interface TrackerConfig {
 
 export type GameOutcome = "WIN" | "LOSS" | null;
 
-export interface DailyState {
-  date: string;
-  values: Record<string, any>; // id -> value (number for counter, GameOutcome for outcome)
+export interface DailyValues {
+  [key: string]: any; // id -> value
 }
+
+// Map: DateString -> DailyValues
+export type HistoryState = Record<string, DailyValues>;
+
+const TODAY = new Date().toDateString();
 
 const DEFAULT_CONFIG: TrackerConfig[] = [
   {
@@ -38,12 +42,13 @@ const STORAGE_KEY_CONFIG = "not-me-config";
 const STORAGE_KEY_STATE = "not-me-daily-state-v2";
 const EVENT_UPDATE = "not-me-update";
 
-export const useNotMe = () => {
+export const useNotMe = (dateOverride?: string) => {
   const [config, setConfig] = useState<TrackerConfig[]>([]);
-  const [dailyState, setDailyState] = useState<DailyState>({
-    date: new Date().toDateString(),
-    values: {},
-  });
+  const [history, setHistory] = useState<HistoryState>({});
+  const [internalDate, setInternalDate] = useState<string>(TODAY);
+
+  const activeDate = dateOverride || internalDate;
+  const setActiveDate = setInternalDate;
 
   // Helper to load EVERYTHING
   const loadAll = useCallback(() => {
@@ -57,19 +62,26 @@ export const useNotMe = () => {
     }
 
     // 2. State
-    const today = new Date().toDateString();
     const savedState = localStorage.getItem(STORAGE_KEY_STATE);
 
     if (savedState) {
-      const parsed: DailyState = JSON.parse(savedState);
-      if (parsed.date !== today) {
-        // Reset for new day
-        setDailyState({ date: today, values: {} });
+      const parsed = JSON.parse(savedState);
+
+      // Migration Check: Old format had "date" and "values" at top level
+      if (parsed.date && parsed.values) {
+        // Old format detected -> Migrate to History
+        const initialHistory: HistoryState = {
+          [parsed.date]: parsed.values,
+        };
+        setHistory(initialHistory);
+        // We'll save the new format on next update, or we could force save here.
+        // Let's just set it in state for now.
       } else {
-        setDailyState(parsed);
+        // Assume it's the new HistoryState format
+        setHistory(parsed);
       }
     } else {
-      setDailyState({ date: today, values: {} });
+      setHistory({});
     }
   }, []);
 
@@ -83,9 +95,9 @@ export const useNotMe = () => {
   }, [loadAll]);
 
   // Persist State
-  const saveState = (newState: DailyState) => {
-    localStorage.setItem(STORAGE_KEY_STATE, JSON.stringify(newState));
-    setDailyState(newState);
+  const saveHistory = (newHistory: HistoryState) => {
+    localStorage.setItem(STORAGE_KEY_STATE, JSON.stringify(newHistory));
+    setHistory(newHistory);
     window.dispatchEvent(new Event(EVENT_UPDATE));
   };
 
@@ -110,17 +122,29 @@ export const useNotMe = () => {
     saveConfig(newConfig);
 
     // cleanup state (optional, but good for hygiene)
-    const newValues = { ...dailyState.values };
-    delete newValues[id];
-    saveState({ ...dailyState, values: newValues });
+    // For history, we might want to keep old data even if habit is removed?
+    // Let's keep it simple and NOT delete data for now to preserve history.
+    // const newValues = { ...dailyState.values };
+    // delete newValues[id];
+    // saveState({ ...dailyState, values: newValues });
   };
 
   const updateValue = (id: string, value: any) => {
-    const newValues = { ...dailyState.values, [id]: value };
-    saveState({ ...dailyState, values: newValues });
+    const currentDayValues = history[activeDate] || {};
+    const newDayValues = { ...currentDayValues, [id]: value };
+
+    // Merge into history
+    const newHistory = { ...history, [activeDate]: newDayValues };
+    saveHistory(newHistory);
   };
 
-  const getValue = (id: string) => dailyState.values[id];
+  const getValue = (id: string) => {
+    return history[activeDate]?.[id];
+  };
+
+  const getHistoryValue = (date: string, id: string) => {
+    return history[date]?.[id];
+  };
 
   return {
     listItems,
@@ -128,5 +152,9 @@ export const useNotMe = () => {
     removeItem,
     updateValue,
     getValue,
+    getHistoryValue,
+    activeDate,
+    setActiveDate,
+    history,
   };
 };

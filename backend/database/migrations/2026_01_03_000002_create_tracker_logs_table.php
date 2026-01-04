@@ -12,7 +12,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('tracker_id')->constrained('trackers')->cascadeOnDelete();
             $table->date('logged_date');
-            $table->json('value'); // Stores the count (int) or outcome (string)
+            $table->json('value')->nullable(); // Stores the count (int) or outcome (string)
             $table->timestamps();
 
             $table->unique(['tracker_id', 'logged_date']);

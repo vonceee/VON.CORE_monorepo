@@ -23,7 +23,7 @@ class RoutineSeeder extends Seeder
         $defaultTasks = [
             [
                 'title' => 'Calibration',
-                'description' => 'Systems check and focus initialization.',
+                'notes' => 'Systems check and focus initialization.',
                 'start_time' => '08:00',
                 'duration_minutes' => 30,
                 'status' => 'PENDING',
@@ -32,7 +32,7 @@ class RoutineSeeder extends Seeder
             ],
             [
                 'title' => 'Deep Work A',
-                'description' => 'High-leverage engineering or research.',
+                'notes' => 'High-leverage engineering or research.',
                 'start_time' => '08:30',
                 'duration_minutes' => 120,
                 'status' => 'PENDING',
@@ -41,7 +41,7 @@ class RoutineSeeder extends Seeder
             ],
             [
                 'title' => 'Recovery',
-                'description' => 'Biological replenishment.',
+                'notes' => 'Biological replenishment.',
                 'start_time' => '10:30',
                 'duration_minutes' => 15,
                 'status' => 'PENDING',

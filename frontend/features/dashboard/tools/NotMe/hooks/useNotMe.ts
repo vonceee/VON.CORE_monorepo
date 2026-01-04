@@ -4,12 +4,18 @@ import { TrackerConfig, HistoryState } from "../types";
 
 export * from "../types";
 
+// Helper for YYYY-MM-DD
+const getISODate = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export const useNotMe = (dateOverride?: string) => {
   const [listItems, setListItems] = useState<TrackerConfig[]>([]);
   const [history, setHistory] = useState<HistoryState>({});
-  const [internalDate, setInternalDate] = useState<string>(
-    new Date().toDateString()
-  );
+  const [internalDate, setInternalDate] = useState<string>(getISODate());
 
   const activeDate = dateOverride || internalDate;
   const setActiveDate = setInternalDate;

@@ -54,18 +54,21 @@ class TrackerController extends Controller
 
     public function storeLog(Request $request)
     {
+        $validated = $request->validate([
+            'tracker_id' => 'required|exists:trackers,id',
+            'date' => 'required|date',
+            'value' => 'nullable', // value can be null, int, string
+        ]);
+
         try {
-            $validated = $request->validate([
-                'tracker_id' => 'required|exists:trackers,id',
-                'date' => 'required|date',
-                'value' => 'nullable', // value can be null, int, string
-            ]);
+            // standardise date
+            $date = Carbon::parse($validated['date'])->toDateString();
 
             // use updateOrCreate
             $log = TrackerLog::updateOrCreate(
                 [
                     'tracker_id' => $validated['tracker_id'],
-                    'logged_date' => $validated['date'],
+                    'logged_date' => $date,
                 ],
                 [
                     'value' => $validated['value']

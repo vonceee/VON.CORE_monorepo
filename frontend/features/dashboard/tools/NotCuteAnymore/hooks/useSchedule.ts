@@ -5,44 +5,47 @@ import { routineApi } from "../../../../../services/api/routine";
 export const DEFAULT_TASKS: Task[] = [
   {
     id: "1",
-    title: "Calibration",
-    notes: "Systems check and focus initialization.",
-    startTime: "08:00",
-    durationMinutes: 30,
+    title: "Welcome to NCA",
+    notes: "This is your daily execution queue. Click 'Edit Routine' to begin.",
+    startTime: "09:00",
+    durationMinutes: 1440,
     status: TaskStatus.PENDING,
     dependencies: [],
-    requirements: ["Water", "No Screens"],
+    requirements: [],
   },
   {
     id: "2",
-    title: "Deep Work A",
-    notes: "High-leverage engineering or research.",
-    startTime: "08:30",
-    durationMinutes: 120,
+    title: "Customize Your Schedule",
+    notes: "Tasks here update in real-time based on your system clock.",
+    startTime: "11:58",
+    durationMinutes: 60,
     status: TaskStatus.PENDING,
     dependencies: [],
-    requirements: ["Phone locked"],
+    requirements: [],
   },
   {
     id: "3",
-    title: "Recovery",
-    notes: "Biological replenishment.",
-    startTime: "10:30",
-    durationMinutes: 15,
+    title: "Plan Your Week",
+    notes:
+      "Use the day selector above to switch views and copy routines between days.",
+    startTime: "11:59",
+    durationMinutes: 30,
     status: TaskStatus.PENDING,
     dependencies: [],
-    requirements: ["Stretch"],
+    requirements: [],
   },
 ];
 
+const createDefaults = () => JSON.parse(JSON.stringify(DEFAULT_TASKS));
+
 export const INITIAL_ROUTINES: DailyRoutines = {
-  Monday: [...DEFAULT_TASKS],
-  Tuesday: [...DEFAULT_TASKS],
-  Wednesday: [...DEFAULT_TASKS],
-  Thursday: [...DEFAULT_TASKS],
-  Friday: [...DEFAULT_TASKS],
-  Saturday: [...DEFAULT_TASKS],
-  Sunday: [...DEFAULT_TASKS],
+  Monday: createDefaults(),
+  Tuesday: createDefaults(),
+  Wednesday: createDefaults(),
+  Thursday: createDefaults(),
+  Friday: createDefaults(),
+  Saturday: createDefaults(),
+  Sunday: createDefaults(),
 };
 
 export const DAYS: DayOfWeek[] = [
@@ -58,6 +61,7 @@ export const DAYS: DayOfWeek[] = [
 export const useSchedule = () => {
   // --- State ---
   const [routines, setRoutines] = useState<DailyRoutines>(INITIAL_ROUTINES);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [currentDay, setCurrentDay] = useState<DayOfWeek>(() => {
     return new Date().toLocaleDateString("en-US", {
@@ -80,10 +84,21 @@ export const useSchedule = () => {
     const loadRoutines = async () => {
       try {
         const data = await routineApi.fetchRoutines();
-        setRoutines(data);
+
+        // Check if the fetched data effectively has no tasks
+        const hasData = Object.values(data).some((tasks) => tasks.length > 0);
+
+        if (hasData) {
+          setRoutines(data);
+        } else {
+          // If no data, we keep the INITIAL_ROUTINES which contains the onboarding info.
+          // No action needed effectively, but explicit comment helps.
+          console.log("No remote data found, using onboarding defaults.");
+        }
       } catch (error) {
         console.error("Failed to load routines:", error);
-        // Fallback or error handling could go here
+      } finally {
+        setIsLoading(false);
       }
     };
     loadRoutines();
@@ -183,6 +198,7 @@ export const useSchedule = () => {
     currentDay,
     setCurrentDay,
     currentTime,
+    isLoading,
     saveDayRoutine,
     copyRoutineToDays,
     currentDayTasks,

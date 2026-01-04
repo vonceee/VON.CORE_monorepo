@@ -5,11 +5,19 @@ import { Circle, Activity } from "lucide-react";
 interface QuestLogProps {
   tasks: Task[];
   currentTime: Date;
+  isLoading?: boolean;
 }
 
-export const QuestLog: React.FC<QuestLogProps> = ({ tasks, currentTime }) => {
+export const QuestLog: React.FC<QuestLogProps> = ({
+  tasks,
+  currentTime,
+  isLoading = false,
+}) => {
   const getTaskStatus = (task: Task) => {
-    const nowInMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+    const nowHours = currentTime.getHours();
+    const nowMins = currentTime.getMinutes();
+    const nowInMinutes = nowHours * 60 + nowMins;
+
     const [startH, startM] = task.startTime.split(":").map(Number);
     const startInMinutes = startH * 60 + startM;
     const endInMinutes = startInMinutes + task.durationMinutes;
@@ -47,81 +55,112 @@ export const QuestLog: React.FC<QuestLogProps> = ({ tasks, currentTime }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scroll">
-        {sortedTasks.map((task) => {
-          const status = getTaskStatus(task);
-          const isActive = status === "ACTIVE";
-          const isCompleted = status === "COMPLETED";
-
-          return (
+        {isLoading ? (
+          // Skeleton Rows
+          Array.from({ length: 6 }).map((_, i) => (
             <div
-              key={task.id}
-              className={`group px-6 py-3 border-b border-white/5 last:border-0 transition-all duration-300 ${
-                isActive ? "bg-white/[0.02]" : "hover:bg-white/[0.01]"
-              } ${isCompleted ? "opacity-30 blur-[0.5px]" : "opacity-100"}`}
+              key={i}
+              className="px-6 py-3 border-b border-white/5 animate-pulse"
             >
               <div className="flex items-start gap-4">
-                {/* Time Column */}
-                <div className="flex flex-col items-end w-12 pt-0.5">
-                  <span
-                    className={`text-xs font-medium ${
-                      isActive ? "text-[#E1306C]" : "text-[#5f6368]"
-                    }`}
-                  >
-                    {task.startTime}
-                  </span>
-                  <span className="text-[10px] text-[#3c4043]">
-                    {task.durationMinutes}m
-                  </span>
+                {/* Time Column Skeleton */}
+                <div className="flex flex-col items-end w-12 pt-0.5 gap-1">
+                  <div className="h-3 w-8 bg-white/5 rounded"></div>
+                  <div className="h-2 w-6 bg-white/5 rounded"></div>
                 </div>
 
-                {/* Status Indicator */}
-                <div className="relative pt-1.5 flex flex-col items-center">
-                  <div
-                    className={`w-1.5 h-1.5 rounded-full ring-2 ring-black ${
-                      isActive
-                        ? "bg-[#E1306C] shadow-[0_0_8px_rgba(225,48,108,0.5)]"
-                        : isCompleted
-                        ? "bg-[#3c4043]"
-                        : "bg-[#3c4043]"
-                    }`}
-                  />
-                  {isActive && (
-                    <div className="absolute top-1.5 w-1.5 h-1.5 rounded-full bg-[#E1306C] animate-ping opacity-75" />
-                  )}
-                  {/* Vertical Line */}
-                  <div className="w-[1px] h-full bg-white/5 absolute top-4 -translate-x-1/2 left-1/2 -z-10 group-last:hidden" />
+                {/* Status Indicator Skeleton */}
+                <div className="pt-1.5 flex flex-col items-center">
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/5" />
                 </div>
 
-                {/* Content */}
+                {/* Content Skeleton */}
                 <div className="flex-1 min-w-0 pb-2">
-                  <h3
-                    className={`text-sm font-medium leading-tight truncate transition-colors ${
-                      isActive
-                        ? "text-[#e8eaed]"
-                        : "text-[#9aa0a6] group-hover:text-[#bdc1c6]"
-                    }`}
-                  >
-                    {task.title}
-                  </h3>
-                  {isActive && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-[10px] font-medium text-[#E1306C] uppercase tracking-wider flex items-center gap-1">
-                        <Activity className="w-3 h-3" />
-                        In Progress
-                      </span>
-                    </div>
-                  )}
+                  <div className="h-4 w-3/4 bg-white/5 rounded mb-2"></div>
+                  <div className="h-3 w-1/2 bg-white/5 rounded"></div>
                 </div>
               </div>
             </div>
-          );
-        })}
+          ))
+        ) : (
+          <>
+            {sortedTasks.map((task) => {
+              const status = getTaskStatus(task);
+              const isActive = status === "ACTIVE";
+              const isCompleted = status === "COMPLETED";
 
-        {sortedTasks.length === 0 && (
-          <div className="h-full flex flex-col items-center justify-center text-[#3c4043] gap-2">
-            <Circle className="w-12 h-12 stroke-[1px]" />
-            <span className="text-xs tracking-wider">NO ACTIVE TASKS</span>
-          </div>
+              return (
+                <div
+                  key={task.id}
+                  className={`group px-6 py-3 border-b border-white/5 last:border-0 transition-all duration-300 ${
+                    isActive ? "bg-white/[0.02]" : "hover:bg-white/[0.01]"
+                  } ${isCompleted ? "opacity-30 blur-[0.5px]" : "opacity-100"}`}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Time Column */}
+                    <div className="flex flex-col items-end w-12 pt-0.5">
+                      <span
+                        className={`text-xs font-medium ${
+                          isActive ? "text-[#E1306C]" : "text-[#5f6368]"
+                        }`}
+                      >
+                        {task.startTime}
+                      </span>
+                      <span className="text-[10px] text-[#3c4043]">
+                        {task.durationMinutes}m
+                      </span>
+                    </div>
+
+                    {/* Status Indicator */}
+                    <div className="relative pt-1.5 flex flex-col items-center">
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ring-2 ring-black ${
+                          isActive
+                            ? "bg-[#E1306C] shadow-[0_0_8px_rgba(225,48,108,0.5)]"
+                            : isCompleted
+                            ? "bg-[#3c4043]"
+                            : "bg-[#3c4043]"
+                        }`}
+                      />
+                      {isActive && (
+                        <div className="absolute top-1.5 w-1.5 h-1.5 rounded-full bg-[#E1306C] animate-ping opacity-75" />
+                      )}
+                      {/* Vertical Line */}
+                      <div className="w-[1px] h-full bg-white/5 absolute top-4 -translate-x-1/2 left-1/2 -z-10 group-last:hidden" />
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0 pb-2">
+                      <h3
+                        className={`text-sm font-medium leading-tight truncate transition-colors ${
+                          isActive
+                            ? "text-[#e8eaed]"
+                            : "text-[#9aa0a6] group-hover:text-[#bdc1c6]"
+                        }`}
+                      >
+                        {task.title}
+                      </h3>
+                      {isActive && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-[10px] font-medium text-[#E1306C] uppercase tracking-wider flex items-center gap-1">
+                            <Activity className="w-3 h-3" />
+                            In Progress
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {sortedTasks.length === 0 && (
+              <div className="h-full flex flex-col items-center justify-center text-[#3c4043] gap-2">
+                <Circle className="w-12 h-12 stroke-[1px]" />
+                <span className="text-xs tracking-wider">NO ACTIVE TASKS</span>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

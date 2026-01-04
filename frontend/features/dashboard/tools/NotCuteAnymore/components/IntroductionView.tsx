@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   X,
   Zap,
@@ -6,17 +6,22 @@ import {
   Clock,
   MousePointerClick,
   LayoutTemplate,
+  GitCommit,
 } from "lucide-react";
 
 interface IntroductionViewProps {
   onClose: () => void;
 }
 
+type Tab = "intro" | "patch_notes";
+
 export const IntroductionView: React.FC<IntroductionViewProps> = ({
   onClose,
 }) => {
+  const [activeTab, setActiveTab] = useState<Tab>("intro");
+
   return (
-    <div className="h-full flex flex-col bg-[#09090b] text-[#e8eaed] overflow-y-auto custom-scroll relative animate-in fade-in duration-300">
+    <div className="h-full flex flex-col bg-[#09090b] text-[#e8eaed] overflow-y-auto custom-scroll lg:overflow-hidden relative animate-in fade-in duration-300">
       {/* Close Button */}
       <button
         onClick={onClose}
@@ -26,64 +31,142 @@ export const IntroductionView: React.FC<IntroductionViewProps> = ({
         <X className="w-5 h-5 text-[#5f6368] group-hover:text-[#e8eaed] transition-colors" />
       </button>
 
-      <div className="min-h-full grid grid-cols-1 lg:grid-cols-2">
+      <div className="min-h-full lg:h-full grid grid-cols-1 lg:grid-cols-2">
         {/* Left Column: Content */}
-        <div className="p-4 md:p-6 lg:pr-6 flex flex-col justify-center">
-          <div className="max-w-2xl mx-auto space-y-12">
-            {/* Hero */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-xs font-bold tracking-[0.2em] text-[#E1306C]">
-                  v1.0.0 --stable release
-                </span>
-              </div>
-              <div className="flex items-center justify-center h-full">
-                <img
-                  src="assets/logo/notcuteanymore_logo.svg"
-                  style={{ filter: "invert(1)", width: "400px" }}
-                  alt=""
-                />
-              </div>
-
-              <p className="text-lg md:text-xl text-[#9aa0a6] font-light leading-relaxed border-l-2 border-[#E1306C] pl-4 py-2">
-                plan and visualize your day through a structured,{" "}
-                <span className="text-white font-medium">
-                  time-based interface
-                </span>
-                . create a chronological timeline of activities, with each
-                segment representing a specific task or routine scheduled
-                throughout the day.
-              </p>
+        <div className="p-4 md:p-6 lg:pr-6 flex flex-col pt-12 lg:overflow-y-auto lg:custom-scroll lg:h-full">
+          <div className="max-w-2xl mx-auto w-full space-y-8">
+            {/* Tab Navigation */}
+            <div className="flex items-center gap-6 border-b border-white/5 pb-4 mb-4">
+              <button
+                onClick={() => setActiveTab("intro")}
+                className={`text-sm font-bold uppercase tracking-wider transition-colors relative pb-4 -mb-4 ${
+                  activeTab === "intro"
+                    ? "text-[#E1306C] border-b-2 border-[#E1306C]"
+                    : "text-[#5f6368] hover:text-[#e8eaed]"
+                }`}
+              >
+                Introduction
+              </button>
+              <button
+                onClick={() => setActiveTab("patch_notes")}
+                className={`text-sm font-bold uppercase tracking-wider transition-colors relative pb-4 -mb-4 ${
+                  activeTab === "patch_notes"
+                    ? "text-[#E1306C] border-b-2 border-[#E1306C]"
+                    : "text-[#5f6368] hover:text-[#e8eaed]"
+                }`}
+              >
+                Patch Notes
+              </button>
             </div>
 
-            {/* Feature Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
-              <Feature
-                icon={<Clock className="w-5 h-5" />}
-                title="Routine Cloning"
-                desc="copy routines to other days while keeping each day customizable."
-              />
-              <Feature
-                icon={<MousePointerClick className="w-5 h-5" />}
-                title="Quick Notes"
-                desc="quickly add or update notes for any task."
-              />
-              <Feature
-                icon={<LayoutTemplate className="w-5 h-5" />}
-                title="Active Task View"
-                desc="shows the current task, remaining time, and notes at a glance."
-              />
-              <Feature
-                icon={<Shield className="w-5 h-5" />}
-                title="Focus Isolation"
-                desc="clean, distraction-free design focused on clarity."
-              />
-            </div>
+            {activeTab === "intro" ? (
+              <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                {/* Hero */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-xs font-bold tracking-[0.2em] text-[#E1306C]">
+                      v1.0.0 --stable release
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center h-full">
+                    <img
+                      src="assets/logo/notcuteanymore_logo.svg"
+                      style={{ filter: "invert(1)", width: "400px" }}
+                      alt=""
+                    />
+                  </div>
+
+                  <p className="text-lg md:text-xl text-[#9aa0a6] font-light leading-relaxed border-l-2 border-[#E1306C] pl-4 py-2">
+                    plan and visualize your day through a structured,{" "}
+                    <span className="text-white font-medium">
+                      time-based interface
+                    </span>
+                    . create a chronological timeline of activities, with each
+                    segment representing a specific task or routine scheduled
+                    throughout the day.
+                  </p>
+                </div>
+
+                {/* Feature Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
+                  <Feature
+                    icon={<Clock className="w-5 h-5" />}
+                    title="Routine Cloning"
+                    desc="copy routines to other days while keeping each day customizable."
+                  />
+                  <Feature
+                    icon={<MousePointerClick className="w-5 h-5" />}
+                    title="Quick Notes"
+                    desc="quickly add or update notes for any task."
+                  />
+                  <Feature
+                    icon={<LayoutTemplate className="w-5 h-5" />}
+                    title="Active Task View"
+                    desc="shows the current task, remaining time, and notes at a glance."
+                  />
+                  <Feature
+                    icon={<Shield className="w-5 h-5" />}
+                    title="Focus Isolation"
+                    desc="clean, distraction-free design focused on clarity."
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                {/* Patch Notes Content */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold tracking-[0.2em] text-[#E1306C]">
+                      v1.1.0 --latest
+                    </span>
+                    <span className="text-xs text-[#5f6368]">2026-01-04</span>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="p-4 rounded-lg bg-white/5 border border-white/5 space-y-2">
+                      <div className="flex items-center gap-2 text-[#e8eaed] font-medium">
+                        <Zap className="w-4 h-4 text-[#E1306C]" />
+                        Skeleton Loading
+                      </div>
+                      <p className="text-sm text-[#9aa0a6] leading-relaxed">
+                        Added a skeleton loading state to the main view and
+                        queue sidebar for smoother visual transitions during
+                        data fetching.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-white/5 border border-white/5 space-y-2">
+                      <div className="flex items-center gap-2 text-[#e8eaed] font-medium">
+                        <GitCommit className="w-4 h-4 text-[#E1306C]" />
+                        Onboarding Experience
+                      </div>
+                      <p className="text-sm text-[#9aa0a6] leading-relaxed">
+                        Updated default tasks to serve as an interactive
+                        onboarding guide. New installations (or empty databases)
+                        now properly fallback to this guide.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-white/5 border border-white/5 space-y-2">
+                      <div className="flex items-center gap-2 text-[#e8eaed] font-medium">
+                        <Shield className="w-4 h-4 text-[#E1306C]" />
+                        Stability Improvements
+                      </div>
+                      <p className="text-sm text-[#9aa0a6] leading-relaxed">
+                        Fixed issues where empty backend data could cause a
+                        blank screen, and restored missing internal state
+                        variables to prevent crashes.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right Column: Cover Photo */}
-        <div className="relative p-8 md:p-12 lg:pl-6 bg-[#09090b] flex items-center justify-center min-h-[500px] lg:min-h-auto overflow-hidden">
+        <div className="relative p-8 md:p-12 lg:pl-6 bg-[#09090b] flex items-center justify-center min-h-[500px] lg:h-full overflow-hidden">
           {/* Background Image (Blurred) */}
           <div className="absolute inset-0 z-0 select-none">
             <img

@@ -13,12 +13,21 @@ import {
 } from "lucide-react";
 import { IntroductionView } from "./components/IntroductionView";
 
+const SkeletonTask = () => (
+  <div className="animate-pulse flex flex-col gap-4 p-8 h-full justify-center items-center">
+    <div className="h-8 bg-white/5 rounded-md w-3/4 mb-4"></div>
+    <div className="h-32 bg-white/5 rounded-md w-full"></div>
+    <div className="h-4 bg-white/5 rounded-md w-1/2 mt-4"></div>
+  </div>
+);
+
 const NotCuteAnymore: React.FC = () => {
   const {
     currentDay,
     setCurrentDay,
     currentTime,
     currentDayTasks,
+    isLoading, // Add isLoading
     saveDayRoutine,
     copyRoutineToDays,
     DAYS,
@@ -118,8 +127,11 @@ const NotCuteAnymore: React.FC = () => {
           {isToday && (
             <div className="flex items-center gap-4 pl-0 lg:pl-8">
               <button
+                disabled={isLoading}
                 onClick={() => setIsEditing(true)}
-                className="group flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 rounded-lg transition-all"
+                className={`group flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 rounded-lg transition-all ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#5f6368] group-hover:text-[#e8eaed]">
                   Edit Routine
@@ -154,6 +166,8 @@ const NotCuteAnymore: React.FC = () => {
               onClose={() => {}} // no-op when embedded
               isEmbedded={true}
             />
+          ) : isLoading ? (
+            <SkeletonTask />
           ) : (
             <ActiveTaskView
               task={activeTask}

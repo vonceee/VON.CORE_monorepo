@@ -153,8 +153,18 @@ const NotCuteAnymore: React.FC = () => {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-0 overflow-y-auto custom-scroll p-4">
-        <div className="col-span-1 lg:col-span-12 h-auto lg:h-full">
+      <main
+        className={`flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-0 ${
+          showIntro
+            ? "overflow-hidden p-0"
+            : "overflow-y-auto custom-scroll p-4"
+        }`}
+      >
+        <div
+          className={`col-span-1 lg:col-span-12 ${
+            showIntro ? "h-full" : "h-auto lg:h-full"
+          }`}
+        >
           {showIntro ? (
             <IntroductionView onClose={() => setShowIntro(false)} />
           ) : showEditor ? (

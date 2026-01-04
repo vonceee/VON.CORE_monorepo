@@ -27,12 +27,40 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Target,
 };
 
+// Helper for YYYY-MM-DD
+const getISODate = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const NotMe: React.FC = () => {
-  const [activeDate, setActiveDate] = React.useState(new Date().toDateString());
-  const { listItems, updateValue, getValue, history } = useNotMe(activeDate);
+  const [activeDate, setActiveDate] = React.useState(getISODate());
+  /* Add Habit Modal State */
+  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
+  const [newHabit, setNewHabit] = React.useState({
+    label: "",
+    type: "counter",
+    goal: 1,
+    icon: "Activity",
+  });
+  const { listItems, updateValue, getValue, history, addItem } =
+    useNotMe(activeDate);
   const [showCalendar, setShowCalendar] = React.useState(false);
 
-  const isToday = activeDate === new Date().toDateString();
+  const isToday = activeDate === getISODate();
+
+  const handleAdd = () => {
+    addItem({
+      label: newHabit.label,
+      type: newHabit.type as "counter" | "outcome",
+      goal: newHabit.type === "counter" ? newHabit.goal : undefined,
+      icon: newHabit.icon,
+    });
+    setIsAddModalOpen(false);
+    setNewHabit({ label: "", type: "counter", goal: 1, icon: "Activity" });
+  };
 
   const renderTracker = (item: TrackerConfig) => {
     const IconComponent = ICON_MAP[item.icon || "Activity"] || Activity;
@@ -175,16 +203,25 @@ const NotMe: React.FC = () => {
             </div>
           </div>
 
-          <button
-            onClick={() => setShowCalendar(!showCalendar)}
-            className={`p-2 rounded-lg transition-colors border ${
-              showCalendar
-                ? "bg-white/10 border-white/20 text-white"
-                : "text-gray-400 border-transparent hover:bg-white/5"
-            }`}
-          >
-            <CalendarIcon className="w-5 h-5" />
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+              title="Add Habit"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setShowCalendar(!showCalendar)}
+              className={`p-2 rounded-lg transition-colors border ${
+                showCalendar
+                  ? "bg-white/10 border-white/20 text-white"
+                  : "text-gray-400 border-transparent hover:bg-white/5"
+              }`}
+            >
+              <CalendarIcon className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-10 max-w-7xl">
@@ -223,6 +260,120 @@ const NotMe: React.FC = () => {
             history={history}
             listItems={listItems}
           />
+        </div>
+      )}
+
+      {/* Add Habit Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#18181b] border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h2 className="text-xl font-bold mb-4">Add New Habit</h2>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-sm text-gray-400 block mb-1">
+                  Label
+                </label>
+                <input
+                  value={newHabit.label}
+                  onChange={(e) =>
+                    setNewHabit({ ...newHabit, label: e.target.value })
+                  }
+                  className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="e.g. Read Book"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-400 block mb-1">Type</label>
+                <div className="flex bg-black/20 p-1 rounded-lg border border-white/10">
+                  <button
+                    onClick={() =>
+                      setNewHabit({ ...newHabit, type: "counter" })
+                    }
+                    className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      newHabit.type === "counter"
+                        ? "bg-blue-500/20 text-blue-400"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    Counter
+                  </button>
+                  <button
+                    onClick={() =>
+                      setNewHabit({ ...newHabit, type: "outcome" })
+                    }
+                    className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      newHabit.type === "outcome"
+                        ? "bg-purple-500/20 text-purple-400"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    Outcome
+                  </button>
+                </div>
+              </div>
+
+              {newHabit.type === "counter" && (
+                <div>
+                  <label className="text-sm text-gray-400 block mb-1">
+                    Daily Goal
+                  </label>
+                  <input
+                    type="number"
+                    value={newHabit.goal}
+                    onChange={(e) =>
+                      setNewHabit({
+                        ...newHabit,
+                        goal: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="text-sm text-gray-400 block mb-1">Icon</label>
+                <div className="flex flex-wrap gap-2">
+                  {Object.keys(ICON_MAP).map((iconKey) => {
+                    const Icon = ICON_MAP[iconKey];
+                    return (
+                      <button
+                        key={iconKey}
+                        onClick={() =>
+                          setNewHabit({ ...newHabit, icon: iconKey })
+                        }
+                        className={`p-2 rounded-lg border ${
+                          newHabit.icon === iconKey
+                            ? "bg-white/10 border-blue-500 text-blue-400"
+                            : "border-transparent text-gray-500 hover:bg-white/5"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAdd}
+                disabled={!newHabit.label}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Create Habit
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

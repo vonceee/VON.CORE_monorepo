@@ -9,32 +9,41 @@ class TrackerSeeder extends Seeder
 {
     public function run(): void
     {
-        $defaults = [
+        $trackers = [
             [
-                'label' => 'Hydration',
+                'label' => 'Water',
                 'type' => 'counter',
                 'goal' => 8,
                 'icon' => 'Droplets',
             ],
             [
-                'label' => 'Mobile Legends',
+                'label' => 'Chess',
                 'type' => 'outcome',
                 'goal' => null,
-                'icon' => 'Gamepad2',
+                'icon' => 'Trophy',
             ],
             [
-                'label' => 'Chess',
+                'label' => 'Mobile Legends',
                 'type' => 'outcome',
                 'goal' => null,
                 'icon' => 'Swords',
             ],
+            [
+                'label' => 'No Sugar',
+                'type' => 'outcome',
+                'goal' => null,
+                'icon' => 'XCircle',
+            ],
+            [
+                'label' => 'Exercise',
+                'type' => 'counter',
+                'goal' => 45, // minutes
+                'icon' => 'Activity',
+            ]
         ];
 
-        foreach ($defaults as $data) {
-            Tracker::firstOrCreate(
-                ['label' => $data['label']],
-                $data
-            );
+        foreach ($trackers as $data) {
+            Tracker::create($data);
         }
     }
 }

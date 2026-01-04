@@ -114,4 +114,17 @@ class TrackerController extends Controller
             // Then frontend uses those IDs.
         ]);
     }
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'label' => 'required|string|max:255',
+            'type' => 'required|in:counter,outcome',
+            'goal' => 'nullable|integer',
+            'icon' => 'nullable|string',
+        ]);
+
+        $tracker = Tracker::create($validated);
+
+        return response()->json($tracker, 201);
+    }
 }

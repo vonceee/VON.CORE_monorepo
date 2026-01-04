@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\V1\TrackerController;
 
 Route::prefix('v1/not-me')->group(function () {
     Route::get('/trackers', [TrackerController::class, 'index']);
+    Route::post('/trackers', [TrackerController::class, 'store']);
     Route::get('/history', [TrackerController::class, 'history']);
     Route::post('/log', [TrackerController::class, 'storeLog']);
 });

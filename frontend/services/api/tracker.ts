@@ -28,4 +28,9 @@ export const trackerApi = {
       value: value,
     });
   },
+
+  async addTracker(tracker: Partial<TrackerConfig>): Promise<TrackerConfig> {
+    const response = await axios.post(`${API_URL}/trackers`, tracker);
+    return response.data;
+  },
 };

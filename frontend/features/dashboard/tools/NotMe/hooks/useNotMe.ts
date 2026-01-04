@@ -63,7 +63,14 @@ export const useNotMe = (dateOverride?: string) => {
 
   return {
     listItems,
-    addItem: () => {}, // Managed via DB/Admin
+    addItem: async (item: Partial<TrackerConfig>) => {
+      try {
+        const newItem = await trackerApi.addTracker(item);
+        setListItems([...listItems, newItem]);
+      } catch (e) {
+        console.error("Failed to add item", e);
+      }
+    },
     removeItem: () => {}, // Managed via DB/Admin
     updateValue,
     getValue,

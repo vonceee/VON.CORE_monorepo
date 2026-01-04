@@ -68,7 +68,7 @@ const NotMe: React.FC = () => {
 
     // Counter View
     if (item.type === "counter") {
-      const current = typeof value === "number" ? value : 0;
+      const current = Number(value) || 0;
       const goal = item.goal || 1;
       const progress = Math.min(100, (current / goal) * 100);
 

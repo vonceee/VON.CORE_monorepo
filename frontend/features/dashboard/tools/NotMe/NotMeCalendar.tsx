@@ -18,6 +18,14 @@ interface NotMeCalendarProps {
   listItems: TrackerConfig[];
 }
 
+// Helper for YYYY-MM-DD
+const getISODate = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
   activeDate,
   setActiveDate,
@@ -27,13 +35,6 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
   const [selectedHabitId, setSelectedHabitId] = useState<string>(
     listItems[0]?.id || ""
   );
-
-  // Deriving current month view from activeDate
-  // If activeDate is today, we show current month?
-  // Or should we have a separate "viewDate" for the calendar navigation?
-  // Let's keep it simple: Calendar view follows activeDate's month initially,
-  // but we might want to browse months without changing activeDate.
-  // For this v1, let's make browser navigate months independently.
 
   const [currentMonth, setCurrentMonth] = useState(new Date(activeDate));
 
@@ -83,7 +84,7 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
       const goal = habit.goal || 1;
 
       if (count >= goal) {
-        // Goal reached -> Bright Glow (using Blue as default generic, or we could customize per habit)
+        // Goal reached -> Bright Glow
         return (
           <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]" />
         );
@@ -91,7 +92,6 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
         // Progress -> Dim
         return <div className="w-1.5 h-1.5 rounded-full bg-blue-400/40" />;
       }
-      // Empty -> Nothing
       return null;
     }
 
@@ -133,6 +133,7 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
               {item.label}
             </option>
           ))}
+          {/* Fallback if list is empty */}
           {listItems.length === 0 && <option>No habits tracking</option>}
         </select>
       </div>
@@ -175,9 +176,9 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
             return <div key={`empty-${idx}`} />;
           }
 
-          const dateStr = date.toDateString();
+          const dateStr = getISODate(date);
           const isActive = dateStr === activeDate;
-          const isToday = dateStr === new Date().toDateString();
+          const isToday = dateStr === getISODate();
 
           return (
             <button
@@ -206,7 +207,7 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
                 {renderDot(dateStr, selectedHabit)}
               </div>
 
-              {/* Today Indicator Background (Optional subtle hint) */}
+              {/* Today Indicator Background */}
               {isToday && (
                 <div className="absolute inset-0 bg-blue-500/5 pointer-events-none" />
               )}
@@ -221,12 +222,12 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
           <span>Selected:</span>
           <span
             className={`${
-              activeDate === new Date().toDateString()
+              activeDate === getISODate()
                 ? "text-blue-400 font-bold"
                 : "text-gray-300"
             }`}
           >
-            {activeDate === new Date().toDateString() ? "Today" : activeDate}
+            {activeDate === getISODate() ? "Today" : activeDate}
           </span>
         </div>
       </div>

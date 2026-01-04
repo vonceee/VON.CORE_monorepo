@@ -49,7 +49,7 @@ class TrackerController extends Controller
             $history[$date][$log->tracker_id] = $log->value;
         }
 
-        return response()->json($history);
+        return response()->json((object)$history);
     }
 
     public function storeLog(Request $request)

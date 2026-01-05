@@ -33,4 +33,8 @@ export const trackerApi = {
     const response = await axios.post(`${API_URL}/trackers`, tracker);
     return response.data;
   },
+
+  async deleteTracker(trackerId: string): Promise<void> {
+    await axios.delete(`${API_URL}/trackers/${trackerId}`);
+  },
 };

@@ -127,4 +127,12 @@ class TrackerController extends Controller
 
         return response()->json($tracker, 201);
     }
+
+    public function destroy($id)
+    {
+        $tracker = Tracker::findOrFail($id);
+        $tracker->delete();
+
+        return response()->json(null, 204);
+    }
 }

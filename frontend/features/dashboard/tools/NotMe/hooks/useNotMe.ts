@@ -20,8 +20,11 @@ export const useNotMe = (dateOverride?: string) => {
   const activeDate = dateOverride || internalDate;
   const setActiveDate = setInternalDate;
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const fetchData = useCallback(async () => {
     try {
+      setIsLoading(true);
       const [trackers, hist] = await Promise.all([
         trackerApi.fetchTrackers(),
         trackerApi.fetchHistory(),
@@ -30,6 +33,8 @@ export const useNotMe = (dateOverride?: string) => {
       setHistory(hist);
     } catch (e) {
       console.error("Failed to fetch NotMe data", e);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -71,7 +76,17 @@ export const useNotMe = (dateOverride?: string) => {
         console.error("Failed to add item", e);
       }
     },
-    removeItem: () => {}, // Managed via DB/Admin
+    removeItem: async (id: string) => {
+      // Optimistic update
+      setListItems(listItems.filter((i) => i.id !== id));
+      try {
+        await trackerApi.deleteTracker(id);
+      } catch (e) {
+        console.error("Failed to delete item", e);
+        // Revert on failure
+        fetchData();
+      }
+    },
     updateValue,
     getValue,
     getHistoryValue,
@@ -79,5 +94,6 @@ export const useNotMe = (dateOverride?: string) => {
     setActiveDate,
     history,
     refresh: fetchData,
+    isLoading,
   };
 };

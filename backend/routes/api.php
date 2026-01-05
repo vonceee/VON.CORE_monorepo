@@ -33,4 +33,5 @@ Route::prefix('v1/not-me')->group(function () {
     Route::post('/trackers', [TrackerController::class, 'store']);
     Route::get('/history', [TrackerController::class, 'history']);
     Route::post('/log', [TrackerController::class, 'storeLog']);
+    Route::delete('/trackers/{id}', [TrackerController::class, 'destroy']);
 });

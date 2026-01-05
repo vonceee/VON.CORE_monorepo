@@ -1,6 +1,7 @@
 import React from "react";
 import { useNotMe, TrackerConfig } from "./hooks/useNotMe";
 import { NotMeCalendar } from "./NotMeCalendar";
+import { NotMeGridSkeleton } from "./NotMeSkeleton";
 import {
   Droplets,
   Gamepad2,
@@ -45,7 +46,7 @@ const NotMe: React.FC = () => {
     goal: 1,
     icon: "Activity",
   });
-  const { listItems, updateValue, getValue, history, addItem } =
+  const { listItems, updateValue, getValue, history, addItem, isLoading } =
     useNotMe(activeDate);
   const [showCalendar, setShowCalendar] = React.useState(false);
 
@@ -226,15 +227,24 @@ const NotMe: React.FC = () => {
 
         <div className="flex flex-col gap-10 max-w-7xl">
           {/* Habits Section */}
-          {habits.length > 0 && (
+          {isLoading ? (
             <section>
               <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
-                Daily Habits
+                Loading Habits...
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {habits.map(renderTracker)}
-              </div>
+              <NotMeGridSkeleton />
             </section>
+          ) : (
+            habits.length > 0 && (
+              <section>
+                <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
+                  Daily Habits
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {habits.map(renderTracker)}
+                </div>
+              </section>
+            )
           )}
 
           {/* Games Section */}

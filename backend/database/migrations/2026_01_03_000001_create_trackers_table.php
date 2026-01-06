@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('type'); // counter, outcome
             $table->integer('goal')->nullable();
             $table->string('icon')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

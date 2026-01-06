@@ -135,8 +135,8 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
               {item.label}
             </option>
           ))}
-          {/* Fallback if list is empty */}
-          {listItems.length === 0 && <option>No habits tracking</option>}
+          {/* fallback if list is empty */}
+          {listItems.length === 0 && <option>no habits tracking</option>}
         </select>
       </div>
 

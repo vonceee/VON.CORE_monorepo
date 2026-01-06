@@ -39,14 +39,7 @@ const getISODate = (date = new Date()) => {
 
 const NotMe: React.FC = () => {
   const [activeDate, setActiveDate] = React.useState(getISODate());
-  /* Add Habit Modal State */
-  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
-  const [newHabit, setNewHabit] = React.useState({
-    label: "",
-    type: "counter",
-    goal: 1,
-    icon: "Activity",
-  });
+  /* Add Habit Modal State - REMOVED (Moved to Sidebar) */
   const { listItems, updateValue, getValue, history, addItem, isLoading } =
     useNotMe(activeDate);
   const [showCalendar, setShowCalendar] = React.useState(false);
@@ -72,17 +65,6 @@ const NotMe: React.FC = () => {
     // though conceptually we should probably reset or let the toggle handle it
   };
 
-  const handleAdd = () => {
-    addItem({
-      label: newHabit.label,
-      type: newHabit.type as "counter" | "outcome",
-      goal: newHabit.type === "counter" ? newHabit.goal : undefined,
-      icon: newHabit.icon,
-    });
-    setIsAddModalOpen(false);
-    setNewHabit({ label: "", type: "counter", goal: 1, icon: "Activity" });
-  };
-
   const renderTracker = (item: TrackerConfig) => {
     const IconComponent = ICON_MAP[item.icon || "Activity"] || Activity;
     const valueObj = getValue(item.id);
@@ -100,11 +82,18 @@ const NotMe: React.FC = () => {
           className="group relative flex flex-col justify-between p-5 rounded-2xl hover:bg-white/5 transition-all duration-300"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <IconComponent className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors" />
-              <h2 className="text-lg font-medium text-gray-200 tracking-tight">
-                {item.label}
-              </h2>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-3">
+                <IconComponent className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors" />
+                <h2 className="text-lg font-medium text-gray-200 tracking-tight">
+                  {item.label}
+                </h2>
+              </div>
+              {item.description && (
+                <p className="text-xs text-gray-500 mt-1 ml-7 line-clamp-2">
+                  {item.description}
+                </p>
+              )}
             </div>
             <button
               onClick={() => handleNoteToggle(item.id, valueObj?.note)}
@@ -188,11 +177,18 @@ const NotMe: React.FC = () => {
           className="group relative flex flex-col justify-between p-5 rounded-2xl hover:bg-white/5 transition-all duration-300"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <IconComponent className="w-4 h-4 text-gray-500 group-hover:text-purple-400 transition-colors" />
-              <h2 className="text-lg font-medium text-gray-200 tracking-tight">
-                {item.label}
-              </h2>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-3">
+                <IconComponent className="w-4 h-4 text-gray-500 group-hover:text-purple-400 transition-colors" />
+                <h2 className="text-lg font-medium text-gray-200 tracking-tight">
+                  {item.label}
+                </h2>
+              </div>
+              {item.description && (
+                <p className="text-xs text-gray-500 mt-1 ml-7 line-clamp-2">
+                  {item.description}
+                </p>
+              )}
             </div>
             <button
               onClick={() => handleNoteToggle(item.id, valueObj?.note)}
@@ -297,13 +293,6 @@ const NotMe: React.FC = () => {
 
           <div className="flex gap-4">
             <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="p-3 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-all duration-300"
-              title="Add Habit"
-            >
-              <Plus className="w-6 h-6" />
-            </button>
-            <button
               onClick={() => setShowCalendar(!showCalendar)}
               className={`p-3 rounded-full transition-all duration-300 ${
                 showCalendar
@@ -318,27 +307,74 @@ const NotMe: React.FC = () => {
 
         <div className="flex flex-col gap-6 max-w-7xl">
           {/* Habits Section */}
+          {/* Habits Section */}
           {isLoading ? (
             <div className="space-y-4">
               <NotMeGridSkeleton />
             </div>
-          ) : (
-            habits.length > 0 && (
-              <section>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {habits.map(renderTracker)}
-                </div>
-              </section>
-            )
-          )}
-
-          {/* Games Section */}
-          {games.length > 0 && (
-            <section className="pt-6 border-t border-white/5">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {games.map(renderTracker)}
+          ) : listItems.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center min-h-[400px] text-center p-8 animate-in fade-in zoom-in duration-500">
+              <div className="bg-white/5 p-6 rounded-full mb-6 border border-white/10 shadow-2xl">
+                <Activity className="w-12 h-12 text-gray-400" />
               </div>
-            </section>
+              <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">
+                Welcome to Not Me
+              </h2>
+              <p className="text-gray-500 max-w-md mb-8 leading-relaxed">
+                start by creating your first tracker using the{" "}
+                <strong className="text-white">+</strong> button.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-2xl w-full">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                      <Target className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-sm font-medium text-white">Counters</h3>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    track daily quantities like water intake, pages read, or
+                    pushups. set a daily goal and fill the bar.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+                      <Trophy className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-sm font-medium text-white">Outcomes</h3>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    track binary results like "Win/Loss" for games, or
+                    "Pass/Fail" for daily challenges.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              {habits.length > 0 && (
+                <section>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {habits.map(renderTracker)}
+                  </div>
+                </section>
+              )}
+
+              {games.length > 0 && (
+                <section
+                  className={
+                    habits.length > 0 ? "pt-6 border-t border-white/5" : ""
+                  }
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {games.map(renderTracker)}
+                  </div>
+                </section>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -352,120 +388,6 @@ const NotMe: React.FC = () => {
             history={history}
             listItems={listItems}
           />
-        </div>
-      )}
-
-      {/* Add Habit Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#18181b] border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl">
-            <h2 className="text-xl font-bold mb-4">Add New Habit</h2>
-
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="text-sm text-gray-400 block mb-1">
-                  Label
-                </label>
-                <input
-                  value={newHabit.label}
-                  onChange={(e) =>
-                    setNewHabit({ ...newHabit, label: e.target.value })
-                  }
-                  className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
-                  placeholder="e.g. Read Book"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-400 block mb-1">Type</label>
-                <div className="flex bg-black/20 p-1 rounded-lg border border-white/10">
-                  <button
-                    onClick={() =>
-                      setNewHabit({ ...newHabit, type: "counter" })
-                    }
-                    className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      newHabit.type === "counter"
-                        ? "bg-blue-500/20 text-blue-400"
-                        : "text-gray-500 hover:text-gray-300"
-                    }`}
-                  >
-                    Counter
-                  </button>
-                  <button
-                    onClick={() =>
-                      setNewHabit({ ...newHabit, type: "outcome" })
-                    }
-                    className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      newHabit.type === "outcome"
-                        ? "bg-purple-500/20 text-purple-400"
-                        : "text-gray-500 hover:text-gray-300"
-                    }`}
-                  >
-                    Outcome
-                  </button>
-                </div>
-              </div>
-
-              {newHabit.type === "counter" && (
-                <div>
-                  <label className="text-sm text-gray-400 block mb-1">
-                    Daily Goal
-                  </label>
-                  <input
-                    type="number"
-                    value={newHabit.goal}
-                    onChange={(e) =>
-                      setNewHabit({
-                        ...newHabit,
-                        goal: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              )}
-
-              <div>
-                <label className="text-sm text-gray-400 block mb-1">Icon</label>
-                <div className="flex flex-wrap gap-2">
-                  {Object.keys(ICON_MAP).map((iconKey) => {
-                    const Icon = ICON_MAP[iconKey];
-                    return (
-                      <button
-                        key={iconKey}
-                        onClick={() =>
-                          setNewHabit({ ...newHabit, icon: iconKey })
-                        }
-                        className={`p-2 rounded-lg border ${
-                          newHabit.icon === iconKey
-                            ? "bg-white/10 border-blue-500 text-blue-400"
-                            : "border-transparent text-gray-500 hover:bg-white/5"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5" />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAdd}
-                disabled={!newHabit.label}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Create Habit
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

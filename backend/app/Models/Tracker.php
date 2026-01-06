@@ -15,6 +15,7 @@ class Tracker extends Model
         'type',
         'goal',
         'icon',
+        'description',
     ];
 
     public function logs()

@@ -14,41 +14,59 @@ import {
 } from "lucide-react";
 import { NotMeListSkeleton } from "./NotMeSkeleton";
 
+// Icon Map (Needs to be available here too, duplicating or moving to types/constants would be better but keeping simple for now)
+const ICON_MAP: Record<string, React.ElementType> = {
+  Droplets,
+  Gamepad2,
+  Swords,
+  Activity,
+  Zap,
+  Target,
+};
+
 export const NotMeSidebar: React.FC = () => {
   const { listItems, addItem, removeItem, isLoading } = useNotMe();
-  const [isAdding, setIsAdding] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // New Item Form State
-  const [imgLabel, setImgLabel] = useState("");
-  const [imgType, setImgType] = useState<TrackerType>("counter");
-  const [imgGoal, setImgGoal] = useState<string>("5");
-  const [imgIcon, setImgIcon] = useState("Activity");
+  // New Item Form State (Unified Object)
+  const [newHabit, setNewHabit] = useState<{
+    label: string;
+    type: TrackerType;
+    goal: number | string;
+    icon: string;
+    description: string;
+  }>({
+    label: "",
+    type: "counter",
+    goal: 5,
+    icon: "Activity",
+    description: "",
+  });
 
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!imgLabel.trim()) return;
+  const handleAdd = () => {
+    if (!newHabit.label.trim()) return;
 
     addItem({
       id: Date.now().toString(),
-      label: imgLabel,
-      type: imgType,
-      goal: imgType === "counter" ? parseInt(imgGoal) : undefined,
-      icon: imgIcon,
+      label: newHabit.label,
+      type: newHabit.type,
+      goal:
+        newHabit.type === "counter"
+          ? parseInt(newHabit.goal.toString())
+          : undefined,
+      icon: newHabit.icon,
+      description: newHabit.description,
     });
 
-    setIsAdding(false);
-    setImgLabel("");
-    setImgGoal("5");
+    setIsAddModalOpen(false);
+    setNewHabit({
+      label: "",
+      type: "counter",
+      goal: 5,
+      icon: "Activity",
+      description: "",
+    });
   };
-
-  const iconOptions = [
-    { value: "Activity", icon: Activity },
-    { value: "Droplets", icon: Droplets },
-    { value: "Gamepad2", icon: Gamepad2 },
-    { value: "Swords", icon: Swords },
-    { value: "Zap", icon: Zap },
-    { value: "Target", icon: Target },
-  ];
 
   // Delete Confirmation State
   const [deleteConfirmationId, setDeleteConfirmationId] = useState<
@@ -57,7 +75,6 @@ export const NotMeSidebar: React.FC = () => {
 
   const handleDeleteClick = (id: string) => {
     if (deleteConfirmationId === id) {
-      // If already confirming this item, do nothing (or could toggle off, but buttons handle that)
       return;
     }
     setDeleteConfirmationId(id);
@@ -72,86 +89,19 @@ export const NotMeSidebar: React.FC = () => {
     setDeleteConfirmationId(null);
   };
 
-  // ... existing code ...
-
   return (
-    <div className="h-full w-full flex flex-col bg-black border-l border-white/5 p-4">
+    <div className="h-full w-full flex flex-col bg-black border-l border-white/5 p-4 relative">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
           Managed Habits
         </h2>
         <button
-          onClick={() => setIsAdding(!isAdding)}
+          onClick={() => setIsAddModalOpen(true)}
           className="p-1.5 hover:bg-white/10 rounded-md transition-colors text-gray-400 hover:text-white"
         >
           <Plus className="w-4 h-4" />
         </button>
       </div>
-
-      {isAdding && (
-        <form
-          onSubmit={handleAdd}
-          className="mb-6 p-3 bg-white/5 rounded-lg border border-white/10 flex flex-col gap-3"
-        >
-          <input
-            type="text"
-            placeholder="Label (e.g. Reading)"
-            value={imgLabel}
-            onChange={(e) => setImgLabel(e.target.value)}
-            className="w-full bg-black/50 border border-white/10 rounded px-2 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-white/30"
-            autoFocus
-          />
-
-          <div className="flex gap-2">
-            <select
-              value={imgType}
-              onChange={(e) => setImgType(e.target.value as TrackerType)}
-              className="bg-black/50 border border-white/10 rounded px-2 py-1.5 text-xs text-gray-300 focus:outline-none"
-            >
-              <option value="counter">Counter</option>
-              <option value="outcome">Win/Loss</option>
-            </select>
-
-            <select
-              value={imgIcon}
-              onChange={(e) => setImgIcon(e.target.value)}
-              className="bg-black/50 border border-white/10 rounded px-2 py-1.5 text-xs text-gray-300 focus:outline-none flex-1"
-            >
-              {iconOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.value}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {imgType === "counter" && (
-            <input
-              type="number"
-              placeholder="Daily Goal"
-              value={imgGoal}
-              onChange={(e) => setImgGoal(e.target.value)}
-              className="w-full bg-black/50 border border-white/10 rounded px-2 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-white/30"
-            />
-          )}
-
-          <div className="flex justify-end gap-2 mt-1">
-            <button
-              type="button"
-              onClick={() => setIsAdding(false)}
-              className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="text-xs bg-white text-black font-bold px-3 py-1 rounded hover:bg-gray-200"
-            >
-              Add
-            </button>
-          </div>
-        </form>
-      )}
 
       <div className="flex-1 overflow-y-auto custom-scroll space-y-2">
         {isLoading ? (
@@ -193,6 +143,11 @@ export const NotMeSidebar: React.FC = () => {
                         <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
                           {item.label}
                         </span>
+                        {item.description && (
+                          <span className="text-[10px] text-gray-500 truncate max-w-[120px]">
+                            {item.description}
+                          </span>
+                        )}
                         <span className="text-[10px] text-gray-600 uppercase tracking-wider">
                           {item.type} {item.goal ? `/ ${item.goal}` : ""}
                         </span>
@@ -212,13 +167,144 @@ export const NotMeSidebar: React.FC = () => {
             ))}
 
             {listItems.length === 0 && (
-              <div className="text-center py-8 text-gray-600 text-xs">
-                No items tracking. Add one above.
+              <div className="text-center py-8 px-4 text-gray-600 text-xs">
+                <p>no habits yet.</p>
+                <p className="mt-1 text-gray-700">
+                  get started by clicking the + button above.
+                </p>
               </div>
             )}
           </>
         )}
       </div>
+
+      {/* Add Habit Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-[#18181b] border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h2 className="text-xl font-bold mb-4 text-white">Add New Habit</h2>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-sm text-gray-400 block mb-1">
+                  Label
+                </label>
+                <input
+                  value={newHabit.label}
+                  onChange={(e) =>
+                    setNewHabit({ ...newHabit, label: e.target.value })
+                  }
+                  className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
+                  placeholder="e.g. Read Book"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-400 block mb-1">
+                  Description (Optional)
+                </label>
+                <textarea
+                  value={newHabit.description}
+                  onChange={(e) =>
+                    setNewHabit({ ...newHabit, description: e.target.value })
+                  }
+                  className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500 resize-none h-20"
+                  placeholder="e.g. read 10 pages before bed..."
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-400 block mb-1">Type</label>
+                <div className="flex bg-black/20 p-1 rounded-lg border border-white/10">
+                  <button
+                    onClick={() =>
+                      setNewHabit({ ...newHabit, type: "counter" })
+                    }
+                    className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      newHabit.type === "counter"
+                        ? "bg-blue-500/20 text-blue-400"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    Counter
+                  </button>
+                  <button
+                    onClick={() =>
+                      setNewHabit({ ...newHabit, type: "outcome" })
+                    }
+                    className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      newHabit.type === "outcome"
+                        ? "bg-purple-500/20 text-purple-400"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    Outcome
+                  </button>
+                </div>
+              </div>
+
+              {newHabit.type === "counter" && (
+                <div>
+                  <label className="text-sm text-gray-400 block mb-1">
+                    Daily Goal
+                  </label>
+                  <input
+                    type="number"
+                    value={newHabit.goal}
+                    onChange={(e) =>
+                      setNewHabit({
+                        ...newHabit,
+                        goal: e.target.value,
+                      })
+                    }
+                    className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-white focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="text-sm text-gray-400 block mb-1">Icon</label>
+                <div className="flex flex-wrap gap-2">
+                  {Object.keys(ICON_MAP).map((iconKey) => {
+                    const Icon = ICON_MAP[iconKey];
+                    return (
+                      <button
+                        key={iconKey}
+                        onClick={() =>
+                          setNewHabit({ ...newHabit, icon: iconKey })
+                        }
+                        className={`p-2 rounded-lg border ${
+                          newHabit.icon === iconKey
+                            ? "bg-white/10 border-blue-500 text-blue-400"
+                            : "border-transparent text-gray-500 hover:bg-white/5"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAdd}
+                disabled={!newHabit.label}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Create Habit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -121,6 +121,7 @@ class TrackerController extends Controller
             'type' => 'required|in:counter,outcome',
             'goal' => 'nullable|integer',
             'icon' => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
 
         $tracker = Tracker::create($validated);

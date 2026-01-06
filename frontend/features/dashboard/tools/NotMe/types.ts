@@ -6,6 +6,7 @@ export interface TrackerConfig {
   type: TrackerType;
   goal?: number; // for counter
   icon?: string; // e.g. "Droplets", "Gamepad2"
+  description?: string;
 }
 
 export type GameOutcome = "WIN" | "LOSS" | null;

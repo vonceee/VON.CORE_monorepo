@@ -8,6 +8,7 @@ import {
   Swords,
   Activity,
   Zap,
+  MessageSquare,
 } from "lucide-react";
 import { TrackerConfig, HistoryState } from "./types";
 
@@ -77,10 +78,11 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
 
   const renderDot = (dateStr: string, habit?: TrackerConfig) => {
     if (!habit) return null;
-    const value = history[dateStr]?.[habit.id];
+    const valueObj = history[dateStr]?.[habit.id];
+    const amount = valueObj?.amount;
 
     if (habit.type === "counter") {
-      const count = (value as number) || 0;
+      const count = Number(amount) || 0;
       const goal = habit.goal || 1;
 
       if (count >= goal) {
@@ -96,7 +98,7 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
     }
 
     if (habit.type === "outcome") {
-      const outcome = value as "WIN" | "LOSS" | null;
+      const outcome = amount as "WIN" | "LOSS" | null;
       if (outcome === "WIN") {
         return (
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
@@ -217,7 +219,7 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
       </div>
 
       {/* Footer Info */}
-      <div className="mt-auto pt-6 border-t border-white/5">
+      <div className="mt-auto pt-6 border-t border-white/5 space-y-4">
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>Selected:</span>
           <span
@@ -229,6 +231,31 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
           >
             {activeDate === getISODate() ? "Today" : activeDate}
           </span>
+        </div>
+
+        {/* Day Notes Summary */}
+        <div className="space-y-2">
+          {listItems.map((item) => {
+            const note = history[activeDate]?.[item.id]?.note;
+            if (!note) return null;
+
+            return (
+              <div
+                key={item.id}
+                className="bg-white/5 rounded p-2 text-xs border border-white/5"
+              >
+                <div className="flex items-center gap-1.5 mb-1 text-gray-400">
+                  <MessageSquare className="w-3 h-3" />
+                  <span className="font-medium text-gray-300">
+                    {item.label}
+                  </span>
+                </div>
+                <p className="text-gray-400 leading-relaxed break-words pl-4.5">
+                  {note}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

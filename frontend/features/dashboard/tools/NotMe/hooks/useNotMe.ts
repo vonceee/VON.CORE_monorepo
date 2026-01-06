@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { trackerApi } from "../../../../../services/api/tracker";
-import { TrackerConfig, HistoryState } from "../types";
+import { TrackerConfig, HistoryState, TrackerValue } from "../types";
 
 export * from "../types";
 
@@ -42,15 +42,27 @@ export const useNotMe = (dateOverride?: string) => {
     fetchData();
   }, [fetchData]);
 
-  const updateValue = async (id: string, value: any) => {
+  const updateValue = async (id: string, updates: Partial<TrackerValue>) => {
     // Optimistic Update
     const currentDayValues = history[activeDate] || {};
-    const newDayValues = { ...currentDayValues, [id]: value };
+    const existingValue = currentDayValues[id] || { amount: null, note: null };
+
+    // Merge updates
+    const newValue: TrackerValue = {
+      ...existingValue,
+      ...updates,
+      // Ensure amount is null if not provided and not in existing, defaulting to existing or null
+      amount:
+        updates.amount !== undefined ? updates.amount : existingValue.amount,
+      note: updates.note !== undefined ? updates.note : existingValue.note,
+    };
+
+    const newDayValues = { ...currentDayValues, [id]: newValue };
     const newHistory = { ...history, [activeDate]: newDayValues };
     setHistory(newHistory);
 
     try {
-      await trackerApi.updateValue(activeDate, id, value);
+      await trackerApi.updateValue(activeDate, id, newValue);
     } catch (e) {
       console.error("Failed to save value", e);
       // Revert/Sync on error

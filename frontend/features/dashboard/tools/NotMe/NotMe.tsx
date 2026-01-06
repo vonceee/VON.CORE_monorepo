@@ -15,6 +15,7 @@ import {
   Zap,
   Target,
   Calendar as CalendarIcon,
+  MessageSquare,
 } from "lucide-react";
 
 // Icon Map
@@ -49,8 +50,27 @@ const NotMe: React.FC = () => {
   const { listItems, updateValue, getValue, history, addItem, isLoading } =
     useNotMe(activeDate);
   const [showCalendar, setShowCalendar] = React.useState(false);
+  const [openNoteId, setOpenNoteId] = React.useState<string | null>(null);
+  const [noteText, setNoteText] = React.useState("");
 
   const isToday = activeDate === getISODate();
+
+  const handleNoteToggle = (id: string, currentNote?: string | null) => {
+    if (openNoteId === id) {
+      setOpenNoteId(null);
+      setNoteText("");
+    } else {
+      setOpenNoteId(id);
+      setNoteText(currentNote || "");
+    }
+  };
+
+  const saveNote = (id: string) => {
+    updateValue(id, { note: noteText });
+    setOpenNoteId(null);
+    // don't clear noteText immediately to avoid flickering if we re-open,
+    // though conceptually we should probably reset or let the toggle handle it
+  };
 
   const handleAdd = () => {
     addItem({
@@ -65,61 +85,94 @@ const NotMe: React.FC = () => {
 
   const renderTracker = (item: TrackerConfig) => {
     const IconComponent = ICON_MAP[item.icon || "Activity"] || Activity;
-    const value = getValue(item.id);
+    const valueObj = getValue(item.id);
+    const amount = valueObj?.amount;
 
     // Counter View
     if (item.type === "counter") {
-      const current = Number(value) || 0;
+      const current = Number(amount) || 0;
       const goal = item.goal || 1;
       const progress = Math.min(100, (current / goal) * 100);
 
       return (
         <div
           key={item.id}
-          className="bg-[#18181b] rounded-xl p-6 border border-white/5 shadow-sm"
+          className="group relative flex flex-col justify-between p-5 rounded-2xl hover:bg-white/5 transition-all duration-300"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <IconComponent className="w-5 h-5 text-blue-400" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <IconComponent className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors" />
+              <h2 className="text-lg font-medium text-gray-200 tracking-tight">
+                {item.label}
+              </h2>
             </div>
-            <h2 className="text-lg font-semibold text-gray-200">
-              {item.label}
-            </h2>
+            <button
+              onClick={() => handleNoteToggle(item.id, valueObj?.note)}
+              className={`p-1.5 rounded-lg transition-all duration-300 ${
+                valueObj?.note
+                  ? "text-blue-400"
+                  : "text-gray-600 opacity-0 group-hover:opacity-100 hover:text-gray-300"
+              }`}
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center gap-6">
               <button
-                onClick={() => updateValue(item.id, Math.max(0, current - 1))}
-                className="p-3 rounded-full hover:bg-white/5 border border-white/10 transition-colors"
+                onClick={() =>
+                  updateValue(item.id, { amount: Math.max(0, current - 1) })
+                }
+                className="group/btn p-1.5 transition-all hover:scale-110 disabled:opacity-30"
                 disabled={current === 0}
               >
-                <Minus className="w-5 h-5 text-gray-400" />
+                <Minus className="w-5 h-5 text-gray-600 group-hover/btn:text-gray-300 transition-colors" />
               </button>
 
               <div className="text-center">
-                <span className="text-4xl font-bold tabular-nums block">
+                <span className="text-5xl font-light tracking-tighter tabular-nums block text-white">
                   {current}
                 </span>
-                <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                  / {goal}
+                <span className="text-xs text-gray-600 font-medium tracking-wide mt-1 block">
+                  GOAL: {goal}
                 </span>
               </div>
 
               <button
-                onClick={() => updateValue(item.id, current + 1)}
-                className="p-3 rounded-full hover:bg-white/5 border border-white/10 transition-colors"
+                onClick={() => updateValue(item.id, { amount: current + 1 })}
+                className="group/btn p-1.5 transition-all hover:scale-110"
               >
-                <Plus className="w-5 h-5 text-gray-400" />
+                <Plus className="w-5 h-5 text-gray-600 group-hover/btn:text-gray-300 transition-colors" />
               </button>
             </div>
 
-            <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
               <div
-                className="h-full bg-blue-500 transition-all duration-300 ease-out"
+                className="h-full bg-blue-500/50 transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
+
+            {/* Note Input Area */}
+            {openNoteId === item.id && (
+              <div className="mt-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <textarea
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  placeholder="Add a note..."
+                  className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-gray-300 focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none"
+                  autoFocus
+                  onBlur={() => saveNote(item.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      saveNote(item.id);
+                    }
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       );
@@ -127,52 +180,96 @@ const NotMe: React.FC = () => {
 
     // Outcome View (Win/Loss)
     if (item.type === "outcome") {
-      const outcome = value as "WIN" | "LOSS" | null;
+      const outcome = amount as "WIN" | "LOSS" | null;
 
       return (
         <div
           key={item.id}
-          className="bg-[#18181b] rounded-xl p-6 border border-white/5 shadow-sm"
+          className="group relative flex flex-col justify-between p-5 rounded-2xl hover:bg-white/5 transition-all duration-300"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-purple-500/10 rounded-lg">
-              <IconComponent className="w-5 h-5 text-purple-400" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <IconComponent className="w-4 h-4 text-gray-500 group-hover:text-purple-400 transition-colors" />
+              <h2 className="text-lg font-medium text-gray-200 tracking-tight">
+                {item.label}
+              </h2>
             </div>
-            <h2 className="text-lg font-semibold text-gray-200">
-              {item.label}
-            </h2>
+            <button
+              onClick={() => handleNoteToggle(item.id, valueObj?.note)}
+              className={`p-1.5 rounded-lg transition-all duration-300 ${
+                valueObj?.note
+                  ? "text-blue-400"
+                  : "text-gray-600 opacity-0 group-hover:opacity-100 hover:text-gray-300"
+              }`}
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          <div className="p-4 bg-black/20 rounded-lg border border-white/5">
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() =>
-                  updateValue(item.id, outcome === "WIN" ? null : "WIN")
-                }
-                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                  outcome === "WIN"
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent"
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() =>
+                updateValue(item.id, {
+                  amount: outcome === "WIN" ? null : "WIN",
+                })
+              }
+              className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl transition-all duration-300 ${
+                outcome === "WIN"
+                  ? "bg-emerald-500/10 text-emerald-400"
+                  : "bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300"
+              }`}
+            >
+              <CheckCircle2
+                className={`w-5 h-5 ${
+                  outcome === "WIN" ? "text-emerald-400" : "opacity-50"
                 }`}
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" />
+              />
+              <span className="text-[10px] font-medium tracking-widest uppercase">
                 WIN
-              </button>
-              <button
-                onClick={() =>
-                  updateValue(item.id, outcome === "LOSS" ? null : "LOSS")
-                }
-                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                  outcome === "LOSS"
-                    ? "bg-rose-500/20 text-rose-400 border border-rose-500/50"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent"
+              </span>
+            </button>
+            <button
+              onClick={() =>
+                updateValue(item.id, {
+                  amount: outcome === "LOSS" ? null : "LOSS",
+                })
+              }
+              className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl transition-all duration-300 ${
+                outcome === "LOSS"
+                  ? "bg-rose-500/10 text-rose-400"
+                  : "bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300"
+              }`}
+            >
+              <XCircle
+                className={`w-5 h-5 ${
+                  outcome === "LOSS" ? "text-rose-400" : "opacity-50"
                 }`}
-              >
-                <XCircle className="w-3.5 h-3.5" />
+              />
+              <span className="text-[10px] font-medium tracking-widest uppercase">
                 LOSS
-              </button>
-            </div>
+              </span>
+            </button>
           </div>
+
+          {/* Note Input Area */}
+          {openNoteId === item.id && (
+            <div className="mt-4 pt-4 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
+              <textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="Add a note..."
+                className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-gray-300 focus:outline-none focus:border-purple-500/50 min-h-[80px] resize-none"
+                autoFocus
+                onBlur={() => saveNote(item.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    saveNote(item.id);
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
       );
     }
@@ -184,63 +281,51 @@ const NotMe: React.FC = () => {
   const games = listItems.filter((item) => item.type === "outcome");
 
   return (
-    <div className="h-full w-full flex bg-[#09090b] text-white overflow-hidden">
+    <div className="h-full w-full flex bg-[#09090b] text-white overflow-hidden font-sans">
       {/* Main Content */}
-      <div className="flex-1 flex flex-col p-6 overflow-y-auto custom-scroll">
+      <div className="flex-1 flex flex-col p-8 overflow-y-auto custom-scroll">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-12">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+            <h1 className="text-4xl font-light tracking-tighter mb-1 text-white">
               Not Me.
             </h1>
-            <div className="flex items-center gap-2">
-              <span
-                className={`text-sm font-medium ${
-                  isToday ? "text-gray-500" : "text-blue-400"
-                }`}
-              >
-                {isToday ? "Today's Focus" : `Viewing History: ${activeDate}`}
-              </span>
-            </div>
+            <p className="text-sm text-gray-500 font-medium tracking-wide uppercase">
+              {isToday ? "Today's Focus" : `History: ${activeDate}`}
+            </p>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-4">
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+              className="p-3 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-all duration-300"
               title="Add Habit"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-6 h-6" />
             </button>
             <button
               onClick={() => setShowCalendar(!showCalendar)}
-              className={`p-2 rounded-lg transition-colors border ${
+              className={`p-3 rounded-full transition-all duration-300 ${
                 showCalendar
-                  ? "bg-white/10 border-white/20 text-white"
-                  : "text-gray-400 border-transparent hover:bg-white/5"
+                  ? "bg-white text-black hover:bg-gray-200"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
               }`}
             >
-              <CalendarIcon className="w-5 h-5" />
+              <CalendarIcon className="w-6 h-6" />
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col gap-10 max-w-7xl">
+        <div className="flex flex-col gap-6 max-w-7xl">
           {/* Habits Section */}
           {isLoading ? (
-            <section>
-              <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
-                Loading Habits...
-              </h2>
+            <div className="space-y-4">
               <NotMeGridSkeleton />
-            </section>
+            </div>
           ) : (
             habits.length > 0 && (
               <section>
-                <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
-                  Daily Habits
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {habits.map(renderTracker)}
                 </div>
               </section>
@@ -249,11 +334,8 @@ const NotMe: React.FC = () => {
 
           {/* Games Section */}
           {games.length > 0 && (
-            <section>
-              <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-white/5 pb-2">
-                Games & Discipline
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <section className="pt-6 border-t border-white/5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {games.map(renderTracker)}
               </div>
             </section>

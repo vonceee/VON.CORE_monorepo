@@ -10,8 +10,13 @@ export interface TrackerConfig {
 
 export type GameOutcome = "WIN" | "LOSS" | null;
 
+export interface TrackerValue {
+  amount: number | string | null;
+  note?: string | null;
+}
+
 export interface DailyValues {
-  [key: string]: any; // id -> value
+  [key: string]: TrackerValue; // id -> value object
 }
 
 // Map: DateString -> DailyValues

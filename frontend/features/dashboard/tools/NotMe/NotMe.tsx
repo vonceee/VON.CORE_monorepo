@@ -160,7 +160,7 @@ const NotMe: React.FC = () => {
                 <textarea
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
-                  placeholder="Add a note..."
+                  placeholder="add a note..."
                   className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-gray-300 focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none"
                   autoFocus
                   onBlur={() => saveNote(item.id)}
@@ -257,7 +257,7 @@ const NotMe: React.FC = () => {
               <textarea
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
-                placeholder="Add a note..."
+                placeholder="add a note..."
                 className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-gray-300 focus:outline-none focus:border-purple-500/50 min-h-[80px] resize-none"
                 autoFocus
                 onBlur={() => saveNote(item.id)}

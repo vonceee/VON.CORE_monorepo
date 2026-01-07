@@ -5,6 +5,9 @@ import { ActivityBar } from "./components/ActivityBar";
 import { Sidebar } from "./components/Sidebar";
 import { EditorGrid } from "./components/EditorGrid";
 import { StatusBar } from "./components/StatusBar";
+import { TopBar } from "./components/TopBar";
+import { Panel } from "./components/Panel";
+import { SecondarySidebar } from "./components/SecondarySidebar";
 
 interface DevDashboardProps {
   onExit: () => void;
@@ -19,6 +22,8 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
     activeGroupId,
     activeSidebarTool,
     sidebarWidth,
+    isPanelOpen,
+    isSecondarySidebarOpen,
   } = state;
   const {
     handleToolClick,
@@ -28,25 +33,47 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
     closeSplit,
     setActiveGroupId,
     setSidebarWidth,
+    togglePrimarySidebar,
+    togglePanel,
+    toggleSecondarySidebar,
   } = actions;
 
   const [isResizing, setIsResizing] = React.useState(false);
+
+  // --- Keyboard Shortcuts ---
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Toggle Primary Sidebar: Ctrl + B
+      if (e.ctrlKey && !e.altKey && (e.key === "b" || e.key === "B")) {
+        e.preventDefault();
+        togglePrimarySidebar();
+      }
+      // Toggle Secondary Sidebar: Ctrl + Alt + B
+      else if (e.ctrlKey && e.altKey && (e.key === "b" || e.key === "B")) {
+        e.preventDefault();
+        toggleSecondarySidebar();
+      }
+      // Toggle Panel: Ctrl + J
+      else if (e.ctrlKey && (e.key === "j" || e.key === "J")) {
+        e.preventDefault();
+        togglePanel();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [togglePrimarySidebar, toggleSecondarySidebar, togglePanel]);
 
   // --- Resize Handler ---
   const handleResizeStart = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
 
-    // Store initial values if needed, but for now we'll just track movement
     const startX = e.clientX;
     const startWidth = sidebarWidth;
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientX - startX;
-      // activity bar width is roughly 48px or 60px depending on implementation,
-      // but since we are just adding delta to startWidth, we shouldn't worry about absolute positioning too much
-      // as long as the sidebar is on the left.
-
       const newWidth = Math.max(160, Math.min(600, startWidth + delta));
       setSidebarWidth(newWidth);
     };
@@ -59,7 +86,6 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
       document.body.style.userSelect = "";
     };
 
-    // Set global cursor styles
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
 
@@ -76,6 +102,16 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
         ${isResizing ? "select-none cursor-col-resize" : ""}
       `}
     >
+      {/* Top Bar */}
+      <TopBar
+        onTogglePrimarySidebar={togglePrimarySidebar}
+        onTogglePanel={togglePanel}
+        onToggleSecondarySidebar={toggleSecondarySidebar}
+        isPrimarySidebarOpen={isSidebarOpen}
+        isPanelOpen={isPanelOpen}
+        isSecondarySidebarOpen={isSecondarySidebarOpen}
+      />
+
       <div className="flex flex-1 overflow-hidden">
         {/* Activity Bar */}
         <ActivityBar
@@ -86,7 +122,7 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
           onExit={onExit}
         />
 
-        {/* Sidebar */}
+        {/* Primary Sidebar */}
         {isSidebarOpen && (
           <Sidebar
             activeTool={activeSidebarTool}
@@ -95,17 +131,23 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
           />
         )}
 
-        {/* Main Editor Area */}
-        <EditorGrid
-          groups={editorGroups}
-          activeGroupId={activeGroupId}
-          onActivateGroup={setActiveGroupId}
-          onActivateTab={activateTab}
-          onCloseTab={closeTab}
-          onSplit={splitEditor}
-          onCloseSplit={closeSplit}
-          getTool={getToolById}
-        />
+        {/* Center Region: Editor + Panel */}
+        <div className="flex flex-col flex-1 overflow-hidden min-w-0">
+          <EditorGrid
+            groups={editorGroups}
+            activeGroupId={activeGroupId}
+            onActivateGroup={setActiveGroupId}
+            onActivateTab={activateTab}
+            onCloseTab={closeTab}
+            onSplit={splitEditor}
+            onCloseSplit={closeSplit}
+            getTool={getToolById}
+          />
+          {isPanelOpen && <Panel />}
+        </div>
+
+        {/* Secondary Sidebar (Agent) */}
+        {isSecondarySidebarOpen && <SecondarySidebar />}
       </div>
 
       {/* Status Bar */}

@@ -10,10 +10,10 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   mode = "DEV",
 }) => {
   return (
-    <div className="h-6 bg-orange-600 text-black text-[11px] flex items-center px-4 justify-between font-medium z-50">
+    <div className="h-6 bg-[#181818] border-t border-[#2B2B2B] text-[11px] flex items-center px-4 justify-between font-mono z-50">
       <div className="flex items-center space-x-4">
         <div className="flex items-center">
-          <span className="mr-1">⎇</span> dev-branch
+          <span>⎇</span> dev-mode
         </div>
         <div className="flex items-center space-x-1">
           <span>{activeTabCount} Active Tabs</span>

@@ -12,6 +12,8 @@ export const useDashboard = (): {
 } => {
   // --- State ---
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [activeSidebarToolId, setActiveSidebarToolId] = useState<string>(
     TOOLS_CONFIG[0].id
@@ -134,6 +136,11 @@ export const useDashboard = (): {
     setSidebarWidth(width);
   };
 
+  const togglePrimarySidebar = () => setIsSidebarOpen((prev) => !prev);
+  const togglePanel = () => setIsPanelOpen((prev) => !prev);
+  const toggleSecondarySidebar = () =>
+    setIsSecondarySidebarOpen((prev) => !prev);
+
   // --- Effects ---
   useEffect(() => {
     const activeGroup = editorGroups.find((g) => g.id === activeGroupId);
@@ -166,6 +173,8 @@ export const useDashboard = (): {
       activeGroupId,
       activeSidebarTool,
       sidebarWidth,
+      isPanelOpen,
+      isSecondarySidebarOpen,
     },
     actions: {
       handleToolClick,
@@ -176,6 +185,9 @@ export const useDashboard = (): {
       setSidebarOpen,
       setActiveGroupId,
       setSidebarWidth: updateSidebarWidth,
+      togglePrimarySidebar,
+      togglePanel,
+      toggleSecondarySidebar,
     },
   };
 };

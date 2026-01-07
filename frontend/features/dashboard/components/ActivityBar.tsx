@@ -17,7 +17,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({
   onExit,
 }) => {
   return (
-    <div className="w-12 bg-[#09090b] flex flex-col items-center py-4 space-y-4 z-20">
+    <div className="w-12 bg-[#181818] border-r border-[#2B2B2B] flex flex-col items-center py-4 space-y-4 z-20">
       {tools.map((tool) => (
         <button
           key={tool.id}

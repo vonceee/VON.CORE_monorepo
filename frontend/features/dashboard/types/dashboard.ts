@@ -22,6 +22,9 @@ export interface DashboardActions {
   setSidebarOpen: (isOpen: boolean) => void;
   setActiveGroupId: (groupId: string) => void;
   setSidebarWidth: (width: number) => void;
+  togglePrimarySidebar: () => void;
+  togglePanel: () => void;
+  toggleSecondarySidebar: () => void;
 }
 
 /**
@@ -34,4 +37,6 @@ export interface DashboardState {
   editorGroups: EditorGroup[];
   activeGroupId: string;
   activeSidebarTool: Tool;
+  isPanelOpen: boolean;
+  isSecondarySidebarOpen: boolean;
 }

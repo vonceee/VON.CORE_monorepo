@@ -21,6 +21,7 @@ export interface DashboardActions {
   closeSplit: (e: React.MouseEvent, groupId: string) => void;
   setSidebarOpen: (isOpen: boolean) => void;
   setActiveGroupId: (groupId: string) => void;
+  setSidebarWidth: (width: number) => void;
 }
 
 /**
@@ -28,6 +29,7 @@ export interface DashboardActions {
  */
 export interface DashboardState {
   isSidebarOpen: boolean;
+  sidebarWidth: number;
   activeSidebarToolId: string;
   editorGroups: EditorGroup[];
   activeGroupId: string;

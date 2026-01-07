@@ -3,12 +3,21 @@ import { Tool } from "../../../types/index";
 
 interface SidebarProps {
   activeTool: Tool;
+  width: number;
+  onResizeStart: (e: React.MouseEvent) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTool }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  activeTool,
+  width,
+  onResizeStart,
+}) => {
   return (
-    <div className="w-64 bg-[#252526] border-r border-black/20 flex flex-col animate-slideRight">
-      <div className="h-9 flex items-center px-4 text-[11px] font-bold text-[#bbbbbb] tracking-wider uppercase bg-[#252526]">
+    <div
+      style={{ width }}
+      className="bg-[#252526] border-r border-black/20 flex flex-col relative shrink-0"
+    >
+      <div className="h-9 flex items-center px-4 text-[11px] font-bold text-[#bbbbbb] tracking-wider uppercase bg-[#252526] select-none">
         Explorer
       </div>
       <div className="flex-1 overflow-y-hidden flex flex-col">
@@ -33,6 +42,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTool }) => {
           </div>
         </div>
       </div>
+
+      {/* Resize Handle */}
+      <div
+        onMouseDown={onResizeStart}
+        className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[#007fd4] z-10 transition-colors duration-150 delay-100"
+      />
     </div>
   );
 };

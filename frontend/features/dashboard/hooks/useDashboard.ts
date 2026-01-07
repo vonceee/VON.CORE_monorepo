@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TOOLS_CONFIG } from "../toolRegistry";
 import {
   EditorGroup,
@@ -12,6 +12,7 @@ export const useDashboard = (): {
 } => {
   // --- State ---
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [sidebarWidth, setSidebarWidth] = useState(256);
   const [activeSidebarToolId, setActiveSidebarToolId] = useState<string>(
     TOOLS_CONFIG[0].id
   );
@@ -129,6 +130,34 @@ export const useDashboard = (): {
     setIsSidebarOpen(isOpen);
   };
 
+  const updateSidebarWidth = (width: number) => {
+    setSidebarWidth(width);
+  };
+
+  // --- Effects ---
+  useEffect(() => {
+    const activeGroup = editorGroups.find((g) => g.id === activeGroupId);
+    if (!activeGroup) return;
+
+    if (activeGroup.activeTabId) {
+      if (activeGroup.activeTabId !== activeSidebarToolId) {
+        setActiveSidebarToolId(activeGroup.activeTabId);
+      }
+    } else {
+      // If no tab is active (all closed), close the sidebar
+      if (isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    }
+  }, [
+    activeGroupId,
+    editorGroups,
+    activeSidebarToolId,
+    isSidebarOpen,
+    setActiveSidebarToolId,
+    setIsSidebarOpen,
+  ]);
+
   return {
     state: {
       isSidebarOpen,
@@ -136,6 +165,7 @@ export const useDashboard = (): {
       editorGroups,
       activeGroupId,
       activeSidebarTool,
+      sidebarWidth,
     },
     actions: {
       handleToolClick,
@@ -145,6 +175,7 @@ export const useDashboard = (): {
       closeSplit,
       setSidebarOpen,
       setActiveGroupId,
+      setSidebarWidth: updateSidebarWidth,
     },
   };
 };

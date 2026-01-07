@@ -21,13 +21,13 @@ const AppContent: React.FC = () => {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Test connection to backend
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/health")
-      .then((res) => res.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.error("Backend connection failed:", err));
-  }, []);
+  // test connection to backend
+  // useEffect(() => {
+  //   fetch("http://127.0.0.1:8000/api/health")
+  //     .then((res) => res.json())
+  //     .then((data) => console.log(data))
+  //     .catch((err) => console.error("Backend connection failed:", err));
+  // }, []);
 
   // Scroll Spy Logic
   useEffect(() => {

@@ -36,18 +36,6 @@ export const TopBar: React.FC<TopBarProps> = ({
         />
       </div>
 
-      {/* Center Section (Search) */}
-      <div className="flex-1 flex justify-center max-w-xl mx-auto">
-        <div className="relative w-full max-w-md">
-          <div className="flex items-center bg-[#2d2d2d] border border-white/10 rounded px-2 h-6 text-xs text-[#cccccc] cursor-pointer hover:border-white/20">
-            <Search size={12} className="mr-2 text-[#888888]" />
-            <span className="text-[#888888]">
-              search files, symbols, and actions...
-            </span>
-          </div>
-        </div>
-      </div>
-
       {/* Right Section (Layout Controls & Settings) */}
       <div className="flex items-center space-x-1">
         <button
@@ -72,6 +60,9 @@ export const TopBar: React.FC<TopBarProps> = ({
           <PanelRight size={16} />
         </button>
         <div className="w-px h-4 bg-white/10 mx-1" /> {/* Divider */}
+        <button className="p-1 hover:bg-[#333333] rounded text-[#cccccc]">
+          <Search size={16} />
+        </button>
         <button className="p-1 hover:bg-[#333333] rounded text-[#cccccc]">
           <Settings size={16} />
         </button>

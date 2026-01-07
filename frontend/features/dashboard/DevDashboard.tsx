@@ -39,6 +39,7 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
   } = actions;
 
   const [isResizing, setIsResizing] = React.useState(false);
+  const [isExitModalOpen, setIsExitModalOpen] = React.useState(false);
 
   // --- Keyboard Shortcuts ---
   React.useEffect(() => {
@@ -58,11 +59,20 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
         e.preventDefault();
         togglePanel();
       }
+      // Escape closes modal
+      else if (e.key === "Escape" && isExitModalOpen) {
+        setIsExitModalOpen(false);
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [togglePrimarySidebar, toggleSecondarySidebar, togglePanel]);
+  }, [
+    togglePrimarySidebar,
+    toggleSecondarySidebar,
+    togglePanel,
+    isExitModalOpen,
+  ]);
 
   // --- Resize Handler ---
   const handleResizeStart = (e: React.MouseEvent) => {
@@ -119,7 +129,7 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
           activeToolId={activeSidebarToolId}
           isSidebarOpen={isSidebarOpen}
           onToolClick={handleToolClick}
-          onExit={onExit}
+          onExit={() => setIsExitModalOpen(true)}
         />
 
         {/* Primary Sidebar */}
@@ -155,6 +165,32 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
         activeTabCount={editorGroups.reduce((acc, g) => acc + g.tabs.length, 0)}
         mode="DEV"
       />
+
+      {/* Exit Confirmation Modal */}
+      {isExitModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 animate-fadeIn">
+          <div className="bg-[#252526] border border-[#2B2B2B] shadow-2xl rounded-lg p-6 max-w-sm w-full transform transition-all scale-100">
+            <h3 className="text-white text-md font-medium mb-2">
+              Confirm Exit
+            </h3>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setIsExitModalOpen(false)}
+                className="px-4 py-2 text-xs font-medium text-white hover:bg-white/10 rounded transition-colors"
+                autoFocus
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onExit}
+                className="px-4 py-2 text-xs font-medium bg-red-600 hover:bg-red-700 text-white rounded transition-colors shadow-sm"
+              >
+                Exit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

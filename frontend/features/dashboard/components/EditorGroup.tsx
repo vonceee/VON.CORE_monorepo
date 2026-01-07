@@ -50,22 +50,15 @@ export const EditorGroupComponent: React.FC<EditorGroupProps> = ({
                 onTabClick(tabId);
               }}
               className={`
-                h-full flex items-center px-3 pr-2 space-x-2 text-xs cursor-pointer border-r border-black/10 min-w-fit
+                h-full flex items-center justify-between px-4 space-x-2 text-xs cursor-pointer w-40 relative group transition-colors
                 ${
                   isTabActive
-                    ? "bg-[#1e1e1e] text-white border-t border-t-orange-500"
-                    : "bg-[#2d2d2d] text-[#969696] hover:bg-[#2d2d2d]/80"
+                    ? "bg-[#1F1F1F] text-white z-10"
+                    : "bg-transparent text-[#969696] hover:bg-[#2d2d2d]/50 hover:text-[#cccccc] border-r border-[#2B2B2B]"
                 }
               `}
             >
-              <span
-                className={`${
-                  isTabActive ? "text-orange-400" : "text-blue-400"
-                }`}
-              >
-                TSX
-              </span>
-              <span>{tool.label}</span>
+              <span className="truncate flex-1 min-w-0">{tool.label}</span>
               <button
                 onClick={(e) => onTabClose(e, tabId)}
                 className={`ml-1 p-0.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-white/20 ${

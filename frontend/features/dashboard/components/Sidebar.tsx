@@ -15,15 +15,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <div
       style={{ width }}
-      className="bg-[#252526] border-r border-black/20 flex flex-col relative shrink-0"
+      className="bg-[#181818] border-r border-[#2B2B2B] flex flex-col relative shrink-0"
     >
-      <div className="h-9 flex items-center px-4 text-[11px] font-bold text-[#bbbbbb] tracking-wider uppercase bg-[#252526] select-none">
-        Explorer
-      </div>
-      <div className="flex-1 overflow-y-hidden flex flex-col">
+      <div className="flex-1 overflow-y-hidden flex flex-col mt-2">
         {/* Sidebar Header for Tool */}
-        <div className="group px-2 py-1 cursor-pointer flex items-center text-xs font-bold text-white hover:bg-[#37373d]">
-          <span className="text-white/60 mr-1 transform rotate-90">›</span>
+        <div className="group px-2 py-1 flex items-center text-md ml-2 font-mono text-white">
           {activeTool.label.toUpperCase()}
         </div>
 

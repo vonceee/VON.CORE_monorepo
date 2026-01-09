@@ -1,0 +1,24 @@
+export interface Note {
+  id: string;
+  folder_id: string | null;
+  title: string;
+  content: string;
+  tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NoteFolder {
+  id: string;
+  parent_id: string | null;
+  name: string;
+  icon: string;
+  children: NoteFolder[];
+  notes: Note[];
+  isOpen?: boolean; // UI state
+}
+
+export interface NoteTree {
+  folders: NoteFolder[];
+  rootNotes: Note[];
+}

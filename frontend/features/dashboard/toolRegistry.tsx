@@ -5,6 +5,9 @@ import { NotCuteAnymoreSidebar } from "./tools/NotCuteAnymore/NotCuteAnymoreSide
 import { EyeClosed, ShieldOff } from "lucide-react";
 import NotMe from "./tools/NotMe/NotMe";
 import { NotMeSidebar } from "./tools/NotMe/NotMeSidebar";
+import MyWorld from "./tools/MyWorld/MyWorld";
+import { MyWorldSidebar } from "./tools/MyWorld/MyWorldSidebar";
+import { Globe } from "lucide-react";
 
 const Icons = {
   Terminal: (
@@ -24,6 +27,7 @@ const Icons = {
   ),
   NotCuteAnymore: <EyeClosed className="w-4 h-4" strokeWidth={1.5} />,
   NotMe: <ShieldOff className="w-4 h-4" strokeWidth={1.5} />,
+  MyWorld: <Globe className="w-4 h-4" strokeWidth={1.5} />,
 };
 
 export const TOOLS_CONFIG: Tool[] = [
@@ -40,5 +44,12 @@ export const TOOLS_CONFIG: Tool[] = [
     icon: Icons.NotMe,
     component: NotMe,
     sidebarComponent: NotMeSidebar,
+  },
+  {
+    id: "MY_WORLD",
+    label: "My World",
+    icon: Icons.MyWorld,
+    component: MyWorld,
+    sidebarComponent: MyWorldSidebar,
   },
 ];

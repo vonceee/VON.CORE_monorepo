@@ -35,3 +35,16 @@ Route::prefix('v1/not-me')->group(function () {
     Route::post('/log', [TrackerController::class, 'storeLog']);
     Route::delete('/trackers/{id}', [TrackerController::class, 'destroy']);
 });
+
+use App\Http\Controllers\NoteController;
+
+Route::prefix('v1/my-world')->group(function () {
+    Route::get('/tree', [NoteController::class, 'tree']);
+    Route::post('/notes', [NoteController::class, 'store']);
+    Route::patch('/notes/{note}', [NoteController::class, 'update']);
+    Route::delete('/notes/{note}', [NoteController::class, 'destroy']);
+
+    Route::post('/folders', [NoteController::class, 'folderStore']);
+    Route::patch('/folders/{folder}', [NoteController::class, 'folderUpdate']);
+    Route::delete('/folders/{folder}', [NoteController::class, 'folderDestroy']);
+});

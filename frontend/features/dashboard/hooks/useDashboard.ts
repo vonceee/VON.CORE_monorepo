@@ -10,7 +10,6 @@ export const useDashboard = (): {
   state: DashboardState;
   actions: DashboardActions;
 } => {
-  // --- State ---
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useState(false);
@@ -59,7 +58,7 @@ export const useDashboard = (): {
       const group = prev[targetGroupIndex];
       const alreadyOpen = group.tabs.includes(toolId);
 
-      // If already open, just set active. Else add and set active.
+      // if already open, just set active. Else add and set active.
       const newTabs = alreadyOpen ? group.tabs : [...group.tabs, toolId];
 
       const newGroups = [...prev];
@@ -81,7 +80,7 @@ export const useDashboard = (): {
         const newTabs = group.tabs.filter((t) => t !== tabId);
         let newActiveId = group.activeTabId;
 
-        // If closing the active tab, switch to the previous one if exists
+        // if closing the active tab, switch to the previous one if exists
         if (group.activeTabId === tabId) {
           newActiveId = newTabs.length > 0 ? newTabs[newTabs.length - 1] : null;
         }
@@ -101,7 +100,7 @@ export const useDashboard = (): {
   const splitEditor = () => {
     if (editorGroups.length >= 2) return;
 
-    // Get current active tab from active group to duplicate it into new split
+    // get current active tab from active group to duplicate it into new split
     const currentGroup = editorGroups.find((g) => g.id === activeGroupId);
     const tabToOpen = currentGroup?.activeTabId || TOOLS_CONFIG[0].id;
 
@@ -117,12 +116,12 @@ export const useDashboard = (): {
 
   const closeSplit = (e: React.MouseEvent, groupId: string) => {
     e.stopPropagation();
-    // Don't close if it's the only group
+    // don't close if it's the only group
     if (editorGroups.length <= 1) return;
 
     const newGroups = editorGroups.filter((g) => g.id !== groupId);
     setEditorGroups(newGroups);
-    // Reset active group to the remaining one if necessary
+    // reset active group to the remaining one if necessary
     if (activeGroupId === groupId) {
       setActiveGroupId(newGroups[0].id);
     }
@@ -151,7 +150,7 @@ export const useDashboard = (): {
         setActiveSidebarToolId(activeGroup.activeTabId);
       }
     } else {
-      // If no tab is active (all closed), close the sidebar
+      // if no tab is active (all closed), close the sidebar
       if (isSidebarOpen) {
         setIsSidebarOpen(false);
       }

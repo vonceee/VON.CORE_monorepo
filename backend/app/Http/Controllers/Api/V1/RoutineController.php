@@ -43,8 +43,8 @@ class RoutineController extends Controller
         $defaultTasks = [
             [
                 'title' => 'Calibration',
-                'description' => 'Systems check and focus initialization.', // Note: Frontend uses 'notes', Seeder used 'description'. I should check Model.
-                'notes' => 'Systems check and focus initialization.', // Added notes to be safe
+                'description' => 'Systems check and focus initialization.',
+                'notes' => 'Systems check and focus initialization.',
                 'start_time' => '08:00',
                 'duration_minutes' => 30,
                 'status' => 'PENDING',
@@ -74,9 +74,6 @@ class RoutineController extends Controller
         ];
 
         foreach ($defaultTasks as $taskData) {
-            // Filter out 'description' if it's not in the task table, but let's check Task model.
-            // Assuming 'notes' is the column based on frontend code.
-            // Seeder had 'description'. Let me quickly double check Task model.
             $routine->tasks()->create([
                 'title' => $taskData['title'],
                 'notes' => $taskData['notes'],
@@ -116,7 +113,7 @@ class RoutineController extends Controller
         ]);
 
         // 4. Sync Strategy: Delete All & Recreate
-        // This ensures the backend matches the frontend exactly.
+        // this ensures the backend matches the frontend exactly.
 
         DB::transaction(function () use ($routine, $validated) {
             $routine->tasks()->delete();
@@ -134,7 +131,7 @@ class RoutineController extends Controller
             }
         });
 
-        // 5. Return updated routine
+        // 5. return updated routine
         $updatedRoutine = $routine->fresh('tasks');
 
         return response()->json([

@@ -11,7 +11,7 @@ export const useDashboard = (): {
   actions: DashboardActions;
 } => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [activeSidebarToolId, setActiveSidebarToolId] = useState<string>(
@@ -27,13 +27,11 @@ export const useDashboard = (): {
   ]);
   const [activeGroupId, setActiveGroupId] = useState("group-1");
 
-  // --- Helpers ---
   const activeSidebarTool =
     TOOLS_CONFIG.find((t) => t.id === activeSidebarToolId) || TOOLS_CONFIG[0];
 
-  // --- Handlers ---
   const handleToolClick = (toolId: string) => {
-    // 1. Sidebar Toggle Logic
+    // Sidebar Toggle Logic
     if (toolId === activeSidebarToolId) {
       setIsSidebarOpen((prev) => !prev);
     } else {
@@ -41,7 +39,7 @@ export const useDashboard = (): {
       setIsSidebarOpen(true);
     }
 
-    // 2. Open/Focus Tab in Active Group
+    // Open/Focus Tab in Active Group
     setEditorGroups((prev) => {
       const activeGroupIndex = prev.findIndex((g) => g.id === activeGroupId);
 
@@ -140,7 +138,6 @@ export const useDashboard = (): {
   const toggleSecondarySidebar = () =>
     setIsSecondarySidebarOpen((prev) => !prev);
 
-  // --- Effects ---
   useEffect(() => {
     const activeGroup = editorGroups.find((g) => g.id === activeGroupId);
     if (!activeGroup) return;

@@ -42,41 +42,201 @@ export const useMyWorld = () => {
   }, []);
 
   const createFolder = async (name: string, parentId: string | null = null) => {
+    const tempId = `temp-${Date.now()}`;
+    const tempFolder: NoteFolder = {
+      id: tempId,
+      name,
+      parent_id: parentId,
+      icon: "Folder",
+      children: [],
+      notes: [],
+      isOptimistic: true,
+    };
+
+    // Optimistic Update
     try {
-      await noteApi.createFolder({ name, parent_id: parentId });
-      fetchData();
+      if (!parentId) {
+        globalTree = {
+          ...globalTree,
+          folders: [...globalTree.folders, tempFolder],
+        };
+      } else {
+        const updateInFolder = (folders: NoteFolder[]): NoteFolder[] => {
+          return folders.map((f) => {
+            if (f.id === parentId) {
+              return { ...f, children: [...f.children, tempFolder] };
+            }
+            return { ...f, children: updateInFolder(f.children) };
+          });
+        };
+        globalTree = {
+          ...globalTree,
+          folders: updateInFolder(globalTree.folders),
+        };
+      }
+      notifyListeners();
+
+      // API Call
+      const newFolder = await noteApi.createFolder({
+        name,
+        parent_id: parentId,
+      });
+
+      // Replace Optimistic Item with Real Item
+      const replaceInFolder = (folders: NoteFolder[]): NoteFolder[] => {
+        return folders.map((f) => {
+          // Exact match or recursive
+          if (f.id === tempId) return { ...newFolder, children: [], notes: [] };
+
+          // Handle children replacement
+          const updatedChildren = replaceInFolder(f.children);
+          // Handle root folder replacement if needed (though map covers it)
+          // Wait, if we added it to children, we need to find the parent again?
+          // No, we are iterating the WHOLE tree again to find and replace.
+          return { ...f, children: updatedChildren };
+        });
+      };
+
+      // We need to replace it wherever it is.
+      // Top level
+      if (!parentId) {
+        globalTree = {
+          ...globalTree,
+          folders: globalTree.folders.map((f) =>
+            f.id === tempId
+              ? { ...newFolder, children: [], notes: [] }
+              : replaceInFolder([f])[0]
+          ),
+        };
+      } else {
+        // It's deep in the tree.
+        globalTree = {
+          ...globalTree,
+          folders: replaceInFolder(globalTree.folders),
+        };
+      }
+
+      notifyListeners();
     } catch (e) {
       console.error("Failed to create folder", e);
+      // Revert optimistic update
+      // Simple way: just remove the temp ID
+      const removeFromFolder = (folders: NoteFolder[]): NoteFolder[] => {
+        return folders
+          .filter((f) => f.id !== tempId)
+          .map((f) => ({
+            ...f,
+            children: removeFromFolder(f.children),
+          }));
+      };
+      globalTree = {
+        ...globalTree,
+        folders: removeFromFolder(globalTree.folders),
+      };
+      notifyListeners();
     }
   };
 
   const createNote = async (title: string, folderId: string | null = null) => {
+    const tempId = `temp-${Date.now()}`;
+    const tempNote: Note = {
+      id: tempId,
+      title,
+      folder_id: folderId,
+      content: "",
+      tags: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      isOptimistic: true,
+    };
+
     try {
+      // Optimistic Insert
+      if (!folderId) {
+        globalTree = {
+          ...globalTree,
+          rootNotes: [...globalTree.rootNotes, tempNote],
+        };
+      } else {
+        const updateInFolder = (folders: NoteFolder[]): NoteFolder[] => {
+          return folders.map((f) => {
+            if (f.id === folderId) {
+              return { ...f, notes: [...f.notes, tempNote] };
+            }
+            return { ...f, children: updateInFolder(f.children) };
+          });
+        };
+        globalTree = {
+          ...globalTree,
+          folders: updateInFolder(globalTree.folders),
+        };
+      }
+      globalActiveNoteId = tempId;
+      notifyListeners();
+
+      // API Call
       const newNote = await noteApi.createNote({
         title,
         folder_id: folderId,
         content: "",
       });
-      await fetchData();
-      globalActiveNoteId = newNote.id;
+
+      // Replace Optimistic Note
+      // If we are still looking at the temp note, switch to the real one
+      if (globalActiveNoteId === tempId) {
+        globalActiveNoteId = newNote.id;
+      }
+
+      const replaceNote = (notes: Note[]) =>
+        notes.map((n) => (n.id === tempId ? newNote : n));
+      const replaceInFolder = (folders: NoteFolder[]): NoteFolder[] => {
+        return folders.map((f) => ({
+          ...f,
+          notes: replaceNote(f.notes),
+          children: replaceInFolder(f.children),
+        }));
+      };
+
+      globalTree = {
+        ...globalTree,
+        rootNotes: replaceNote(globalTree.rootNotes),
+        folders: replaceInFolder(globalTree.folders),
+      };
+
       notifyListeners();
     } catch (e) {
       console.error("Failed to create note", e);
+      // Revert
+      if (globalActiveNoteId === tempId) globalActiveNoteId = null;
+
+      const removeNote = (notes: Note[]) =>
+        notes.filter((n) => n.id !== tempId);
+      const removeFromFolder = (folders: NoteFolder[]): NoteFolder[] => {
+        return folders.map((f) => ({
+          ...f,
+          notes: removeNote(f.notes),
+          children: removeFromFolder(f.children),
+        }));
+      };
+
+      globalTree = {
+        ...globalTree,
+        rootNotes: removeNote(globalTree.rootNotes),
+        folders: removeFromFolder(globalTree.folders),
+      };
+
+      notifyListeners();
     }
   };
 
   const updateNote = async (id: string, updates: Partial<Note>) => {
     try {
+      if (id.startsWith("temp-")) return; // Don't update optimistic notes yet
+
       await noteApi.updateNote(id, updates);
       if (updates.title || updates.folder_id) {
         fetchData();
       }
-
-      // If content updated, we might need to update the local tree copy if we want search/previews to reflect it immediately
-      // But for now, we rely on tree structure updates.
-      // If active note is updated, we might need to update the tree's copy of it?
-      // Since `tree` contains everything, `findNote` will return the *old* content if we don't update `globalTree`.
-      // Let's implement a shallow update on globalTree for responsiveness.
 
       if (updates.content !== undefined || updates.title !== undefined) {
         // Recursive update helper
@@ -104,6 +264,8 @@ export const useMyWorld = () => {
   };
 
   const deleteItem = async (id: string, type: "note" | "folder") => {
+    if (id.startsWith("temp-")) return;
+
     try {
       if (type === "note") {
         await noteApi.deleteNote(id);

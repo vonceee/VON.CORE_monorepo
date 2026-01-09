@@ -9,7 +9,7 @@ import {
   Plus,
   Trash2,
   FolderPlus,
-  FilePlus,
+  SquarePen,
 } from "lucide-react";
 
 interface FolderItemProps {
@@ -38,7 +38,9 @@ const FolderItem: React.FC<FolderItemProps> = ({
   return (
     <div>
       <div
-        className="group flex items-center gap-1 py-1 px-2 hover:bg-white/5 cursor-pointer text-gray-400 hover:text-gray-200 select-none"
+        className={`group flex items-center gap-1 py-1 px-2 hover:bg-white/5 cursor-pointer text-gray-400 hover:text-gray-200 select-none ${
+          folder.isOptimistic ? "opacity-50 pointer-events-none" : ""
+        }`}
         style={{ paddingLeft }}
       >
         <button
@@ -50,38 +52,40 @@ const FolderItem: React.FC<FolderItemProps> = ({
         <Folder size={14} className="text-blue-500" />
         <span className="text-sm truncate flex-1">{folder.name}</span>
 
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onCreateNote("New Note", folder.id);
-              setIsOpen(true);
-            }}
-            title="New Note"
-          >
-            <FilePlus size={12} />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onCreateFolder("New Folder", folder.id);
-              setIsOpen(true);
-            }}
-            title="New Folder"
-          >
-            <FolderPlus size={12} />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteItem(folder.id, "folder");
-            }}
-            title="Delete Folder"
-            className="text-red-500 hover:text-red-400"
-          >
-            <Trash2 size={12} />
-          </button>
-        </div>
+        {!folder.isOptimistic && (
+          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCreateNote("New Note", folder.id);
+                setIsOpen(true);
+              }}
+              title="New Note"
+            >
+              <SquarePen size={12} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCreateFolder("New Folder", folder.id);
+                setIsOpen(true);
+              }}
+              title="New Folder"
+            >
+              <FolderPlus size={12} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteItem(folder.id, "folder");
+              }}
+              title="Delete Folder"
+              className="text-red-500 hover:text-red-400"
+            >
+              <Trash2 size={12} />
+            </button>
+          </div>
+        )}
       </div>
 
       {isOpen && (
@@ -105,21 +109,23 @@ const FolderItem: React.FC<FolderItemProps> = ({
                 activeNoteId === note.id
                   ? "bg-blue-500/10 text-blue-400"
                   : "text-gray-400"
-              }`}
+              } ${note.isOptimistic ? "opacity-50 pointer-events-none" : ""}`}
               style={{ paddingLeft: `${(depth + 1) * 12 + 12}px` }}
               onClick={() => onSelectNote(note.id)}
             >
               <FileText size={14} />
               <span className="text-sm truncate flex-1">{note.title}</span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteItem(note.id, "note");
-                }}
-                className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400"
-              >
-                <Trash2 size={12} />
-              </button>
+              {!note.isOptimistic && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteItem(note.id, "note");
+                  }}
+                  className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400"
+                >
+                  <Trash2 size={12} />
+                </button>
+              )}
             </div>
           ))}
           {folder.children.length === 0 && folder.notes.length === 0 && (
@@ -149,13 +155,13 @@ export const MyWorldSidebar: React.FC = () => {
   return (
     <div className="h-full bg-black border-r border-white/5 flex flex-col w-full">
       <div className="p-3 border-b border-white/5 flex items-center justify-between">
-        <div className="flex gap-1">
+        <div className="flex gap-1 items-center">
           <button
             onClick={() => createNote("New Note", null)}
             className="p-1 hover:bg-white/10 rounded text-gray-400 hover:text-white"
             title="New Note"
           >
-            <FilePlus size={14} />
+            <SquarePen size={14} />
           </button>
           <button
             onClick={() => createFolder("New Folder", null)}
@@ -186,20 +192,22 @@ export const MyWorldSidebar: React.FC = () => {
               activeNoteId === note.id
                 ? "bg-blue-500/10 text-blue-400"
                 : "text-gray-400"
-            }`}
+            } ${note.isOptimistic ? "opacity-50 pointer-events-none" : ""}`}
             onClick={() => setActiveNoteId(note.id)}
           >
             <FileText size={14} />
             <span className="text-sm truncate flex-1">{note.title}</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteItem(note.id, "note");
-              }}
-              className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400"
-            >
-              <Trash2 size={12} />
-            </button>
+            {!note.isOptimistic && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteItem(note.id, "note");
+                }}
+                className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400"
+              >
+                <Trash2 size={12} />
+              </button>
+            )}
           </div>
         ))}
       </div>

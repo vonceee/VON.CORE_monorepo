@@ -6,6 +6,7 @@ export interface Note {
   tags: string[] | null;
   created_at: string;
   updated_at: string;
+  isOptimistic?: boolean;
 }
 
 export interface NoteFolder {
@@ -16,6 +17,7 @@ export interface NoteFolder {
   children: NoteFolder[];
   notes: Note[];
   isOpen?: boolean; // UI state
+  isOptimistic?: boolean;
 }
 
 export interface NoteTree {

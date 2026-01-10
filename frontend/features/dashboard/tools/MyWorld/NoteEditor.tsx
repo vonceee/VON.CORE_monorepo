@@ -26,18 +26,33 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
     }
   }, [note]);
 
-  // debounce logic
+  // Debounce logic for CONTENT only
   useEffect(() => {
     if (!note) return;
 
     const timer = setTimeout(() => {
-      if (content !== note.content || title !== note.title) {
-        onUpdate(note.id, { content, title });
+      const localContent = content || "";
+      const remoteContent = note.content || "";
+
+      if (localContent !== remoteContent) {
+        onUpdate(note.id, { content: localContent });
       }
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [content, title, note, onUpdate]);
+  }, [content, note, onUpdate]);
+
+  const handleTitleCommit = () => {
+    if (note && title !== note.title) {
+      onUpdate(note.id, { title });
+    }
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.currentTarget.blur(); // Trigger onBlur to save
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col bg-[#09090b] text-white h-full">
@@ -62,6 +77,8 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              onBlur={handleTitleCommit}
+              onKeyDown={handleTitleKeyDown}
               className="bg-transparent text-xl font-bold focus:outline-none w-full"
               placeholder="Note Title"
             />

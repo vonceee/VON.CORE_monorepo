@@ -51,12 +51,17 @@ class NoteController extends Controller
 
     public function update(Request $request, Note $note)
     {
-        $validated = $request->validate([
-            'folder_id' => 'nullable|exists:note_folders,id',
+        $rules = [
             'title' => 'sometimes|required|string|max:255',
             'content' => 'nullable|string',
             'tags' => 'nullable|array',
-        ]);
+        ];
+
+        if ($request->has('folder_id')) {
+            $rules['folder_id'] = 'nullable|exists:note_folders,id';
+        }
+
+        $validated = $request->validate($rules);
 
         $note->update($validated);
 

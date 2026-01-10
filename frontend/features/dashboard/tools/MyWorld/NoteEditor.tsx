@@ -43,13 +43,13 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
     <div className="flex-1 flex flex-col bg-[#09090b] text-white h-full">
       {/* Header */}
       <div className="h-14 border-b border-white/5 flex items-center px-4 shrink-0">
-        <img
-          src="/assets/logo/myworld_logo.svg"
-          style={{ filter: "invert(1)", width: "100px", opacity: 0.8 }}
-          alt="My World"
-          className="h-6 w-auto"
-        />
-        <span className="ml-3 font-bold text-gray-400">My World</span>
+        <div className="flex items-center gap-3">
+          <img
+            src="assets/logo/myworld_logo.svg"
+            style={{ filter: "invert(1)", width: "120px" }}
+            alt=""
+          />
+        </div>
       </div>
 
       {!note ? (

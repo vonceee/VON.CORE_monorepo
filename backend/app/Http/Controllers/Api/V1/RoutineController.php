@@ -131,7 +131,7 @@ class RoutineController extends Controller
             }
         });
 
-        // 5. return updated routine
+        // 5. Return Updated Routine
         $updatedRoutine = $routine->fresh('tasks');
 
         return response()->json([

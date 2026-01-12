@@ -11,7 +11,7 @@ class NoteController extends Controller
     public function tree()
     {
         $folders = NoteFolder::with(['children', 'notes'])->whereNull('parent_id')->get();
-        // Also get root notes
+        // also get root notes
         $rootNotes = Note::whereNull('folder_id')->get();
 
         return response()->json([
@@ -30,7 +30,7 @@ class NoteController extends Controller
                 'parent_id' => $folder->parent_id,
                 'children' => $this->formatTree($folder->children),
                 'notes' => $folder->notes,
-                'isOpen' => false, // Default state for frontend
+                'isOpen' => false, // default state for frontend
             ];
         });
     }

@@ -85,14 +85,14 @@ export const useSchedule = () => {
       try {
         const data = await routineApi.fetchRoutines();
 
-        // Check if the fetched data effectively has no tasks
+        // check if the fetched data effectively has no tasks
         const hasData = Object.values(data).some((tasks) => tasks.length > 0);
 
         if (hasData) {
           setRoutines(data);
         } else {
-          // If no data, we keep the INITIAL_ROUTINES which contains the onboarding info.
-          // No action needed effectively, but explicit comment helps.
+          // if no data, we keep the INITIAL_ROUTINES which contains the onboarding info.
+          // no action needed effectively, but explicit comment helps.
           console.log("No remote data found, using onboarding defaults.");
         }
       } catch (error) {
@@ -104,8 +104,8 @@ export const useSchedule = () => {
     loadRoutines();
   }, []);
 
-  // Window Event Listener for Synchronization (Frontend-only sync, maybe deprecated if API is truth)
-  // Keeping it for now if we want optimistic UI updates across components
+  // window event listener for synchronization (frontend-only sync, maybe deprecated if API is truth)
+  // keeping it for now if we want optimistic UI updates across components
   useEffect(() => {
     const handleScheduleUpdate = async () => {
       try {
@@ -133,30 +133,22 @@ export const useSchedule = () => {
 
   const saveDayRoutine = useCallback(
     async (newTasks: Task[]) => {
-      // NCA-001: Isolation & Cloning
-      // Ensure we are only touching the `currentDay` and deep cloning tasks to prevent ref leakage
+      // ensure we are only touching the `currentDay` and deep cloning tasks to prevent ref leakage
       const tasksToSave = JSON.parse(JSON.stringify(newTasks));
 
       try {
-        // Optimistic Update
+        // optimistic update
         setRoutines((prev) => ({
           ...prev,
           [currentDay]: tasksToSave,
         }));
 
-        // Persist to Backend
+        // persist to backend
         await routineApi.saveRoutine(currentDay, tasksToSave);
-
-        // Notify other components
-        // window.dispatchEvent(new Event("schedule-update"));
-
-        // Re-fetch to normalize IDs if backend generated them (optional, but good practice)
-        // const refreshed = await routineApi.fetchRoutines();
-        // setRoutines(refreshed);
       } catch (error) {
         console.error("Failed to save routine:", error);
-        // Revert optimistic update?
-        // For MVP, we might just log error.
+        // revert optimistic update?
+        // for MVP, we might just log error.
       }
     },
     [routines, currentDay]
@@ -164,11 +156,11 @@ export const useSchedule = () => {
 
   const copyRoutineToDays = useCallback(
     async (sourceTasks: Task[], targetDays: DayOfWeek[]) => {
-      // NCA-002: Batch Copy
+      // Batch Copy
       const tasksToSave = JSON.parse(JSON.stringify(sourceTasks));
 
       try {
-        // Optimistic Update for all targets
+        // optimistic update for all targets
         setRoutines((prev) => {
           const newRoutines = { ...prev };
           targetDays.forEach((day) => {
@@ -177,8 +169,8 @@ export const useSchedule = () => {
           return newRoutines;
         });
 
-        // Backend persistence (parallel requests)
-        // Note: For large batches/users, a batch API endpoint would be better,
+        // Backend Persistence (Parallel Requests)
+        // note: for large batches/users, a batch API endpoint would be better,
         // but for <10 items x 7 days, parallel requests are acceptable for MVP.
         await Promise.all(
           targetDays.map((day) => routineApi.saveRoutine(day, tasksToSave))
@@ -187,7 +179,7 @@ export const useSchedule = () => {
         window.dispatchEvent(new Event("schedule-update"));
       } catch (error) {
         console.error("Failed to copy routine:", error);
-        // In a real app, we'd revert or show a toast
+        // in a real app, we'd revert or show a toast
       }
     },
     []

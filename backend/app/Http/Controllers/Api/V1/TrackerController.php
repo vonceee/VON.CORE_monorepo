@@ -12,32 +12,32 @@ class TrackerController extends Controller
 {
     public function index()
     {
-        // For now, return all trackers.
-        // In a real app, we might check if they exist or seed them if empty.
-        // But for this user, we assume they might want to persist their config too?
-        // The plan says "Create a migration for 'trackers'".
-        // The frontend has a DEFAULT_CONFIG.
-        // We probably need a way to seed the default config if empty.
+        // for now, return all trackers.
+        // in a real app, we might check if they exist or seed them if empty.
+        // but for this user, we assume they might want to persist their config too?
+        // the plan says "Create a migration for 'trackers'".
+        // the frontend has a DEFAULT_CONFIG.
+        // we probably need a way to seed the default config if empty.
 
         $trackers = Tracker::all();
 
-        // If no trackers exist, we might want to return empty array 
+        // if no trackers exist, we might want to return empty array 
         // and let frontend decide to seed it via a separate endpoint or just use defaults?
-        // Actually, the prompt says "Replace localStorage logic".
-        // If the DB is empty, the frontend will get empty list.
-        // We should arguably seed it if empty, OR the user might want to manually add them later.
-        // For now, simple return.
+        // actually, the prompt says "Replace localStorage logic".
+        // if the DB is empty, the frontend will get empty list.
+        // we should arguably seed it if empty, OR the user might want to manually add them later.
+        // for now, simple return.
 
         return response()->json($trackers);
     }
 
     public function history()
     {
-        // Fetch all logs
+        // fetch all logs
         $logs = TrackerLog::all();
 
-        // Transform to: Record<DateString, Record<TrackerId, Value>>
-        // Frontend expects: { "2023-01-01": { "uuid-1": 5, "uuid-2": "WIN" } }
+        // transform to: Record<DateString, Record<TrackerId, Value>>
+        // frontend expects: { "2023-01-01": { "uuid-1": 5, "uuid-2": "WIN" } }
 
         $history = [];
 
@@ -84,34 +84,34 @@ class TrackerController extends Controller
         }
     }
 
-    // Helper to sync config from frontend (optional but useful)
+    // helper to sync config from frontend (optional but useful)
     public function syncConfig(Request $request)
     {
         $validated = $request->validate([
             'trackers' => 'required|array',
-            'trackers.*.id' => 'nullable|uuid', // If new, might not match backend expectation if we force uuid generation on backend
-            // Ideally frontend sends data, we create/update.
-            // But frontend currently has "id" as string (e.g. "hydration"). 
-            // Our DB uses UUIDs.
-            // This is a mismatch.
-            // Frontend: id="hydration"
-            // Backend: id=UUID
-            // Solution: We should probably respect the string IDs if they are unique enough, 
+            'trackers.*.id' => 'nullable|uuid', // if new, might not match backend expectation if we force uuid generation on backend
+            // ideally frontend sends data, we create/update.
+            // but frontend currently has "id" as string (e.g. "hydration"). 
+            // our DB uses UUIDs.
+            // this is a mismatch.
+            // frontend: id="hydration"
+            // backend: id=UUID
+            // solution: we should probably respect the string IDs if they are unique enough, 
             // OR we rely on the migration to "seed" the initial trackers with known UUIDs or string keys.
-            // The user instruction said: "Create a migration for 'trackers' table with: uuid id (primary)".
-            // So we MUST use UUIDs.
-            // This means existing frontend IDs "hydration", "chess", etc. are NOT valid UUIDs.
-            // I need to handle this.
-            // 1. Either change frontend IDs to UUIDs.
-            // 2. Or change backend ID to string.
-            // The prompt EXPLICITLY requested "uuid id (primary)".
-            // So I must use UUID.
-            // This implies I need to migrate the frontend config to use UUIDs or mapped descriptors.
-            // BUT: "StoreLog" takes "tracker_id".
-            // If frontend sends "hydration", it will fail validation.
+            // the user instruction said: "Create a migration for 'trackers' table with: uuid id (primary)".
+            // so we MUST use UUIDs.
+            // this means existing frontend IDs "hydration", "chess", etc. are NOT valid UUIDs.
+            // i need to handle this.
+            // 1. either change frontend IDs to UUIDs.
+            // 2. or change backend ID to string.
+            // the prompt explicitly requested "uuid id (primary)".
+            // so i must use UUID.
+            // this implies i need to migrate the frontend config to use UUIDs or mapped descriptors.
+            // but: "StoreLog" takes "tracker_id".
+            // if frontend sends "hydration", it will fail validation.
 
             // ADJUSTMENT: I will assume I need to seeding the default trackers and return them to frontend.
-            // Then frontend uses those IDs.
+            // then frontend uses those IDs.
         ]);
     }
     public function store(Request $request)

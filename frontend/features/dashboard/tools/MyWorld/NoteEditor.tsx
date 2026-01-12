@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Note } from "./types";
-import { Pen, X } from "lucide-react";
+import { Pen, X, Info } from "lucide-react";
 import clsx from "clsx";
+import { IntroductionView } from "./components/IntroductionView";
 
 interface NoteEditorProps {
   note: Note | null;
@@ -10,6 +11,9 @@ interface NoteEditorProps {
   onUpdate: (id: string, updates: Partial<Note>) => void;
   onSelectNote: (id: string) => void;
   onCloseNote: (id: string) => void;
+  onShowIntro: () => void;
+  onCloseIntro: () => void;
+  showIntro: boolean;
   isLoading?: boolean;
 }
 
@@ -20,6 +24,9 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   onUpdate,
   onSelectNote,
   onCloseNote,
+  onShowIntro,
+  onCloseIntro,
+  showIntro,
   isLoading,
 }) => {
   const [content, setContent] = useState("");
@@ -73,18 +80,20 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#09090b] text-white h-full">
+    <div className="flex-1 flex flex-col bg-[#09090b] text-white h-full relative">
       {/* Header */}
       <div className="h-14 border-b border-white/5 flex shrink-0">
         {/* Left Side: Logo (20%) */}
-        <div className="w-1/5 flex items-center px-4 border-r border-white/5 relative">
+        <div className="w-1/5 flex items-center justify-between px-4 border-r border-white/5 relative group/header">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent pointer-events-none" />
-          <img
-            src="assets/logo/myworld_logo.svg"
-            style={{ filter: "invert(1)", width: "100px" }}
-            alt="MyWorld"
-            className="opacity-80 hover:opacity-100 transition-opacity"
-          />
+          <h1 className="text-2xl font-medium">My World</h1>
+          <button
+            onClick={onShowIntro}
+            className="p-1.5 rounded-full hover:bg-white/10 text-gray-500 hover:text-white transition-colors relative z-10"
+            title="Info & Patch Notes"
+          >
+            <Info size={16} />
+          </button>
         </div>
 
         {/* Right Side: Tabs */}
@@ -123,9 +132,16 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         </div>
       </div>
 
-      {!note ? (
+      {/* Content Area */}
+      {showIntro ? (
+        <div className="flex-1 overflow-hidden relative">
+          <IntroductionView onClose={onCloseIntro} />
+        </div>
+      ) : !note ? (
         <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-2">
-          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-select text-white/20 mb-2"></div>
+          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-select text-white/20 mb-2">
+            <Info size={24} className="opacity-50" />
+          </div>
           <p>Select a note from the sidebar or open tabs</p>
         </div>
       ) : (

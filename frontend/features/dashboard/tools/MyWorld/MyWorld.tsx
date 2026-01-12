@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useMyWorld } from "./hooks/useMyWorld";
 import { NoteEditor } from "./NoteEditor";
 
 const MyWorld: React.FC = () => {
+  const [showIntro, setShowIntro] = useState(false);
   const {
     activeNote,
     updateNote,
@@ -23,6 +24,9 @@ const MyWorld: React.FC = () => {
         onUpdate={updateNote}
         onSelectNote={setActiveNoteId}
         onCloseNote={closeNote}
+        onShowIntro={() => setShowIntro(true)}
+        onCloseIntro={() => setShowIntro(false)}
+        showIntro={showIntro}
         isLoading={isLoading}
       />
     </div>

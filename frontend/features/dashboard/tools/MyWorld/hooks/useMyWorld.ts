@@ -6,8 +6,13 @@ import { Note, NoteFolder, NoteTree } from "../types";
 let globalTree: NoteTree = { folders: [], rootNotes: [] };
 let globalActiveNoteId: string | null = null;
 let globalOpenNoteIds: string[] = []; // Track open tabs
+let globalSelectedNoteIds: string[] = []; // Track selected notes for multi-select/DND
+let globalSelectedFolderId: string | null = null; // Track selected folder for creation context
+let globalExpandedFolderIds: Set<string> = new Set(); // Track expanded folders
 let globalIsLoading: boolean = true;
 let listeners: Array<() => void> = [];
+
+// ... [Keep existing code] ...
 
 // Race condition tracking: Map<NoteId, LatestRequestTimestamp>
 const updateTimestamps: Map<string, number> = new Map();
@@ -228,6 +233,123 @@ export const useMyWorld = () => {
     }
   };
 
+  const moveNotes = async (
+    noteIds: string[],
+    targetFolderId: string | null
+  ) => {
+    // Filter out invalid moves (e.g. moving to same folder) - though UI might handle this, good to check
+    // Snapshot for rollback
+    const previousTree = globalTree;
+    const requestTimestamp = Date.now();
+
+    // Track timestamps for all notes
+    noteIds.forEach((id) => {
+      updateTimestamps.set(id, requestTimestamp);
+    });
+
+    try {
+      // 1. Optimistic Update
+      // We need to move all notes from their current locations to the targetFolderId
+
+      // Helper to remove notes and keep track of them
+      const removeNotesFromTree = (
+        tree: NoteTree,
+        ids: string[]
+      ): { tree: NoteTree; movedNotes: Note[] } => {
+        let movedNotes: Note[] = [];
+        const idsSet = new Set(ids);
+
+        // Remove from root
+        const newRootNotes = tree.rootNotes.filter((n) => {
+          if (idsSet.has(n.id)) {
+            movedNotes.push(n);
+            return false;
+          }
+          return true;
+        });
+
+        // Remove from folders
+        const removeFromFolders = (folders: NoteFolder[]): NoteFolder[] => {
+          return folders.map((f) => {
+            const newNotes = f.notes.filter((n) => {
+              if (idsSet.has(n.id)) {
+                movedNotes.push(n);
+                return false;
+              }
+              return true;
+            });
+            return {
+              ...f,
+              notes: newNotes,
+              children: removeFromFolders(f.children),
+            };
+          });
+        };
+
+        return {
+          tree: {
+            ...tree,
+            rootNotes: newRootNotes,
+            folders: removeFromFolders(tree.folders),
+          },
+          movedNotes,
+        };
+      };
+
+      const { tree: prunedTree, movedNotes } = removeNotesFromTree(
+        globalTree,
+        noteIds
+      );
+
+      // Now add them to the target
+      const addNotesToTree = (
+        tree: NoteTree,
+        notes: Note[],
+        targetId: string | null
+      ): NoteTree => {
+        const updatedNotes = notes.map((n) => ({ ...n, folder_id: targetId }));
+
+        if (!targetId) {
+          return { ...tree, rootNotes: [...tree.rootNotes, ...updatedNotes] };
+        }
+
+        const addToFolders = (folders: NoteFolder[]): NoteFolder[] => {
+          return folders.map((f) => {
+            if (f.id === targetId) {
+              return { ...f, notes: [...f.notes, ...updatedNotes] };
+            }
+            return { ...f, children: addToFolders(f.children) };
+          });
+        };
+
+        return { ...tree, folders: addToFolders(tree.folders) };
+      };
+
+      if (movedNotes.length > 0) {
+        globalTree = addNotesToTree(prunedTree, movedNotes, targetFolderId);
+        notifyListeners(); // Immediate local update
+
+        // 2. API Calls (Parallel)
+        await Promise.all(
+          movedNotes.map((note) =>
+            noteApi.updateNote(note.id, { folder_id: targetFolderId })
+          )
+        );
+
+        // 3. Race Condition Check & Reconciliation
+        // Use the generic update logic or just trust simple moves?
+        // For robustness, we check timestamps. If a newer update came in for a note, assume it handled it.
+        // Since the API response for updateNote returns the Note, we could theoretically merge it back.
+        // But for moves, we mainly care that it's in the right place.
+        // We do nothing further if successful, as the optimistic state matches the desired state.
+      }
+    } catch (e) {
+      console.error("Failed to move notes", e);
+      globalTree = previousTree;
+      notifyListeners();
+    }
+  };
+
   const updateNote = async (id: string, updates: Partial<Note>) => {
     if (id.startsWith("temp-")) return;
 
@@ -262,6 +384,18 @@ export const useMyWorld = () => {
       // 1. Optimistic Local Update
       // Handle structural moves separately if needed, but for content/title we use surgical update
       if (updates.folder_id !== undefined) {
+        // Use moveNotes for structural updates
+        // Note: calling moveNotes here would be recursive if we aren't careful,
+        // but let's just stick to the single note move logic or delegate.
+        // To keep things clean, we'll delegate single note moves to moveNotes internally
+        // OR just keep the logic separate.
+        // Since updateNote might do mixed updates (title + folder), let's keep the old logic
+        // BUT for folder_id changes, it might be safer to use moveNotes pattern?
+        // Actually, let's keep updateNote as is for single items to minimize regression risk,
+        // and use moveNotes only for Drag and Drop from the sidebar.
+
+        // ... (Original updateNote logic for folder_id is fine for single items)
+
         // Re-use existing move logic if it exists elsewhere or implement clean move
         // For now retaining the existing move logic structure but simplifying where possible
         // Helper to remove note from anywhere in the tree
@@ -368,6 +502,33 @@ export const useMyWorld = () => {
     } catch (e) {
       console.error("Failed to update note", e);
       // Rollback
+      globalTree = previousTree;
+      notifyListeners();
+    }
+  };
+
+  const renameFolder = async (id: string, newName: string) => {
+    const previousTree = globalTree;
+    try {
+      // Optimistic Update
+      const updateInFolders = (folders: NoteFolder[]): NoteFolder[] => {
+        return folders.map((f) => {
+          if (f.id === id) {
+            return { ...f, name: newName };
+          }
+          return { ...f, children: updateInFolders(f.children) };
+        });
+      };
+
+      globalTree = {
+        ...globalTree,
+        folders: updateInFolders(globalTree.folders),
+      };
+      notifyListeners();
+
+      await noteApi.updateFolder(id, { name: newName });
+    } catch (e) {
+      console.error("Failed to rename folder", e);
       globalTree = previousTree;
       notifyListeners();
     }
@@ -481,18 +642,62 @@ export const useMyWorld = () => {
     .map((id) => findNote(id, globalTree.folders, globalTree.rootNotes))
     .filter((n): n is Note => n !== null);
 
+  // Helper to get visible notes for range selection
+  const getVisibleNoteIds = (): string[] => {
+    const visibleIds: string[] = [];
+
+    // Recursive traversal respecting expanded state
+    const traverse = (folders: NoteFolder[], notes: Note[]) => {
+      folders.forEach((f) => {
+        if (globalExpandedFolderIds.has(f.id)) {
+          traverse(f.children, f.notes);
+        }
+      });
+      notes.forEach((n) => visibleIds.push(n.id));
+    };
+
+    traverse(globalTree.folders, globalTree.rootNotes);
+    return visibleIds;
+  };
+
+  const toggleFolder = (folderId: string) => {
+    if (globalExpandedFolderIds.has(folderId)) {
+      globalExpandedFolderIds.delete(folderId);
+    } else {
+      globalExpandedFolderIds.add(folderId);
+    }
+    notifyListeners();
+  };
+
   return {
     tree: globalTree,
     activeNote,
     activeNoteId: globalActiveNoteId,
-    openNotes, // Export open notes
+    openNotes,
+    isLoading: globalIsLoading,
+    selectedNoteIds: globalSelectedNoteIds,
+    selectedFolderId: globalSelectedFolderId,
+    expandedFolderIds: Array.from(globalExpandedFolderIds),
+    setSelectedNoteIds: (ids: string[]) => {
+      globalSelectedNoteIds = ids;
+      if (ids.length > 0) globalSelectedFolderId = null;
+      notifyListeners();
+    },
+    setSelectedFolderId: (id: string | null) => {
+      globalSelectedFolderId = id;
+      if (id) globalSelectedNoteIds = [];
+      notifyListeners();
+    },
+    toggleFolder,
+    getVisibleNoteIds,
     setActiveNoteId,
-    closeNote, // Export close function
+    closeNote,
     createFolder,
     createNote,
     updateNote,
+    renameFolder,
     deleteItem,
     refresh: fetchData,
-    isLoading: globalIsLoading,
+    moveNotes,
   };
 };

@@ -5,6 +5,7 @@ import { Note, NoteFolder, NoteTree } from "../types";
 // Singleton Store State
 let globalTree: NoteTree = { folders: [], rootNotes: [] };
 let globalActiveNoteId: string | null = null;
+let globalOpenNoteIds: string[] = []; // Track open tabs
 let globalIsLoading: boolean = true;
 let listeners: Array<() => void> = [];
 
@@ -163,7 +164,7 @@ export const useMyWorld = () => {
           folders: updateInFolder(globalTree.folders),
         };
       }
-      globalActiveNoteId = tempId;
+      setActiveNoteId(tempId); // This will also add to open tabs
       notifyListeners();
 
       // API Call
@@ -174,9 +175,8 @@ export const useMyWorld = () => {
       });
 
       // Replace Optimistic Note
-      if (globalActiveNoteId === tempId) {
-        globalActiveNoteId = newNote.id;
-      }
+      // Note: setActiveNoteId handles the tempId to realId switch for active note?
+      // Actually we need to update openNoteIds if the ID changes
 
       const replaceNote = (notes: Note[]) =>
         notes.map((n) => (n.id === tempId ? newNote : n));
@@ -194,10 +194,19 @@ export const useMyWorld = () => {
         folders: replaceInFolder(globalTree.folders),
       };
 
+      // Update Open Tabs IDs
+      globalOpenNoteIds = globalOpenNoteIds.map((id) =>
+        id === tempId ? newNote.id : id
+      );
+      if (globalActiveNoteId === tempId) {
+        globalActiveNoteId = newNote.id;
+      }
+
       notifyListeners();
     } catch (e) {
       console.error("Failed to create note", e);
       if (globalActiveNoteId === tempId) globalActiveNoteId = null;
+      globalOpenNoteIds = globalOpenNoteIds.filter((id) => id !== tempId);
 
       const removeNote = (notes: Note[]) =>
         notes.filter((n) => n.id !== tempId);
@@ -227,120 +236,116 @@ export const useMyWorld = () => {
     const requestTimestamp = Date.now();
     updateTimestamps.set(id, requestTimestamp);
 
+    // Helper for surgical updates (replaces ad-hoc update code)
+    const applySurgicalUpdate = (
+      targetId: string,
+      noteUpdates: Partial<Note>
+    ) => {
+      const updateInNotes = (notes: Note[]) =>
+        notes.map((n) => (n.id === targetId ? { ...n, ...noteUpdates } : n));
+
+      const updateInFolders = (folders: NoteFolder[]): NoteFolder[] =>
+        folders.map((f) => ({
+          ...f,
+          notes: updateInNotes(f.notes),
+          children: updateInFolders(f.children),
+        }));
+
+      globalTree = {
+        ...globalTree,
+        rootNotes: updateInNotes(globalTree.rootNotes),
+        folders: updateInFolders(globalTree.folders),
+      };
+    };
+
     try {
       // 1. Optimistic Local Update
-      // Helper to remove note from anywhere in the tree
-      const removeNoteFromTree = (
-        tree: NoteTree,
-        noteId: string
-      ): { tree: NoteTree; removedNote: Note | null } => {
-        let removedNote: Note | null = null;
-
-        // Check root
-        const rootIndex = tree.rootNotes.findIndex((n) => n.id === noteId);
-        if (rootIndex !== -1) {
-          removedNote = tree.rootNotes[rootIndex];
+      // Handle structural moves separately if needed, but for content/title we use surgical update
+      if (updates.folder_id !== undefined) {
+        // Re-use existing move logic if it exists elsewhere or implement clean move
+        // For now retaining the existing move logic structure but simplifying where possible
+        // Helper to remove note from anywhere in the tree
+        const removeNoteFromTree = (
+          tree: NoteTree,
+          noteId: string
+        ): { tree: NoteTree; removedNote: Note | null } => {
+          let removedNote: Note | null = null;
+          // Check root
+          const rootIndex = tree.rootNotes.findIndex((n) => n.id === noteId);
+          if (rootIndex !== -1) {
+            removedNote = tree.rootNotes[rootIndex];
+            return {
+              tree: {
+                ...tree,
+                rootNotes: tree.rootNotes.filter((n) => n.id !== noteId),
+              },
+              removedNote,
+            };
+          }
+          // Recursive helper for folders
+          const removeFromFolders = (
+            folders: NoteFolder[]
+          ): { folders: NoteFolder[]; found: boolean } => {
+            let foundInLevel = false;
+            const newFolders = folders.map((f) => {
+              if (foundInLevel) return f;
+              const noteIndex = f.notes.findIndex((n) => n.id === noteId);
+              if (noteIndex !== -1) {
+                removedNote = f.notes[noteIndex];
+                foundInLevel = true;
+                return { ...f, notes: f.notes.filter((n) => n.id !== noteId) };
+              }
+              const childResult = removeFromFolders(f.children);
+              if (childResult.found) {
+                foundInLevel = true;
+                return { ...f, children: childResult.folders };
+              }
+              return f;
+            });
+            return { folders: newFolders, found: foundInLevel };
+          };
+          const result = removeFromFolders(tree.folders);
           return {
-            tree: {
-              ...tree,
-              rootNotes: tree.rootNotes.filter((n) => n.id !== noteId),
-            },
+            tree: { ...tree, folders: result.folders },
             removedNote,
           };
-        }
-
-        // Recursive helper for folders
-        const removeFromFolders = (
-          folders: NoteFolder[]
-        ): { folders: NoteFolder[]; found: boolean } => {
-          let foundInLevel = false;
-          const newFolders = folders.map((f) => {
-            if (foundInLevel) return f; // Already found in this level's siblings (unlikely but safe)
-
-            // Check notes in this folder
-            const noteIndex = f.notes.findIndex((n) => n.id === noteId);
-            if (noteIndex !== -1) {
-              removedNote = f.notes[noteIndex];
-              foundInLevel = true; // Mark found to bubble up if needed
-              return { ...f, notes: f.notes.filter((n) => n.id !== noteId) };
-            }
-
-            // check children
-            const childResult = removeFromFolders(f.children);
-            if (childResult.found) {
-              // If found deeper, we just return the update, no note extraction here needed (already extracted)
-              foundInLevel = true;
-              return { ...f, children: childResult.folders };
-            }
-            return f;
-          });
-          return { folders: newFolders, found: foundInLevel };
         };
 
-        const result = removeFromFolders(tree.folders);
-        return {
-          tree: { ...tree, folders: result.folders },
-          removedNote,
+        const addNoteToTree = (
+          tree: NoteTree,
+          note: Note,
+          targetFolderId: string | null
+        ): NoteTree => {
+          if (!targetFolderId) {
+            return { ...tree, rootNotes: [...tree.rootNotes, note] };
+          }
+          const addToFolders = (folders: NoteFolder[]): NoteFolder[] => {
+            return folders.map((f) => {
+              if (f.id === targetFolderId) {
+                return { ...f, notes: [...f.notes, note] };
+              }
+              return { ...f, children: addToFolders(f.children) };
+            });
+          };
+          return { ...tree, folders: addToFolders(tree.folders) };
         };
-      };
 
-      // Helper to add note to specific folder (or root)
-      const addNoteToTree = (
-        tree: NoteTree,
-        note: Note,
-        targetFolderId: string | null
-      ): NoteTree => {
-        if (!targetFolderId) {
-          return { ...tree, rootNotes: [...tree.rootNotes, note] };
-        }
-
-        const addToFolders = (folders: NoteFolder[]): NoteFolder[] => {
-          return folders.map((f) => {
-            if (f.id === targetFolderId) {
-              return { ...f, notes: [...f.notes, note] };
-            }
-            return { ...f, children: addToFolders(f.children) };
-          });
-        };
-        return { ...tree, folders: addToFolders(tree.folders) };
-      };
-
-      // Helper to update note in place
-      const updateInPlace = (tree: NoteTree): NoteTree => {
-        const updateList = (notes: Note[]) =>
-          notes.map((n) => (n.id === id ? { ...n, ...updates } : n));
-        const updateFolders = (folders: NoteFolder[]): NoteFolder[] =>
-          folders.map((f) => ({
-            ...f,
-            notes: updateList(f.notes),
-            children: updateFolders(f.children),
-          }));
-        return {
-          rootNotes: updateList(tree.rootNotes),
-          folders: updateFolders(tree.folders),
-        };
-      };
-
-      if (updates.folder_id !== undefined) {
-        // Structural Move!
-        // 1. Find and remove
         const { tree: prunedTree, removedNote } = removeNoteFromTree(
           globalTree,
           id
         );
-        if (!removedNote) {
-          console.warn("Could not find note to move", id);
-          return; // Abort if note not found
+
+        if (removedNote) {
+          const updatedNote = { ...removedNote, ...updates };
+          globalTree = addNoteToTree(
+            prunedTree,
+            updatedNote,
+            updates.folder_id
+          );
         }
-
-        // 2. Update note properties
-        const updatedNote = { ...removedNote, ...updates };
-
-        // 3. Add to new location
-        globalTree = addNoteToTree(prunedTree, updatedNote, updates.folder_id);
       } else {
         // Surgical Update (Title/Content only)
-        globalTree = updateInPlace(globalTree);
+        applySurgicalUpdate(id, updates);
       }
 
       notifyListeners();
@@ -351,32 +356,14 @@ export const useMyWorld = () => {
       // 3. Race Condition Check
       const latestTimestamp = updateTimestamps.get(id);
       if (latestTimestamp && latestTimestamp > requestTimestamp) {
-        // A newer request has started/finished. Do not overwrite with this stale/intermediate state.
-        // We trust the optimistic update of the newer request.
         return;
       }
 
       // 4. Server Reconciliation (Merge)
-      // We apply the server response to ensure things like sanitized titles are correct.
-      // We must treat this like an "update" again to be safe, but we know the folder_id is consistent now.
+      // Apply the exact server response using the surgical helper
+      // This ensures we have the canonical state (e.g. sanitized title)
+      applySurgicalUpdate(id, updatedNoteResponse);
 
-      const serverMerge = (tree: NoteTree): NoteTree => {
-        const updateList = (notes: Note[]) =>
-          notes.map((n) => (n.id === id ? updatedNoteResponse : n));
-        const updateFolders = (folders: NoteFolder[]): NoteFolder[] =>
-          folders.map((f) => ({
-            ...f,
-            notes: updateList(f.notes),
-            children: updateFolders(f.children),
-          }));
-
-        return {
-          rootNotes: updateList(tree.rootNotes),
-          folders: updateFolders(tree.folders),
-        };
-      };
-
-      globalTree = serverMerge(globalTree);
       notifyListeners();
     } catch (e) {
       console.error("Failed to update note", e);
@@ -408,6 +395,8 @@ export const useMyWorld = () => {
           rootNotes: removeNote(globalTree.rootNotes),
           folders: removeInFolders(globalTree.folders),
         };
+        // Remove from open tabs
+        globalOpenNoteIds = globalOpenNoteIds.filter((nid) => nid !== id);
       } else {
         // Folder delete
         const removeFolder = (folders: NoteFolder[]): NoteFolder[] => {
@@ -422,10 +411,16 @@ export const useMyWorld = () => {
           ...globalTree,
           folders: removeFolder(globalTree.folders),
         };
+        // TODO: Could trigger clearing tabs if notes were inside, but simple enough for now
       }
 
       if (globalActiveNoteId === id) {
-        globalActiveNoteId = null;
+        // Switch to another tab if available
+        if (globalOpenNoteIds.length > 0) {
+          globalActiveNoteId = globalOpenNoteIds[globalOpenNoteIds.length - 1];
+        } else {
+          globalActiveNoteId = null;
+        }
       }
       notifyListeners();
 
@@ -445,6 +440,20 @@ export const useMyWorld = () => {
 
   const setActiveNoteId = (id: string | null) => {
     globalActiveNoteId = id;
+    if (id && !globalOpenNoteIds.includes(id)) {
+      globalOpenNoteIds = [...globalOpenNoteIds, id];
+    }
+    notifyListeners();
+  };
+
+  const closeNote = (id: string) => {
+    globalOpenNoteIds = globalOpenNoteIds.filter((nid) => nid !== id);
+    if (globalActiveNoteId === id) {
+      // Switch to the last opened note or null
+      const remaining = globalOpenNoteIds;
+      globalActiveNoteId =
+        remaining.length > 0 ? remaining[remaining.length - 1] : null;
+    }
     notifyListeners();
   };
 
@@ -468,11 +477,17 @@ export const useMyWorld = () => {
     ? findNote(globalActiveNoteId, globalTree.folders, globalTree.rootNotes)
     : null;
 
+  const openNotes = globalOpenNoteIds
+    .map((id) => findNote(id, globalTree.folders, globalTree.rootNotes))
+    .filter((n): n is Note => n !== null);
+
   return {
     tree: globalTree,
     activeNote,
     activeNoteId: globalActiveNoteId,
+    openNotes, // Export open notes
     setActiveNoteId,
+    closeNote, // Export close function
     createFolder,
     createNote,
     updateNote,

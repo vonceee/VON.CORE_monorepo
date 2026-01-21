@@ -21,13 +21,23 @@ const SkeletonTask = () => (
   </div>
 );
 
+const SHORT_DAY_NAMES: Record<string, string> = {
+  Monday: "M",
+  Tuesday: "T",
+  Wednesday: "W",
+  Thursday: "Th",
+  Friday: "F",
+  Saturday: "Sa",
+  Sunday: "Su",
+};
+
 const NotCuteAnymore: React.FC = () => {
   const {
     currentDay,
     setCurrentDay,
     currentTime,
     currentDayTasks,
-    isLoading, // Add isLoading
+    isLoading,
     saveDayRoutine,
     copyRoutineToDays,
     DAYS,
@@ -87,7 +97,7 @@ const NotCuteAnymore: React.FC = () => {
           <div className="hidden lg:block h-4 w-[1px] bg-white/10" />
 
           {/* Minimal Day List Header */}
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1 overflow-hidden">
             {DAYS.map((day) => (
               <button
                 key={day}
@@ -98,14 +108,17 @@ const NotCuteAnymore: React.FC = () => {
                     : "text-[#5f6368] hover:text-[#e8eaed] hover:bg-white/5"
                 }`}
               >
-                {day.slice(0, 3)}
+                <span className="hidden sm:inline">{day.slice(0, 3)}</span>
+                <span className="sm:hidden">
+                  {SHORT_DAY_NAMES[day] || day.slice(0, 1)}
+                </span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Right Side: Actions */}
-        <div className="flex justify-between lg:justify-end gap-6 lg:gap-12">
+        <div className="flex justify-between lg:justify-end gap-2">
           {!isToday && (
             <div className="flex items-center gap-4 pl-0 lg:pl-8">
               <button
@@ -133,9 +146,6 @@ const NotCuteAnymore: React.FC = () => {
                   isLoading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#5f6368] group-hover:text-[#e8eaed]">
-                  Edit Routine
-                </span>
                 <Edit3 className="w-3.5 h-3.5 text-[#5f6368] group-hover:text-[#e8eaed]" />
               </button>
             </div>
@@ -183,7 +193,7 @@ const NotCuteAnymore: React.FC = () => {
               task={activeTask}
               onUpdateTask={(updatedTask) => {
                 const updatedTasks = currentDayTasks.map((t) =>
-                  t.id === updatedTask.id ? updatedTask : t
+                  t.id === updatedTask.id ? updatedTask : t,
                 );
                 saveDayRoutine(updatedTasks);
               }}

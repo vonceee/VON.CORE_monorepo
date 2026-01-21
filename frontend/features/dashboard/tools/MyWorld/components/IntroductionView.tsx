@@ -185,7 +185,7 @@ export const IntroductionView: React.FC<IntroductionViewProps> = ({
             <div className="relative w-72 h-72 md:w-96 md:h-96 bg-[#09090b] border border-white/10 rounded-sm shadow-2xl rotate-3 transition-transform duration-500 group-hover:rotate-0 group-hover:scale-105 overflow-hidden">
               <div className="absolute" />
               <img
-                src="assets/yunah/yunah_12282025(2).jpg"
+                src="assets/yunah/yunah_12282025_2.jpg"
                 alt="MyWorld - Digital Garden"
                 className="absolute inset-0 w-full h-full object-cover"
                 onError={(e) => {
@@ -193,7 +193,7 @@ export const IntroductionView: React.FC<IntroductionViewProps> = ({
                   e.currentTarget.parentElement!.classList.add(
                     "bg-gradient-to-br",
                     "from-blue-500",
-                    "to-purple-900"
+                    "to-purple-900",
                   );
                 }}
               />

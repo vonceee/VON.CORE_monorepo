@@ -5,11 +5,13 @@ import { ListChecks, Play, Zap, Edit2, Eye } from "lucide-react";
 interface ActiveTaskViewProps {
   task: Task | null;
   onUpdateTask?: (task: Task) => void;
+  backgroundImage?: string;
 }
 
 export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
   task,
   onUpdateTask,
+  backgroundImage,
 }) => {
   const [percentDone, setPercentDone] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState<string>("00:00");
@@ -20,8 +22,7 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
 
   const handleSave = (content: string) => {
     if (!task || !onUpdateTask) return;
-    setIsEditingNotes(false); // Optimistically close editor if we want, or keep it open.
-    // Actually, user wants toggle behavior.
+    setIsEditingNotes(false); // optimistically close editor if we want, or keep it open.
 
     if (content !== task.notes) {
       isSavingRef.current = true;
@@ -29,27 +30,27 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
     }
   };
 
-  // Sync draft with task prop changes, respecting edit mode & save state
+  // sync draft with task prop changes, respecting edit mode & save state
   useEffect(() => {
     if (task) {
       if (task.id !== prevTaskIdRef.current) {
-        // New task: always sync
+        // new task: always sync
         setNotesDraft(task.notes || "");
         prevTaskIdRef.current = task.id;
         isSavingRef.current = false;
       } else if (task.notes !== notesDraft) {
-        // Same task, potential sync
+        // same task, potential sync
         if (isSavingRef.current) {
-          // We are expecting a specific update.
-          // If task.notes is STILL not what we drafted, it might be stale or collision.
-          // But we can check if task.notes matches our draft.
-          // If task.notes matches draft, sync is complete.
+          // we are expecting a specific update.
+          // if task.notes is still not what we drafted, it might be stale or collision.
+          // but we can check if task.notes matches our draft.
+          // if task.notes matches draft, sync is complete.
           if (task.notes === notesDraft) {
             isSavingRef.current = false;
           }
         } else {
-          // Not saving, just normal sync (external update)
-          // Only sync if we are NOT editing to avoid interrupting typing?
+          // not saving, just normal sync (external update)
+          // only sync if we are NOT editing to avoid interrupting typing?
           // OR sync strictly if !isEditingNotes.
           if (!isEditingNotes) {
             setNotesDraft(task.notes || "");
@@ -59,7 +60,7 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
     }
   }, [task, isEditingNotes, notesDraft]);
 
-  // Auto-save effect (debounced)
+  // auto-save effect (debounced)
   useEffect(() => {
     if (!isEditingNotes || !task || !onUpdateTask) return;
 
@@ -75,7 +76,7 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
 
   const toggleEditMode = () => {
     if (isEditingNotes) {
-      // Switching to Read Mode: Save immediately if changed
+      // switching to read mode: save immediately if changed
       if (task && onUpdateTask && notesDraft !== task.notes) {
         isSavingRef.current = true;
         onUpdateTask({ ...task, notes: notesDraft });
@@ -95,7 +96,7 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
         const elapsed = nowInMinutes - startInMinutes;
         const progress = Math.max(
           0,
-          Math.min(100, (elapsed / task.durationMinutes) * 100)
+          Math.min(100, (elapsed / task.durationMinutes) * 100),
         );
         setPercentDone(progress);
 
@@ -109,7 +110,7 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
           setTimeLeft(
             `${hours.toString().padStart(2, "0")}:${minutes
               .toString()
-              .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+              .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
           );
         } else {
           const mins = Math.floor(totalSeconds / 60);
@@ -117,7 +118,7 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
           setTimeLeft(
             `${mins.toString().padStart(2, "0")}:${secs
               .toString()
-              .padStart(2, "0")}`
+              .padStart(2, "0")}`,
           );
         }
       };
@@ -140,44 +141,45 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
   }
 
   return (
-    <div className="h-full relative flex flex-col overflow-hidden bg-[#09090b]">
+    <div className="h-full relative flex flex-col overflow-hidden isolate bg-[#09090b]">
+      {/* Background Image Layer */}
+      {backgroundImage && (
+        <div className="absolute inset-0 -z-10">
+          <img
+            src={backgroundImage}
+            alt=""
+            className="w-full h-full object-cover transition-opacity duration-700 opacity-60"
+          />
+          <div className="" />
+        </div>
+      )}
+
       {/* Minimal Progress Line */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-white/5">
+      <div className="absolute top-0 left-0 w-full h-[2px] bg-white/5 z-20">
         <div
           className="h-full bg-[#E1306C] transition-all duration-1000 ease-linear"
           style={{ width: `${percentDone}%` }}
         />
       </div>
 
-      <div className="flex-1 flex flex-col p-8 md:p-12 overflow-hidden">
+      <div className="flex-1 flex flex-col p-8 md:p-12 overflow-hidden gap-8">
         {/* Header Section */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between flex-shrink-0">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between flex-shrink-0 backdrop-blur-md bg-black/10 rounded-2xl p-6">
           <div className="flex-1 space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#E1306C] animate-pulse" />
-              <span className="text-[10px] uppercase tracking-widest text-[#E1306C] font-medium">
-                Now Active
-              </span>
-            </div>
-
-            <h1 className="text-3xl md:text-5xl font-medium text-[#e8eaed] tracking-tight leading-tight">
+            <h1 className="text-3xl md:text-5xl font-medium text-[#e8eaed] tracking-tight leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
               {task.title}
             </h1>
           </div>
 
-          <div className="text-4xl md:text-6xl font-light text-[#e8eaed] tabular-nums tracking-tighter opacity-90">
+          <div className="text-4xl md:text-6xl font-light text-[#e8eaed] tabular-nums tracking-tighter opacity-90 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
             {timeLeft}
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="w-12 h-[1px] bg-white/10 my-8 md:my-12" />
-
         {/* Notes/Content Section */}
-        {/* Notes/Content Section */}
-        <div className="flex-1 overflow-y-hidden min-h-0 group relative flex flex-col">
+        <div className="flex-1 overflow-y-hidden min-h-0 group relative flex flex-col backdrop-blur-md bg-black/10 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4 flex-shrink-0">
-            <h3 className="text-xs uppercase tracking-widest text-[#5f6368] font-medium">
+            <h3 className="text-xs uppercase tracking-widest text-[#e8eaed] font-medium drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
               Notes
             </h3>
             {task && onUpdateTask && (
@@ -186,7 +188,7 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
                 className={`p-1.5 rounded-md transition-all ${
                   isEditingNotes
                     ? "text-[#E1306C] bg-[#E1306C]/10"
-                    : "opacity-0 group-hover:opacity-100 text-[#5f6368] hover:text-[#e8eaed] hover:bg-white/5"
+                    : "opacity-50 group-hover:opacity-100 text-[#e8eaed] hover:text-[#e8eaed] hover:bg-white/5"
                 }`}
                 title={isEditingNotes ? "Switch to Reading View" : "Edit Notes"}
               >
@@ -204,17 +206,17 @@ export const ActiveTaskView: React.FC<ActiveTaskViewProps> = ({
               <textarea
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
-                className="w-full h-full bg-transparent border-none p-0 text-[#9aa0a6] placeholder-white/20 focus:ring-0 focus:outline-none resize-none font-light leading-relaxed text-lg custom-scroll"
+                className="w-full h-full bg-transparent border-none p-0 text-[#9aa0a6] placeholder-white/20 focus:ring-0 focus:outline-none resize-none font-light leading-relaxed text-lg custom-scroll drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"
                 placeholder="add notes..."
                 autoFocus
               />
             ) : (
               <div className="h-full overflow-y-auto custom-scroll">
                 <div className="prose prose-invert max-w-none">
-                  <p className="text-lg text-[#9aa0a6] leading-relaxed whitespace-pre-wrap font-light">
+                  <p className="text-lg text-[#9aa0a6] leading-relaxed whitespace-pre-wrap font-light drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                     {task.notes || notesDraft || (
-                      <span className="italic opacity-50">
-                        no notes for this task.
+                      <span className="italic opacity-100">
+                        ~no notes for this task.
                       </span>
                     )}
                   </p>

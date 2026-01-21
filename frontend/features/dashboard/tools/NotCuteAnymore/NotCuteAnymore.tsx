@@ -46,6 +46,19 @@ const NotCuteAnymore: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
 
+  // Asset Loading
+  const backgroundImages = useMemo(() => {
+    const images = import.meta.glob(
+      "../../../../assets/aes/*.{png,jpg,jpeg,svg}",
+      {
+        eager: true,
+        query: "?url",
+        import: "default",
+      },
+    );
+    return Object.values(images) as string[];
+  }, []);
+
   const activeTask = useMemo(() => {
     const nowHours = currentTime.getHours();
     const nowMins = currentTime.getMinutes();
@@ -60,6 +73,24 @@ const NotCuteAnymore: React.FC = () => {
       }) || null
     );
   }, [currentDayTasks, currentTime]);
+
+  const currentBackgroundImage = useMemo(() => {
+    if (backgroundImages.length === 0) return "";
+
+    if (!activeTask) {
+      // default idle image (first one)
+      return backgroundImages[0];
+    }
+
+    // stable selection logic
+    const seed = (activeTask.id || activeTask.title)
+      .toString()
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+    const index = seed % backgroundImages.length;
+    return backgroundImages[index];
+  }, [activeTask, backgroundImages]);
 
   const handleSaveRoutine = (newTasks: Task[]) => {
     saveDayRoutine(newTasks);
@@ -191,6 +222,7 @@ const NotCuteAnymore: React.FC = () => {
           ) : (
             <ActiveTaskView
               task={activeTask}
+              backgroundImage={currentBackgroundImage}
               onUpdateTask={(updatedTask) => {
                 const updatedTasks = currentDayTasks.map((t) =>
                   t.id === updatedTask.id ? updatedTask : t,

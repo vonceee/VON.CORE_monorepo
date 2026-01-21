@@ -6,6 +6,7 @@ export interface Note {
   tags: string[] | null;
   created_at: string;
   updated_at: string;
+  is_favorite: boolean;
   isOptimistic?: boolean;
 }
 
@@ -14,6 +15,7 @@ export interface NoteFolder {
   parent_id: string | null;
   name: string;
   icon: string;
+  is_favorite: boolean;
   children: NoteFolder[];
   notes: Note[];
   isOpen?: boolean; // UI state

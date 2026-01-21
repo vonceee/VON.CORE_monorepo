@@ -10,6 +10,7 @@ import {
   Trash2,
   FolderPlus,
   SquarePen,
+  Star,
 } from "lucide-react";
 import {
   DndContext,
@@ -33,6 +34,7 @@ interface NoteItemProps {
   selectedNoteIds: string[];
   onSelect: (id: string, multi: boolean, range: boolean) => void;
   onDeleteItem: (id: string) => void;
+  onToggleFavorite: (id: string) => void;
   depth: number;
 }
 
@@ -42,6 +44,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
   selectedNoteIds,
   onSelect,
   onDeleteItem,
+  onToggleFavorite,
   depth,
 }) => {
   const isSelected = selectedNoteIds.includes(note.id);
@@ -75,6 +78,19 @@ const NoteItem: React.FC<NoteItemProps> = ({
     >
       <NotebookText size={12} className={isSelected ? "text-blue-400" : ""} />
       <span className="text-sm truncate flex-1">{note.title}</span>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleFavorite(note.id);
+        }}
+        className={`p-1 rounded hover:bg-white/10 ${
+          note.is_favorite
+            ? "text-yellow-500 opacity-100"
+            : "text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white"
+        }`}
+      >
+        <Star size={12} fill={note.is_favorite ? "currentColor" : "none"} />
+      </button>
       {!note.isOptimistic && (
         <button
           onClick={(e) => {
@@ -104,6 +120,7 @@ interface FolderItemProps {
   onCreateNote: (title: string, folderId: string | null) => void;
   onRenameFolder: (id: string, newName: string) => void;
   onDeleteItem: (id: string, type: "note" | "folder") => void;
+  onToggleFavorite: (id: string, type: "note" | "folder") => void;
   depth: number;
 }
 
@@ -120,6 +137,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
   onCreateNote,
   onRenameFolder,
   onDeleteItem,
+  onToggleFavorite,
   depth,
 }) => {
   const isOpen = expandedFolderIds.includes(folder.id);
@@ -205,14 +223,30 @@ const FolderItem: React.FC<FolderItemProps> = ({
         )}
 
         {!folder.isOptimistic && !isRenaming && (
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex gap-1 items-center">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(folder.id, "folder");
+              }}
+              className={`p-1 rounded hover:bg-white/10 ${
+                folder.is_favorite
+                  ? "text-yellow-500 opacity-100"
+                  : "text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white"
+              }`}
+            >
+              <Star
+                size={12}
+                fill={folder.is_favorite ? "currentColor" : "none"}
+              />
+            </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onDeleteItem(folder.id, "folder");
               }}
               title="Delete Folder"
-              className="text-red-500 hover:text-red-400"
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-400"
             >
               <Trash2 size={12} />
             </button>
@@ -237,6 +271,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
               onCreateNote={onCreateNote}
               onRenameFolder={onRenameFolder}
               onDeleteItem={onDeleteItem}
+              onToggleFavorite={onToggleFavorite}
               depth={depth + 1}
             />
           ))}
@@ -248,6 +283,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
               selectedNoteIds={selectedNoteIds}
               onSelect={onSelectNote}
               onDeleteItem={(id) => onDeleteItem(id, "note")}
+              onToggleFavorite={(id) => onToggleFavorite(id, "note")}
               depth={depth + 1}
             />
           ))}
@@ -282,6 +318,7 @@ export const MyWorldSidebar: React.FC = () => {
     getVisibleNoteIds,
     moveNotes,
     renameFolder,
+    toggleFavorite,
   } = useMyWorld();
 
   const lastClickedId = useRef<string | null>(null);
@@ -457,6 +494,7 @@ export const MyWorldSidebar: React.FC = () => {
               onCreateNote={createNote}
               onRenameFolder={renameFolder}
               onDeleteItem={requestDelete}
+              onToggleFavorite={toggleFavorite}
               depth={0}
             />
           ))}
@@ -468,6 +506,7 @@ export const MyWorldSidebar: React.FC = () => {
               selectedNoteIds={selectedNoteIds}
               onSelect={handleSelectNote}
               onDeleteItem={(id) => requestDelete(id, "note")}
+              onToggleFavorite={(id) => toggleFavorite(id, "note")}
               depth={0}
             />
           ))}

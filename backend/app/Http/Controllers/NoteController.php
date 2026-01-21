@@ -28,6 +28,7 @@ class NoteController extends Controller
                 'name' => $folder->name,
                 'type' => 'folder',
                 'parent_id' => $folder->parent_id,
+                'is_favorite' => $folder->is_favorite,
                 'children' => $this->formatTree($folder->children),
                 'notes' => $folder->notes,
                 'isOpen' => false, // default state for frontend
@@ -55,6 +56,7 @@ class NoteController extends Controller
             'title' => 'sometimes|required|string|max:255',
             'content' => 'nullable|string',
             'tags' => 'nullable|array',
+            'is_favorite' => 'sometimes|boolean',
         ];
 
         if ($request->has('folder_id')) {
@@ -93,6 +95,7 @@ class NoteController extends Controller
             'parent_id' => 'nullable|exists:note_folders,id',
             'name' => 'sometimes|required|string|max:255',
             'icon' => 'nullable|string',
+            'is_favorite' => 'sometimes|boolean',
         ]);
 
         $folder->update($validated);

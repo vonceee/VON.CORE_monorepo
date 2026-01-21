@@ -10,7 +10,11 @@ class NoteFolder extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['name', 'parent_id', 'icon'];
+    protected $fillable = ['name', 'parent_id', 'icon', 'is_favorite'];
+
+    protected $casts = [
+        'is_favorite' => 'boolean',
+    ];
 
     public function children()
     {

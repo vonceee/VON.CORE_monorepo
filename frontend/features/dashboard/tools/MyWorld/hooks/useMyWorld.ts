@@ -21,12 +21,36 @@ const notifyListeners = () => {
   listeners.forEach((l) => l());
 };
 
+const sortNotes = (notes: Note[]) => {
+  return [...notes].sort((a, b) => {
+    if (!!a.is_favorite !== !!b.is_favorite) return a.is_favorite ? -1 : 1;
+    return a.title.localeCompare(b.title);
+  });
+};
+
+const sortFolders = (folders: NoteFolder[]): NoteFolder[] => {
+  const sorted = [...folders].sort((a, b) => {
+    if (!!a.is_favorite !== !!b.is_favorite) return a.is_favorite ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+  return sorted.map((f) => ({
+    ...f,
+    children: sortFolders(f.children),
+    notes: sortNotes(f.notes),
+  }));
+};
+
+const sortTree = (tree: NoteTree): NoteTree => ({
+  folders: sortFolders(tree.folders),
+  rootNotes: sortNotes(tree.rootNotes),
+});
+
 const fetchData = async () => {
   try {
     globalIsLoading = true;
     notifyListeners();
     const data = await noteApi.fetchTree();
-    globalTree = data;
+    globalTree = sortTree(data);
   } catch (e) {
     console.error("Failed to fetch MyWorld data", e);
   } finally {
@@ -59,6 +83,7 @@ export const useMyWorld = () => {
       icon: "Folder",
       children: [],
       notes: [],
+      is_favorite: false,
       isOptimistic: true,
     };
 
@@ -145,6 +170,7 @@ export const useMyWorld = () => {
       tags: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      is_favorite: false,
       isOptimistic: true,
     };
 
@@ -699,5 +725,64 @@ export const useMyWorld = () => {
     deleteItem,
     refresh: fetchData,
     moveNotes,
+    toggleFavorite: async (id: string, type: "note" | "folder") => {
+      const previousTree = globalTree;
+      try {
+        const flipInNotes = (notes: Note[]) =>
+          notes.map((n) =>
+            n.id === id ? { ...n, is_favorite: !n.is_favorite } : n
+          );
+        const flipInFolders = (folders: NoteFolder[]): NoteFolder[] =>
+          folders.map((f) => {
+            if (f.id === id) {
+              return {
+                ...f,
+                is_favorite: !f.is_favorite,
+                children: flipInFolders(f.children),
+                notes: flipInNotes(f.notes),
+              };
+            }
+            return {
+              ...f,
+              children: flipInFolders(f.children),
+              notes: flipInNotes(f.notes),
+            };
+          });
+
+        globalTree = sortTree({
+          rootNotes:
+            type === "note"
+              ? flipInNotes(globalTree.rootNotes)
+              : globalTree.rootNotes,
+          folders: flipInFolders(globalTree.folders),
+        });
+        notifyListeners();
+
+        // Re-find to get value
+        const findIsFav = (
+          id: string,
+          folders: NoteFolder[],
+          notes: Note[]
+        ): boolean | undefined => {
+          const n = notes.find((x) => x.id === id);
+          if (n) return n.is_favorite;
+          for (const f of folders) {
+            if (f.id === id) return f.is_favorite;
+            const found = findIsFav(id, f.children, f.notes);
+            if (found !== undefined) return found;
+          }
+        };
+        const newVal = findIsFav(id, globalTree.folders, globalTree.rootNotes);
+        if (newVal !== undefined) {
+          if (type === "note")
+            await noteApi.updateNote(id, { is_favorite: newVal });
+          else await noteApi.updateFolder(id, { is_favorite: newVal });
+        }
+      } catch (e) {
+        console.error("Failed to toggle favorite", e);
+        globalTree = previousTree;
+        notifyListeners();
+      }
+    },
   };
 };

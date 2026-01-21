@@ -10,10 +10,11 @@ class Note extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['folder_id', 'title', 'content', 'tags'];
+    protected $fillable = ['folder_id', 'title', 'content', 'tags', 'is_favorite'];
 
     protected $casts = [
         'tags' => 'array',
+        'is_favorite' => 'boolean',
     ];
 
     public function folder()

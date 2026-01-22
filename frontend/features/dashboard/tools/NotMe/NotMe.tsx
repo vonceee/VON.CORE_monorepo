@@ -68,6 +68,7 @@ const NotMe: React.FC = () => {
     // though conceptually we should probably reset or let the toggle handle it
   };
 
+  /* Refactored Render Tracker for List View */
   const renderTracker = (item: TrackerConfig) => {
     const IconComponent = ICON_MAP[item.icon || "Activity"] || Activity;
     const valueObj = getValue(item.id);
@@ -82,90 +83,99 @@ const NotMe: React.FC = () => {
       return (
         <div
           key={item.id}
-          className="group relative flex flex-col justify-between p-5 rounded-2xl hover:bg-white/5 transition-all duration-300"
+          className="group relative flex flex-col p-4 px-6 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-300"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex flex-col">
+          {/* Top Row: Content + Actions */}
+          <div className="flex items-center justify-between gap-4">
+            {/* Left Side: Text Info */}
+            <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-3">
-                <IconComponent className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors" />
-                <h2 className="text-lg font-medium text-gray-200 tracking-tight">
+                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform">
+                  <IconComponent className="w-4 h-4" />
+                </div>
+                <h2 className="text-lg font-medium text-gray-200 tracking-tight truncate">
                   {item.label}
                 </h2>
               </div>
               {item.description && (
-                <p className="text-xs text-gray-500 mt-1 ml-7 line-clamp-2">
+                <p className="text-xs text-gray-500 mt-1 pl-[3.25rem] line-clamp-1">
                   {item.description}
                 </p>
               )}
             </div>
-            <button
-              onClick={() => handleNoteToggle(item.id, valueObj?.note)}
-              className={`p-1.5 rounded-lg transition-all duration-300 ${
-                valueObj?.note
-                  ? "text-blue-400"
-                  : "text-gray-600 opacity-0 group-hover:opacity-100 hover:text-gray-300"
-              }`}
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-            </button>
-          </div>
 
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-center gap-6">
-              <button
-                onClick={() =>
-                  updateValue(item.id, { amount: Math.max(0, current - 1) })
-                }
-                className="group/btn p-1.5 transition-all hover:scale-110 disabled:opacity-30"
-                disabled={current === 0}
-              >
-                <Minus className="w-5 h-5 text-gray-600 group-hover/btn:text-gray-300 transition-colors" />
-              </button>
+            {/* Right Side: Actions */}
+            <div className="flex items-center gap-6 shrink-0">
+              {/* Counter Controls */}
+              <div className="flex items-center gap-4 bg-black/20 p-1.5 rounded-xl border border-white/5">
+                <button
+                  onClick={() =>
+                    updateValue(item.id, { amount: Math.max(0, current - 1) })
+                  }
+                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                  disabled={current === 0}
+                >
+                  <Minus className="w-4 h-4 text-gray-400" />
+                </button>
 
-              <div className="text-center">
-                <span className="text-5xl font-light tracking-tighter tabular-nums block text-white">
-                  {current}
-                </span>
-                <span className="text-xs text-gray-600 font-medium tracking-wide mt-1 block">
-                  GOAL: {goal}
-                </span>
+                <div className="flex items-baseline gap-1 min-w-[3rem] justify-center">
+                  <span className="text-lg font-medium text-white tabular-nums">
+                    {current}
+                  </span>
+                  <span className="text-xs text-gray-600 font-medium">
+                    /{goal}
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => updateValue(item.id, { amount: current + 1 })}
+                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <Plus className="w-4 h-4 text-gray-400" />
+                </button>
               </div>
 
+              {/* Note Toggle */}
               <button
-                onClick={() => updateValue(item.id, { amount: current + 1 })}
-                className="group/btn p-1.5 transition-all hover:scale-110"
+                onClick={() => handleNoteToggle(item.id, valueObj?.note)}
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  valueObj?.note || openNoteId === item.id
+                    ? "text-blue-400 bg-blue-500/10"
+                    : "text-gray-600 hover:text-gray-300 hover:bg-white/5"
+                }`}
               >
-                <Plus className="w-5 h-5 text-gray-600 group-hover/btn:text-gray-300 transition-colors" />
+                <MessageSquare className="w-4 h-4" />
               </button>
             </div>
+          </div>
 
-            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-blue-500/50 transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
+          {/* Progress Bar (Bottom Line) */}
+          <div className="mt-4 h-1 w-full bg-black/40 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-500/50 transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          {/* Note Input Area */}
+          {openNoteId === item.id && (
+            <div className="mt-4 pt-4 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
+              <textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="add a note..."
+                className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-gray-300 focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none"
+                autoFocus
+                onBlur={() => saveNote(item.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    saveNote(item.id);
+                  }
+                }}
               />
             </div>
-
-            {/* Note Input Area */}
-            {openNoteId === item.id && (
-              <div className="mt-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                <textarea
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                  placeholder="add a note..."
-                  className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-gray-300 focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none"
-                  autoFocus
-                  onBlur={() => saveNote(item.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      saveNote(item.id);
-                    }
-                  }}
-                />
-              </div>
-            )}
-          </div>
+          )}
         </div>
       );
     }
@@ -177,77 +187,75 @@ const NotMe: React.FC = () => {
       return (
         <div
           key={item.id}
-          className="group relative flex flex-col justify-between p-5 rounded-2xl hover:bg-white/5 transition-all duration-300"
+          className="group relative flex flex-col p-4 px-6 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-300"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex flex-col">
+          {/* Top Row: Content + Actions */}
+          <div className="flex items-center justify-between gap-4">
+            {/* Left Side: Text Info */}
+            <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-3">
-                <IconComponent className="w-4 h-4 text-gray-500 group-hover:text-purple-400 transition-colors" />
-                <h2 className="text-lg font-medium text-gray-200 tracking-tight">
+                <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+                  <IconComponent className="w-4 h-4" />
+                </div>
+                <h2 className="text-lg font-medium text-gray-200 tracking-tight truncate">
                   {item.label}
                 </h2>
               </div>
               {item.description && (
-                <p className="text-xs text-gray-500 mt-1 ml-7 line-clamp-2">
+                <p className="text-xs text-gray-500 mt-1 pl-[3.25rem] line-clamp-1">
                   {item.description}
                 </p>
               )}
             </div>
-            <button
-              onClick={() => handleNoteToggle(item.id, valueObj?.note)}
-              className={`p-1.5 rounded-lg transition-all duration-300 ${
-                valueObj?.note
-                  ? "text-blue-400"
-                  : "text-gray-600 opacity-0 group-hover:opacity-100 hover:text-gray-300"
-              }`}
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-            </button>
-          </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() =>
-                updateValue(item.id, {
-                  amount: outcome === "WIN" ? null : "WIN",
-                })
-              }
-              className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl transition-all duration-300 ${
-                outcome === "WIN"
-                  ? "bg-emerald-500/10 text-emerald-400"
-                  : "bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300"
-              }`}
-            >
-              <CheckCircle2
-                className={`w-5 h-5 ${
-                  outcome === "WIN" ? "text-emerald-400" : "opacity-50"
+            {/* Right Side: Actions */}
+            <div className="flex items-center gap-6 shrink-0">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    updateValue(item.id, {
+                      amount: outcome === "WIN" ? null : "WIN",
+                    })
+                  }
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 border ${
+                    outcome === "WIN"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      : "bg-surface-200/50 text-gray-500 border-transparent hover:bg-surface-300 hover:text-gray-300"
+                  }`}
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span className="text-xs font-bold tracking-wider">WIN</span>
+                </button>
+
+                <button
+                  onClick={() =>
+                    updateValue(item.id, {
+                      amount: outcome === "LOSS" ? null : "LOSS",
+                    })
+                  }
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 border ${
+                    outcome === "LOSS"
+                      ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                      : "bg-surface-200/50 text-gray-500 border-transparent hover:bg-surface-300 hover:text-gray-300"
+                  }`}
+                >
+                  <XCircle className="w-4 h-4" />
+                  <span className="text-xs font-bold tracking-wider">LOSS</span>
+                </button>
+              </div>
+
+              {/* Note Toggle */}
+              <button
+                onClick={() => handleNoteToggle(item.id, valueObj?.note)}
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  valueObj?.note || openNoteId === item.id
+                    ? "text-blue-400 bg-blue-500/10"
+                    : "text-gray-600 hover:text-gray-300 hover:bg-white/5"
                 }`}
-              />
-              <span className="text-[10px] font-medium tracking-widest uppercase">
-                WIN
-              </span>
-            </button>
-            <button
-              onClick={() =>
-                updateValue(item.id, {
-                  amount: outcome === "LOSS" ? null : "LOSS",
-                })
-              }
-              className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl transition-all duration-300 ${
-                outcome === "LOSS"
-                  ? "bg-rose-500/10 text-rose-400"
-                  : "bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300"
-              }`}
-            >
-              <XCircle
-                className={`w-5 h-5 ${
-                  outcome === "LOSS" ? "text-rose-400" : "opacity-50"
-                }`}
-              />
-              <span className="text-[10px] font-medium tracking-widest uppercase">
-                LOSS
-              </span>
-            </button>
+              >
+                <MessageSquare className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Note Input Area */}
@@ -374,7 +382,7 @@ const NotMe: React.FC = () => {
                 <>
                   {habits.length > 0 && (
                     <section>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="flex flex-col gap-3">
                         {habits.map(renderTracker)}
                       </div>
                     </section>
@@ -386,7 +394,7 @@ const NotMe: React.FC = () => {
                         habits.length > 0 ? "pt-6 border-t border-white/5" : ""
                       }
                     >
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="flex flex-col gap-3">
                         {games.map(renderTracker)}
                       </div>
                     </section>

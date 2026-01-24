@@ -156,7 +156,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
     if (renameValue.trim() && renameValue !== folder.name) {
       onRenameFolder(folder.id, renameValue);
     } else {
-      setRenameValue(folder.name); // Revert if empty
+      setRenameValue(folder.name);
     }
     setIsRenaming(false);
   };
@@ -329,7 +329,7 @@ export const MyWorldSidebar: React.FC = () => {
       activationConstraint: {
         distance: 8,
       },
-    })
+    }),
   );
 
   // Handle Note Selection
@@ -410,7 +410,7 @@ export const MyWorldSidebar: React.FC = () => {
     if (type === "note") {
       const findNote = (
         notes: Note[],
-        folders: NoteFolder[]
+        folders: NoteFolder[],
       ): string | undefined => {
         const n = notes.find((n) => n.id === id);
         if (n) return n.title;

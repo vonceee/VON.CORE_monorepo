@@ -140,14 +140,9 @@ export const NotMeSidebar: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 rounded-full bg-gray-500 group-hover:bg-white/50 transition-colors" />
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
+                        <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors truncate">
                           {item.label}
                         </span>
-                        {item.description && (
-                          <span className="text-[10px] text-gray-500 truncate max-w-[120px]">
-                            {item.description}
-                          </span>
-                        )}
                         <span className="text-[10px] text-gray-600 uppercase tracking-wider">
                           {item.type} {item.goal ? `/ ${item.goal}` : ""}
                         </span>

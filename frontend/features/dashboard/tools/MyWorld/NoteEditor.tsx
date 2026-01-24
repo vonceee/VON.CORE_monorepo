@@ -86,7 +86,6 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         {/* Left Side: Logo (20%) */}
         <div className="w-1/5 flex items-center justify-between px-4 border-r border-white/5 relative group/header">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent pointer-events-none" />
-          <h1 className="text-2xl font-medium">My World</h1>
           <button
             onClick={onShowIntro}
             className="p-1.5 rounded-full hover:bg-white/10 text-gray-500 hover:text-white transition-colors relative z-10"
@@ -106,7 +105,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
                 "group flex items-center gap-2 px-3 py-1.5 rounded-md text-xs cursor-pointer transition-all border border-transparent flex-1 min-w-0 max-w-[200px]",
                 activeNoteId === n.id
                   ? "bg-[#09090b] border-white/10 text-white shadow-sm"
-                  : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                  : "text-gray-500 hover:text-gray-300 hover:bg-white/5",
               )}
             >
               <span className="truncate flex-1 font-medium">
@@ -119,7 +118,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
                 }}
                 className={clsx(
                   "p-0.5 rounded-full hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0",
-                  activeNoteId === n.id && "opacity-100"
+                  activeNoteId === n.id && "opacity-100",
                 )}
               >
                 <X size={12} />
@@ -139,10 +138,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         </div>
       ) : !note ? (
         <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-2">
-          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-select text-white/20 mb-2">
-            <Info size={24} className="opacity-50" />
-          </div>
-          <p>Select a note from the sidebar or open tabs</p>
+          <p>~whats on your mind?</p>
         </div>
       ) : (
         <>

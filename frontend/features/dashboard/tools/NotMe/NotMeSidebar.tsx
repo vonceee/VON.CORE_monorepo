@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { NotMeListSkeleton } from "./NotMeSkeleton";
 
-// Icon Map (Needs to be available here too, duplicating or moving to types/constants would be better but keeping simple for now)
 const ICON_MAP: Record<string, React.ElementType> = {
   Droplets,
   Gamepad2,
@@ -28,7 +27,6 @@ export const NotMeSidebar: React.FC = () => {
   const { listItems, addItem, removeItem, isLoading } = useNotMe();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // New Item Form State (Unified Object)
   const [newHabit, setNewHabit] = useState<{
     label: string;
     type: TrackerType;

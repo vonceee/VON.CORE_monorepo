@@ -1,0 +1,111 @@
+@import url("https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+:root {
+  /* Core Colors */
+  --sm-color-primary: #4a4238;
+  --sm-color-secondary: #8c7e72;
+  --sm-color-background: #f9f7f2;
+  --sm-color-surface: #fffdf9;
+  --sm-color-accent: #ebe5ce;
+  --sm-color-text-main: #2c251f;
+  --sm-color-text-muted: #6b5e52;
+
+  /* Typography Scale */
+  --sm-font-serif: "Lobster Two", cursive;
+  --sm-font-sans: "Google Sans", "Inter", system-ui, sans-serif;
+
+  --sm-text-xs: 0.75rem; /* 12px */
+  --sm-text-sm: 0.875rem; /* 14px */
+  --sm-text-base: 1rem; /* 16px */
+  --sm-text-lg: 1.125rem; /* 18px */
+  --sm-text-xl: 1.25rem; /* 20px */
+  --sm-text-2xl: 1.5rem; /* 24px */
+  --sm-text-3xl: 2rem; /* 32px */
+  --sm-text-4xl: 3rem; /* 48px */
+
+  /* Spacing Tokens */
+  --sm-space-1: 0.25rem;
+  --sm-space-2: 0.5rem;
+  --sm-space-3: 0.75rem;
+  --sm-space-4: 1rem;
+  --sm-space-6: 1.5rem;
+  --sm-space-8: 2rem;
+  --sm-space-12: 3rem;
+  --sm-space-16: 4rem;
+
+  /* Animations */
+  --sm-transition-fast: 200ms ease;
+  --sm-transition-normal: 300ms ease;
+  --sm-transition-slow: 500ms ease;
+}
+
+[data-theme="dark"] {
+  --sm-color-primary: #ebe5ce;
+  --sm-color-secondary: #a89b91;
+  --sm-color-background: #1a1816;
+  --sm-color-surface: #24211e;
+  --sm-color-accent: #4a4238;
+  --sm-color-text-main: #f2ede4;
+  --sm-color-text-muted: #9c8e82;
+}
+
+/* Base Styles */
+.sm-theme {
+  font-family: var(--sm-font-sans);
+  color: var(--sm-color-text-main);
+  background-color: var(--sm-color-background);
+  transition:
+    background-color var(--sm-transition-normal),
+    color var(--sm-transition-normal);
+}
+
+.sm-font-serif {
+  font-family: var(--sm-font-serif);
+}
+
+/* Utility Components */
+.sm-btn {
+  padding: var(--sm-space-2) var(--sm-space-4);
+  background-color: var(--sm-color-primary);
+  color: var(--sm-color-background);
+  border-radius: 4px;
+  font-weight: 500;
+  transition: opacity var(--sm-transition-fast);
+}
+
+.sm-btn:hover {
+  opacity: 0.9;
+}
+
+.sm-card {
+  background-color: var(--sm-color-surface);
+  border: 1px solid rgba(140, 126, 114, 0.2);
+  padding: var(--sm-space-6);
+  border-radius: 8px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sm-animate-fade-in {
+  animation: fadeIn var(--sm-transition-slow) forwards;
+}

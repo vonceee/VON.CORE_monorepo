@@ -7,7 +7,9 @@ import NotMe from "./tools/NotMe/NotMe";
 import { NotMeSidebar } from "./tools/NotMe/NotMeSidebar";
 import MyWorld from "./tools/MyWorld/MyWorld";
 import { MyWorldSidebar } from "./tools/MyWorld/MyWorldSidebar";
-import { Globe } from "lucide-react";
+import SundayMorning from "./tools/SundayMorning/SundayMorning";
+import { SundayMorningSidebar } from "./tools/SundayMorning/SundayMorningSidebar";
+import { Globe, Sun } from "lucide-react";
 
 const Icons = {
   Terminal: (
@@ -28,6 +30,7 @@ const Icons = {
   NotCuteAnymore: <EyeClosed className="w-4 h-4" strokeWidth={1.5} />,
   NotMe: <ShieldOff className="w-4 h-4" strokeWidth={1.5} />,
   MyWorld: <Globe className="w-4 h-4" strokeWidth={1.5} />,
+  SundayMorning: <Sun className="w-4 h-4" strokeWidth={1.5} />,
 };
 
 export const TOOLS_CONFIG: Tool[] = [
@@ -51,5 +54,12 @@ export const TOOLS_CONFIG: Tool[] = [
     icon: Icons.MyWorld,
     component: MyWorld,
     sidebarComponent: MyWorldSidebar,
+  },
+  {
+    id: "SUNDAY_MORNING",
+    label: "Sunday Morning",
+    icon: Icons.SundayMorning,
+    component: SundayMorning,
+    sidebarComponent: SundayMorningSidebar,
   },
 ];

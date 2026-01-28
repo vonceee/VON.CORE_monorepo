@@ -42,6 +42,8 @@ export const Hero: React.FC = () => {
                 src={heroImg}
                 alt="Sunday Morning Aesthetics"
                 className="w-full h-full object-cover"
+                loading="eager"
+                decoding="async"
               />
             </div>
           </div>

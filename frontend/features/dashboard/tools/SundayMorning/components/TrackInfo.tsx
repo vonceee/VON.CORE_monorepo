@@ -137,6 +137,7 @@ export const TrackInfo: React.FC = () => {
               style={{
                 animationDuration: "8s",
                 animationPlayState: isPlaying ? "running" : "paused",
+                willChange: "transform",
               }}
             >
               {/* Vinyl Grooves effect */}
@@ -150,6 +151,8 @@ export const TrackInfo: React.FC = () => {
                   src={vinylImg}
                   alt="Album Art"
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
 

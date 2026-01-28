@@ -51,13 +51,17 @@ export const Gallery: React.FC = () => {
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-12"
               }`}
-              style={{ transitionDelay: `${i * 100}ms` }}
+              style={{
+                transitionDelay: `${i * 100}ms`,
+                willChange: "transform, opacity",
+              }}
             >
               <img
                 src={photo.src}
                 alt={photo.caption}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 flex items-center justify-center text-[var(--sm-color-surface)] sm-font-serif italic opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[var(--sm-color-primary)]/40 backdrop-blur-[2px]">
                 {photo.caption}

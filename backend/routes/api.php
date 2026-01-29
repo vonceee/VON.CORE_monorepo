@@ -48,3 +48,12 @@ Route::prefix('v1/my-world')->group(function () {
     Route::patch('/folders/{folder}', [NoteController::class, 'folderUpdate']);
     Route::delete('/folders/{folder}', [NoteController::class, 'folderDestroy']);
 });
+
+use App\Http\Controllers\Api\MilestoneController;
+
+Route::prefix('v1/magnetic')->group(function () {
+    Route::get('/milestones', [MilestoneController::class, 'index']);
+    Route::post('/milestones', [MilestoneController::class, 'store']);
+    Route::patch('/milestones/{milestone}', [MilestoneController::class, 'update']);
+    Route::delete('/milestones/{milestone}', [MilestoneController::class, 'destroy']);
+});

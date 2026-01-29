@@ -9,7 +9,9 @@ import MyWorld from "./tools/MyWorld/MyWorld";
 import { MyWorldSidebar } from "./tools/MyWorld/MyWorldSidebar";
 import SundayMorning from "./tools/SundayMorning/SundayMorning";
 import { SundayMorningSidebar } from "./tools/SundayMorning/SundayMorningSidebar";
-import { Globe, Sun } from "lucide-react";
+import { Globe, Sun, Magnet } from "lucide-react";
+import { Magnetic } from "./tools/Magnetic/Magnetic";
+import { MagneticSidebar } from "./tools/Magnetic/MagneticSidebar";
 
 const Icons = {
   Terminal: (
@@ -31,6 +33,7 @@ const Icons = {
   NotMe: <ShieldOff className="w-4 h-4" strokeWidth={1.5} />,
   MyWorld: <Globe className="w-4 h-4" strokeWidth={1.5} />,
   SundayMorning: <Sun className="w-4 h-4" strokeWidth={1.5} />,
+  Magnetic: <Magnet className="w-4 h-4" strokeWidth={1.5} />,
 };
 
 export const TOOLS_CONFIG: Tool[] = [
@@ -61,5 +64,12 @@ export const TOOLS_CONFIG: Tool[] = [
     icon: Icons.SundayMorning,
     component: SundayMorning,
     sidebarComponent: SundayMorningSidebar,
+  },
+  {
+    id: "MAGNETIC",
+    label: "Magnetic",
+    icon: Icons.Magnetic,
+    component: Magnetic,
+    sidebarComponent: MagneticSidebar,
   },
 ];

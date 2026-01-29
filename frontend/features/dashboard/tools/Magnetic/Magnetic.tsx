@@ -3,6 +3,7 @@ import { useMagnetic } from "./hooks/useMagnetic";
 import { ChronoStream } from "./components/ChronoStream";
 import { CountdownGrid } from "./components/CountdownGrid";
 import { Loader2 } from "lucide-react";
+import { getNextOccurrence } from "./utils";
 
 export const Magnetic: React.FC = () => {
   const { milestones, isLoading } = useMagnetic();
@@ -37,16 +38,13 @@ export const Magnetic: React.FC = () => {
 
     // Sort upcoming by next occurrence
     upcomingList.sort((a, b) => {
-      // crude sort for now
-      return (
-        new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
-      );
+      return getNextOccurrence(a).getTime() - getNextOccurrence(b).getTime();
     });
 
-    // Sort history by event date DESC
+    // Sort history by event date ASC (Oldest -> Newest)
     historyList.sort((a, b) => {
       return (
-        new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
+        new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
       );
     });
 

@@ -1,48 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Milestone } from "../types";
-import { Clock, Calendar as CalendarIcon } from "lucide-react";
+import { Clock, Calendar as CalendarIcon, Edit2 } from "lucide-react";
+import { MilestoneModal } from "./MilestoneModal";
+import { useMagnetic } from "../hooks/useMagnetic";
+
+import { calculateTimeLeft, getNextOccurrence } from "../utils";
 
 interface CountdownGridProps {
   milestones: Milestone[];
 }
 
-const calculateTimeLeft = (targetDate: Date) => {
-  const now = new Date();
-  const diff = targetDate.getTime() - now.getTime();
-
-  if (diff <= 0) return { days: 0, hours: 0 }; // Should likely calculate next occurrence for recurring
-
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  return { days, hours };
-};
-
-const getNextOccurrence = (m: Milestone) => {
-  const today = new Date();
-  let target = new Date(m.event_date);
-
-  // Adjust year for one-time events that are in the future?
-  // If one-time and passed, it shouldn't be here (logic in parent).
-  // If recurring:
-  if (m.frequency === "annual") {
-    target.setFullYear(today.getFullYear());
-    if (target < today) {
-      target.setFullYear(today.getFullYear() + 1);
-    }
-  } else if (m.frequency === "monthly") {
-    target.setMonth(today.getMonth());
-    target.setFullYear(today.getFullYear()); // Month changed, year might need update?
-    // simple monthly logic: set to current month's day.
-    // If passed, next month.
-    if (target < today) {
-      target.setMonth(today.getMonth() + 1);
-    }
-  }
-
-  return target;
-};
-
-const CountdownCard: React.FC<{ milestone: Milestone }> = ({ milestone }) => {
+const CountdownCard: React.FC<{
+  milestone: Milestone;
+  onEdit: (m: Milestone) => void;
+}> = ({ milestone, onEdit }) => {
   const targetDate = getNextOccurrence(milestone);
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(targetDate));
 
@@ -63,7 +34,12 @@ const CountdownCard: React.FC<{ milestone: Milestone }> = ({ milestone }) => {
         <h3 className="font-semibold text-lg text-[#1B264F]">
           {milestone.name}
         </h3>
-        <CalendarIcon className="w-5 h-5 opacity-40 text-[#2C2E33]" />
+        <button
+          onClick={() => onEdit(milestone)}
+          className="text-[#8E9299] hover:text-[#1B264F] transition-colors p-1 rounded-full hover:bg-gray-100"
+        >
+          <Edit2 className="w-4 h-4" />
+        </button>
       </div>
 
       <div className="flex items-baseline space-x-1 relative z-10">
@@ -90,16 +66,37 @@ const CountdownCard: React.FC<{ milestone: Milestone }> = ({ milestone }) => {
 };
 
 export const CountdownGrid: React.FC<CountdownGridProps> = ({ milestones }) => {
+  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(
+    null,
+  );
+  const { updateMilestone, deleteMilestone } = useMagnetic();
+
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 p-6">
-      {milestones.length === 0 && (
-        <div className="col-span-full text-[#8E9299] italic text-center py-10">
-          No upcoming events.
-        </div>
+    <>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 p-6">
+        {milestones.length === 0 && (
+          <div className="col-span-full text-[#8E9299] italic text-center py-10">
+            No upcoming events.
+          </div>
+        )}
+        {milestones.map((m) => (
+          <CountdownCard
+            key={m.id}
+            milestone={m}
+            onEdit={setEditingMilestone}
+          />
+        ))}
+      </div>
+
+      {editingMilestone && (
+        <MilestoneModal
+          isOpen={!!editingMilestone}
+          onClose={() => setEditingMilestone(null)}
+          milestone={editingMilestone}
+          onSave={updateMilestone}
+          onDelete={deleteMilestone}
+        />
       )}
-      {milestones.map((m) => (
-        <CountdownCard key={m.id} milestone={m} />
-      ))}
-    </div>
+    </>
   );
 };

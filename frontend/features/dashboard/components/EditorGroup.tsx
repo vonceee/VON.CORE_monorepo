@@ -1,6 +1,7 @@
 import React from "react";
 import { EditorGroup as EditorGroupType } from "../types/dashboard";
 import { Tool } from "../../../types/index";
+import ScrollableHeader from "./ScrollableHeader";
 
 interface EditorGroupProps {
   group: EditorGroupType;
@@ -35,56 +36,16 @@ export const EditorGroupComponent: React.FC<EditorGroupProps> = ({
       onClick={onActivate}
     >
       {/* Editor Tabs Header */}
-      <div className="h-9 bg-[#252526] flex items-center overflow-x-auto no-scrollbar relative">
-        {/* Tabs */}
-        {group.tabs.map((tabId) => {
-          const tool = getTool(tabId);
-          if (!tool) return null;
-          const isTabActive = group.activeTabId === tabId;
+      <div className="h-9 bg-[#252526] flex items-center relative">
+        <ScrollableHeader
+          group={group}
+          getTool={getTool}
+          onTabClick={onTabClick}
+          onTabClose={onTabClose}
+        />
 
-          return (
-            <div
-              key={tabId}
-              onClick={(e) => {
-                e.stopPropagation();
-                onTabClick(tabId);
-              }}
-              className={`
-                h-full flex items-center justify-between px-4 space-x-2 text-xs cursor-pointer w-40 relative group transition-colors
-                ${
-                  isTabActive
-                    ? "bg-[#1F1F1F] text-white z-10"
-                    : "bg-transparent text-[#969696] hover:bg-[#2d2d2d]/50 hover:text-[#cccccc] border-r border-[#2B2B2B]"
-                }
-              `}
-            >
-              <span className="truncate flex-1 min-w-0">{tool.label}</span>
-              <button
-                onClick={(e) => onTabClose(e, tabId)}
-                className={`ml-1 p-0.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-white/20 ${
-                  isTabActive ? "opacity-100" : ""
-                }`}
-              >
-                <svg
-                  className="w-3 h-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          );
-        })}
-
-        {/* split / actions area (right aligned in header) */}
-        <div className="ml-auto flex items-center px-2 space-x-1 h-full bg-[#252526]">
+        {/* split / actions area (fixed right) */}
+        <div className="flex-none flex items-center px-2 space-x-1 h-full bg-[#252526] border-l border-black/20 z-20 shadow-[-10px_0_10px_-5px_rgba(0,0,0,0.3)]">
           {/* only show split button on the first group or if we can split */}
           {canSplit && (
             <button

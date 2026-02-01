@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useMagnetic } from "./hooks/useMagnetic";
 import { ChronoStream } from "./components/ChronoStream";
 import { CountdownGrid } from "./components/CountdownGrid";
-import { Loader2 } from "lucide-react";
+import { MagneticToolSkeleton } from "./MagneticToolSkeleton";
 import { getNextOccurrence } from "./utils";
 
 export const Magnetic: React.FC = () => {
@@ -43,15 +43,11 @@ export const Magnetic: React.FC = () => {
   }, [milestones]);
 
   if (isLoading) {
-    return (
-      <div className="h-full flex items-center justify-center text-zinc-500">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
+    return <MagneticToolSkeleton />;
   }
 
   return (
-    <div className="flex w-full h-full bg-[#F2F4F7] text-[#2C2E33] overflow-hidden relative">
+    <div className="flex w-full h-full bg-[#F2F4F7] text-[#2C2E33] overflow-hidden relative animate-fade-in">
       <div className="bg-[#1B264F]/5 absolute inset-0 pointer-events-none" />
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <header className="px-8 py-6 border-b border-[#D1D5DB] flex items-center justify-between">

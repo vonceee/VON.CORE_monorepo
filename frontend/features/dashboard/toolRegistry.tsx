@@ -12,6 +12,9 @@ import { SundayMorningSidebar } from "./tools/SundayMorning/SundayMorningSidebar
 import { Globe, Sun, Magnet } from "lucide-react";
 import { Magnetic } from "./tools/Magnetic/Magnetic";
 import { MagneticSidebar } from "./tools/Magnetic/MagneticSidebar";
+import { Share2 } from "lucide-react";
+import MidnightFiction from "./tools/MidnightFiction/MidnightFiction";
+import { MidnightFictionSidebar } from "./tools/MidnightFiction/MidnightFictionSidebar";
 
 const Icons = {
   Terminal: (
@@ -34,6 +37,7 @@ const Icons = {
   MyWorld: <Globe className="w-4 h-4" strokeWidth={1.5} />,
   SundayMorning: <Sun className="w-4 h-4" strokeWidth={1.5} />,
   Magnetic: <Magnet className="w-4 h-4" strokeWidth={1.5} />,
+  MidnightFiction: <Share2 className="w-4 h-4" strokeWidth={1.5} />,
 };
 
 export const TOOLS_CONFIG: Tool[] = [
@@ -71,5 +75,12 @@ export const TOOLS_CONFIG: Tool[] = [
     icon: Icons.Magnetic,
     component: Magnetic,
     sidebarComponent: MagneticSidebar,
+  },
+  {
+    id: "MIDNIGHT_FICTION",
+    label: "Midnight Fiction",
+    icon: Icons.MidnightFiction,
+    component: MidnightFiction,
+    sidebarComponent: MidnightFictionSidebar,
   },
 ];

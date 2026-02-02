@@ -6,6 +6,7 @@ import ScrollableHeader from "./ScrollableHeader";
 interface EditorGroupProps {
   group: EditorGroupType;
   isActive: boolean;
+  width?: number;
   onActivate: () => void;
   onTabClick: (tabId: string) => void;
   onTabClose: (e: React.MouseEvent, tabId: string) => void;
@@ -19,6 +20,7 @@ interface EditorGroupProps {
 export const EditorGroupComponent: React.FC<EditorGroupProps> = ({
   group,
   isActive,
+  width,
   onActivate,
   onTabClick,
   onTabClose,
@@ -30,9 +32,13 @@ export const EditorGroupComponent: React.FC<EditorGroupProps> = ({
 }) => {
   return (
     <div
-      className={`flex-1 flex flex-col min-w-0 border-r border-black/20 last:border-r-0 ${
+      className={`flex flex-col min-w-0 border-r border-black/20 last:border-r-0 ${
         isActive ? "" : "opacity-80 hover:opacity-100 transition-opacity"
       }`}
+      style={{
+        width: width ? `${width}%` : undefined,
+        flex: width ? "none" : "1 1 0%",
+      }}
       onClick={onActivate}
     >
       {/* Editor Tabs Header */}

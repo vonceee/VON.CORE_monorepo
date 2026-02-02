@@ -1,12 +1,11 @@
 Set WshShell = CreateObject("WScript.Shell")
 
-' Paths
 Const BACKEND_DIR = "C:\Users\von\Website-Projects\Personal-Website\backend"
 Const FRONTEND_DIR = "C:\Users\von\Website-Projects\Personal-Website\frontend"
 Const ARTISAN_PATH = "C:\Users\von\Website-Projects\Personal-Website\backend\artisan"
 
 
-' Function to check if a process is running with a specific command line fragment
+' check if a process is running with a specific command line fragment
 Function IsProcessRunning(processName, matchText)
     Dim objWMIService, colProcess, objProcess
     Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
@@ -45,7 +44,7 @@ If Not IsProcessRunning("node.exe", "vite") Then
 End If
 
 ' wait 5 seconds for the servers to actually boot up
-WScript.Sleep 5000
+WScript.Sleep 10000
 
 ' open the UI (do not wait for it to close)
 WshShell.Run "chrome --app=http://localhost:3000 --kiosk", 1, False

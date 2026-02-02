@@ -15,7 +15,7 @@ export const useDashboard = (): {
   const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [activeSidebarToolId, setActiveSidebarToolId] = useState<string>(
-    TOOLS_CONFIG[0].id
+    TOOLS_CONFIG[0].id,
   );
 
   const [editorGroups, setEditorGroups] = useState<EditorGroup[]>([
@@ -91,16 +91,24 @@ export const useDashboard = (): {
   const activateTab = (groupId: string, tabId: string) => {
     setActiveGroupId(groupId);
     setEditorGroups((prev) =>
-      prev.map((g) => (g.id === groupId ? { ...g, activeTabId: tabId } : g))
+      prev.map((g) => (g.id === groupId ? { ...g, activeTabId: tabId } : g)),
     );
   };
 
   const splitEditor = () => {
-    if (editorGroups.length >= 2) return;
+    // Increased limit to 3 as requested
+    if (editorGroups.length >= 3) return;
 
     // get current active tab from active group to duplicate it into new split
-    const currentGroup = editorGroups.find((g) => g.id === activeGroupId);
-    const tabToOpen = currentGroup?.activeTabId || TOOLS_CONFIG[0].id;
+    const currentGroupIndex = editorGroups.findIndex(
+      (g) => g.id === activeGroupId,
+    );
+    const currentGroup = editorGroups[currentGroupIndex];
+
+    // fallback if something is wrong with state
+    if (currentGroupIndex === -1 || !currentGroup) return;
+
+    const tabToOpen = currentGroup.activeTabId || TOOLS_CONFIG[0].id;
 
     const newGroup: EditorGroup = {
       id: `group-${Date.now()}`,
@@ -108,7 +116,12 @@ export const useDashboard = (): {
       activeTabId: tabToOpen,
     };
 
-    setEditorGroups((prev) => [...prev, newGroup]);
+    setEditorGroups((prev) => {
+      const newGroups = [...prev];
+      // Insert after current group
+      newGroups.splice(currentGroupIndex + 1, 0, newGroup);
+      return newGroups;
+    });
     setActiveGroupId(newGroup.id);
   };
 

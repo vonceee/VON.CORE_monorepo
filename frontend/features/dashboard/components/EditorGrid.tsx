@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { EditorGroup as EditorGroupType } from "../types/dashboard";
 import { EditorGroupComponent } from "./EditorGroup";
 import { Tool } from "../../../types/index";
@@ -14,7 +14,7 @@ interface EditorGridProps {
   getTool: (id: string) => Tool | undefined;
 }
 
-const MIN_WIDTH_PERCENT = 20;
+const MIN_WIDTH_PERCENT = 15;
 
 export const EditorGrid: React.FC<EditorGridProps> = ({
   groups,
@@ -29,6 +29,141 @@ export const EditorGrid: React.FC<EditorGridProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [widths, setWidths] = useState<number[]>([]);
   const isResizing = useRef(false);
+  const groupRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // keep track of previous groups to detect changes (add/remove)
+  const prevGroupsRef = useRef<EditorGroupType[]>(groups);
+
+  // initialize widths if empty
+  useEffect(() => {
+    if (widths.length === 0 && groups.length > 0) {
+      setWidths(new Array(groups.length).fill(100 / groups.length));
+    }
+  }, []); // only on mount if empty
+
+  // handle group changes (split/close) with smart widths
+  useLayoutEffect(() => {
+    const prevGroups = prevGroupsRef.current;
+
+    // if no change in count, just ensure widths match length if something weird happened, or do nothing.
+    // we only want to react to additions/removals typically.
+    if (prevGroups.length === groups.length) {
+      if (widths.length !== groups.length && groups.length > 0) {
+        // fallback sync
+        setWidths(new Array(groups.length).fill(100 / groups.length));
+      }
+      return;
+    }
+
+    setWidths((currentWidths) => {
+      // base case: if we have no widths yet, distribute evenly
+      if (currentWidths.length === 0) {
+        return new Array(groups.length).fill(100 / groups.length);
+      }
+
+      // 1. handle addition (split)
+      if (groups.length > prevGroups.length) {
+        // find which group was added.
+        // we assume the new group is inserted effectively.
+        // let's identify the new ID.
+        const prevIds = new Set(prevGroups.map((g) => g.id));
+        const newGroupIndex = groups.findIndex((g) => !prevIds.has(g.id));
+
+        if (newGroupIndex !== -1) {
+          // the new group is at newGroupIndex.
+          // the "parent" it split from is essentially arguably the one at the same position or the one before it?
+          // "useDashboard" logic: splice(currentGroupIndex + 1, 0, newGroup).
+          // so if newGroupIndex is the new guy, the one at newGroupIndex was taking up the space before,
+          // OR the one possibly at newGroupIndex-1 was the parent.
+          // actually, if we insert at K, then indices 0..K-1 are same.
+          // the item at K (new) and K+1 (old K)... wait.
+          // let's look at useDashboard logic: `newGroups.splice(currentGroupIndex + 1, 0, newGroup);`
+          // so new group is at `currentGroupIndex + 1`.
+          // the original group is at `currentGroupIndex`.
+          // so the split happened between `newGroupIndex - 1` and `newGroupIndex`.
+          // the space previously occupied by `currentWidths[newGroupIndex - 1]` should now be shared between `newGroupIndex - 1` and `newGroupIndex`.
+
+          // wait, existing widths align with prevGroups.
+          // prevGroups: [A, B]. widths: [50, 50].
+          // add C after A. groups: [A, C, B].
+          // new index of C is 1.
+          // parent is groups[0] (A).
+          // we want A and C to share A's old width (50).
+          // so A becomes 25, C becomes 25. B stays 50.
+
+          // logic:
+          // the parent index in the *new* array is newGroupIndex - 1.
+          // the parent index in the *old* array is also newGroupIndex - 1.
+          // correct?
+          // if newGroupIndex = 1. parent is at 0.
+          // prevGroups[0] is A. groups[0] is A.
+
+          // exceptions: what if inserted at 0? (not possible with current logic unless active is -1? logic defaults to 0).
+          // if active was 0, inserted at 1. parent 0.
+
+          const parentIndex = Math.max(0, newGroupIndex - 1);
+          // however, we must be careful if we just appended?
+          // if appended, newGroupIndex = length-1. parent = length-2.
+
+          const oldParentWidth =
+            currentWidths[parentIndex] || 100 / prevGroups.length;
+          const halfWidth = oldParentWidth / 2;
+
+          const nextWidths = [...currentWidths];
+          // update parent width
+          nextWidths[parentIndex] = halfWidth;
+          // insert new group width
+          nextWidths.splice(newGroupIndex, 0, halfWidth);
+
+          return nextWidths;
+        } else {
+          // fallback: append equal share?
+          return new Array(groups.length).fill(100 / groups.length);
+        }
+      }
+
+      // 2. handle removal (close)
+      if (groups.length < prevGroups.length) {
+        // find which index was removed from prevGroups.
+        // we can't use prevIds check easily to find *index* map.
+        // let's iterate.
+        let removedIndex = -1;
+        for (let i = 0; i < prevGroups.length; i++) {
+          if (!groups.find((g) => g.id === prevGroups[i].id)) {
+            removedIndex = i;
+            break;
+          }
+        }
+
+        if (removedIndex !== -1) {
+          // we have currentWidths matching prevGroups.
+          // we need to remove the width at removedIndex and give it to a neighbor.
+          // give to right neighbor if exists, else left.
+          const widthResult = [...currentWidths];
+          const freed = widthResult[removedIndex];
+
+          // remove the item
+          widthResult.splice(removedIndex, 1);
+
+          // distribute:
+          if (removedIndex < widthResult.length) {
+            // give to the new item at this index (which was previously to the right)
+            widthResult[removedIndex] += freed;
+          } else if (removedIndex - 1 >= 0) {
+            // give to left neighbor
+            widthResult[removedIndex - 1] += freed;
+          }
+
+          return widthResult;
+        }
+      }
+
+      return currentWidths;
+    });
+
+    prevGroupsRef.current = groups;
+  }, [groups]);
+
   const dragInfo = useRef<{
     index: number;
     startX: number;
@@ -36,45 +171,6 @@ export const EditorGrid: React.FC<EditorGridProps> = ({
     startRightWidth: number;
     containerWidth: number;
   } | null>(null);
-
-  // Initialize or update widths when groups change
-  useLayoutEffect(() => {
-    setWidths((prevWidths) => {
-      const targetLength = groups.length;
-      if (targetLength === 0) return [];
-
-      // If this is the first init or full reset
-      if (prevWidths.length === 0) {
-        return new Array(targetLength).fill(100 / targetLength);
-      }
-
-      // If a group was added (split)
-      if (targetLength > prevWidths.length) {
-        // Simple strategy: Split the last/active one or just redistribute?
-        // Better UX: Find the active group and split it, but we don't track which one split easily here.
-        // Fallback: Uniform distribution for now, OR try to preserve sizes.
-
-        // Let's iterate and try to match IDs if we could, but we don't have previous groups prop here easily unless we track it.
-        // For simplicity/robustness as requested: start active, but for now let's just re-distribute evenly if count changes so significantly,
-        // OR reuse previous widths and append/insert.
-
-        // Given flexibility requirements: Let's rescale existing to make room or just reset to equal.
-        // Resetting to equal is jarring.
-        // Let's assume the new group is added at the end (standard behavior often) or we just split everything equally for now to satisfy "switch from simple flex-1".
-        // Refinement: If we go from N to N+1, we can just return equal widths.
-        // The user prompt says: "The layout should switch from simple flex-1...".
-
-        return new Array(targetLength).fill(100 / targetLength);
-      }
-
-      // If a group was removed
-      if (targetLength < prevWidths.length) {
-        return new Array(targetLength).fill(100 / targetLength);
-      }
-
-      return prevWidths;
-    });
-  }, [groups.length]);
 
   const onMouseDown = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
@@ -94,7 +190,7 @@ export const EditorGrid: React.FC<EditorGridProps> = ({
     };
 
     document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none"; // Prevent text selection
+    document.body.style.userSelect = "none";
 
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
@@ -103,54 +199,74 @@ export const EditorGrid: React.FC<EditorGridProps> = ({
   const onMouseMove = (e: MouseEvent) => {
     if (!isResizing.current || !dragInfo.current) return;
 
+    // use requestAnimationFrame for smoothness if needed, but direct DOM is usually fine.
+    // for extreme performance, we can skip if delta is small, but let's just do it.
+
     const { index, startX, startLeftWidth, startRightWidth, containerWidth } =
       dragInfo.current;
 
-    // Calculate delta in percentage
     const deltaPixels = e.clientX - startX;
     const deltaPercent = (deltaPixels / containerWidth) * 100;
 
-    const newLeftWidth = Math.max(
-      MIN_WIDTH_PERCENT,
-      startLeftWidth + deltaPercent,
-    );
-    const newRightWidth = Math.max(
-      MIN_WIDTH_PERCENT,
-      startRightWidth - deltaPercent,
-    );
-
-    // Constrain the pair to their original sum (which should be startLeft + startRight)
-    // Note: Due to min constraints, we might need to clamp delta.
-
-    // Check if right side violates min width
-    if (newRightWidth < MIN_WIDTH_PERCENT) {
-      // Stop at right min limit
-      // newLeft becomes (startLeft + startRight) - MIN
-      // But we handle this implicitly if we just clamp both and re-verify sum?
-      // Easier: Clamp delta.
-      return;
-    }
-
-    // Actually, clearer logic:
-    // Total available for these two is sum = left + right.
     const sum = startLeftWidth + startRightWidth;
 
-    // Clamp left
-    let clampedLeft = Math.max(
-      MIN_WIDTH_PERCENT,
-      Math.min(sum - MIN_WIDTH_PERCENT, startLeftWidth + deltaPercent),
-    );
-    let clampedRight = sum - clampedLeft;
+    // calculate new widths with constraints
+    // left
+    let newLeft = startLeftWidth + deltaPercent;
+    // right
+    let newRight = startRightWidth - deltaPercent;
+
+    // clamp
+    if (newLeft < MIN_WIDTH_PERCENT) {
+      newLeft = MIN_WIDTH_PERCENT;
+      newRight = sum - MIN_WIDTH_PERCENT;
+    } else if (newRight < MIN_WIDTH_PERCENT) {
+      newRight = MIN_WIDTH_PERCENT;
+      newLeft = sum - MIN_WIDTH_PERCENT;
+    }
+
+    // direct DOM manipulation
+    const leftNode = groupRefs.current[index];
+    const rightNode = groupRefs.current[index + 1];
+
+    if (leftNode) {
+      leftNode.style.width = `${newLeft}%`;
+      leftNode.style.flex = "none";
+    }
+    if (rightNode) {
+      rightNode.style.width = `${newRight}%`;
+      rightNode.style.flex = "none";
+    }
+  };
+
+  const onMouseUp = (e: MouseEvent) => {
+    if (!isResizing.current || !dragInfo.current) return;
+
+    // finalize state
+    const { index, startX, startLeftWidth, startRightWidth, containerWidth } =
+      dragInfo.current;
+    const deltaPixels = e.clientX - startX;
+    const deltaPercent = (deltaPixels / containerWidth) * 100;
+
+    const sum = startLeftWidth + startRightWidth;
+    let newLeft = startLeftWidth + deltaPercent;
+    let newRight = startRightWidth - deltaPercent;
+
+    if (newLeft < MIN_WIDTH_PERCENT) {
+      newLeft = MIN_WIDTH_PERCENT;
+      newRight = sum - MIN_WIDTH_PERCENT;
+    } else if (newRight < MIN_WIDTH_PERCENT) {
+      newRight = MIN_WIDTH_PERCENT;
+      newLeft = sum - MIN_WIDTH_PERCENT;
+    }
 
     setWidths((prev) => {
       const next = [...prev];
-      next[index] = clampedLeft;
-      next[index + 1] = clampedRight;
+      next[index] = newLeft;
+      next[index + 1] = newRight;
       return next;
     });
-  };
 
-  const onMouseUp = () => {
     isResizing.current = false;
     dragInfo.current = null;
     document.body.style.cursor = "";
@@ -168,22 +284,19 @@ export const EditorGrid: React.FC<EditorGridProps> = ({
       {groups.map((group, index) => (
         <React.Fragment key={group.id}>
           <EditorGroupComponent
+            ref={(el) => (groupRefs.current[index] = el)}
             group={group}
             isActive={activeGroupId === group.id}
-            width={widths[index]} // Will need to update EditorGroupComponent prop type
+            width={widths[index]}
             onActivate={() => onActivateGroup(group.id)}
             onTabClick={(tabId) => onActivateTab(group.id, tabId)}
             onTabClose={(e, tabId) => onCloseTab(e, group.id, tabId)}
             onSplit={(e) => {
-              e.stopPropagation();
+              // prevent bubbling if necessary, though button handles it
               onSplit();
             }}
             onCloseGroup={(e) => onCloseSplit(e, group.id)}
-            canSplit={groups.length < 3} // Arbitrary limit or strict? Prompt didn't specify max, but let's keep existing logical limit if any. Previous code had groups.length < 2. Let's relax it or keep it?
-            // Previous code: canSplit={groups.length < 2}
-            // User requirement: "resize split panes" (plural). "drag the border between two editor groups".
-            // Let's assume we can confirm usage of N groups. I'll bump to 3 or just remove limit if reasonable.
-            // Let's allow 3 for now to test resizing > 2.
+            canSplit={groups.length < 3} // match logic in useDashboard
             canClose={groups.length > 1}
             getTool={getTool}
           />
@@ -191,11 +304,11 @@ export const EditorGrid: React.FC<EditorGridProps> = ({
           {/* Divider */}
           {index < groups.length - 1 && (
             <div
-              className={`w-1 cursor-col-resize hover:bg-[#007fd4] transition-colors z-50 flex-none bg-transparent relative`}
+              className={`w-1 hover:w-1.5 -mr-0.5 z-50 cursor-col-resize hover:bg-[#007fd4] transition-all bg-transparent relative flex-none`}
               onMouseDown={(e) => onMouseDown(e, index)}
             >
-              {/* Hit area helper */}
-              <div className="absolute inset-y-0 -left-1 -right-1 z-50 bg-transparent" />
+              {/* use absolute positioning to create a larger hit area without affecting layout much */}
+              <div className="absolute inset-y-0 -left-2 -right-2 bg-transparent z-40" />
             </div>
           )}
         </React.Fragment>

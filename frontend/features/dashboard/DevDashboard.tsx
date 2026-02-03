@@ -14,7 +14,11 @@ interface DevDashboardProps {
 }
 
 const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
-  const { state, actions } = useDashboard();
+  // Get initial tool from URL if present
+  const params = new URLSearchParams(window.location.search);
+  const initialToolId = params.get("tool") || undefined;
+
+  const { state, actions } = useDashboard(initialToolId);
   const {
     isSidebarOpen,
     activeSidebarToolId,

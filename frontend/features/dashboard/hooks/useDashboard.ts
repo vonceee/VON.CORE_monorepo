@@ -6,7 +6,9 @@ import {
   DashboardActions,
 } from "../types/dashboard";
 
-export const useDashboard = (): {
+export const useDashboard = (
+  initialToolId?: string,
+): {
   state: DashboardState;
   actions: DashboardActions;
 } => {
@@ -15,14 +17,14 @@ export const useDashboard = (): {
   const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [activeSidebarToolId, setActiveSidebarToolId] = useState<string>(
-    TOOLS_CONFIG[0].id
+    initialToolId || TOOLS_CONFIG[0].id,
   );
 
   const [editorGroups, setEditorGroups] = useState<EditorGroup[]>([
     {
       id: "group-1",
-      tabs: [TOOLS_CONFIG[0].id],
-      activeTabId: TOOLS_CONFIG[0].id,
+      tabs: [initialToolId || TOOLS_CONFIG[0].id],
+      activeTabId: initialToolId || TOOLS_CONFIG[0].id,
     },
   ]);
   const [activeGroupId, setActiveGroupId] = useState("group-1");
@@ -91,7 +93,7 @@ export const useDashboard = (): {
   const activateTab = (groupId: string, tabId: string) => {
     setActiveGroupId(groupId);
     setEditorGroups((prev) =>
-      prev.map((g) => (g.id === groupId ? { ...g, activeTabId: tabId } : g))
+      prev.map((g) => (g.id === groupId ? { ...g, activeTabId: tabId } : g)),
     );
   };
 

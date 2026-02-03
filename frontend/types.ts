@@ -47,3 +47,12 @@ export interface ScheduleItem {
   completed: boolean;
   type?: "routine" | "work" | "wellness";
 }
+
+export interface Project {
+  id: string;
+  title: string;
+  category: string;
+  image: string;
+  description: string;
+  techStack: string[];
+}

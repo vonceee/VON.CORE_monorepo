@@ -6,9 +6,12 @@ export type SectionId = "HERO" | "ABOUT" | "PORTFOLIO" | "CONTACT";
 export type AppMode = "public" | "dev";
 export type ToolId =
   | "MAGNETIC"
-  | "LUCKY_GIRL_SYNDROME"
+  | "LUCKY_GIRL"
   | "MIDNIGHT_FICTION"
-  | "NOT_ME";
+  | "NOT_ME"
+  | "NOT_CUTE_ANYMORE"
+  | "MY_WORLD"
+  | "SUNDAY_MORNING";
 
 export interface Translation {
   hero: {

@@ -17,6 +17,8 @@ import ContactSection from "./features/portfolio/ContactSection";
 import DeepDiveSection from "./features/portfolio/DeepDiveSection";
 import MainLayout from "./components/layout/MainLayout";
 import BootSequence from "./components/BootSequence";
+import { DemoProvider } from "./context/DemoContext";
+import { DemoLayout } from "./components/layout/DemoLayout";
 
 const AppContent: React.FC = () => {
   const { mode, setMode } = useAppMode();
@@ -91,6 +93,7 @@ const AppContent: React.FC = () => {
       onScrollTo={scrollTo}
       onOpenTerminal={() => setIsTerminalOpen(true)}
     >
+      <DemoLayout />
       <div
         ref={containerRef}
         className={`snap-container ${persona === "hr" ? "theme-hr" : ""}`}
@@ -118,7 +121,9 @@ const App: React.FC = () => {
     <ThemeProvider>
       <LanguageProvider>
         <PersonaProvider>
-          <AppContent />
+          <DemoProvider>
+            <AppContent />
+          </DemoProvider>
         </PersonaProvider>
       </LanguageProvider>
     </ThemeProvider>

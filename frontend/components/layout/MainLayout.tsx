@@ -94,13 +94,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       {children}
 
       {/* Floating Button */}
+      {/* Brutalist Terminal Trigger */}
       <button
         onClick={onOpenTerminal}
-        className="fixed bottom-10 right-10 z-50 w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform group"
+        className="fixed bottom-8 right-8 z-50 font-mono text-xs sm:text-sm text-neutral-400 hover:text-orange-500 transition-colors duration-300"
       >
-        <span className="font-mono text-xl group-hover:animate-pulse">
-          &gt;_
-        </span>
+        [ execute_terminal_v1.0.42 ]
       </button>
     </div>
   );

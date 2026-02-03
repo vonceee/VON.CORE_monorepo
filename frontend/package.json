@@ -13,6 +13,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@types/classnames": "^2.3.0",
+    "@xyflow/react": "^12.10.0",
     "axios": "^1.13.2",
     "classnames": "^2.5.1",
     "lucide-react": "^0.562.0",

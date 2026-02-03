@@ -5,7 +5,11 @@ import { NotMe, NotMeSidebar } from "./tools/NotMe";
 import { MyWorld, MyWorldSidebar } from "./tools/MyWorld";
 import { SundayMorning, SundayMorningSidebar } from "./tools/SundayMorning";
 import { Magnetic, MagneticSidebar } from "./tools/Magnetic";
-import { Globe, Sun, Magnet, EyeClosed, ShieldOff } from "lucide-react";
+import {
+  MidnightFiction,
+  MidnightFictionSidebar,
+} from "./tools/MidnightFiction";
+import { Globe, Sun, Magnet, EyeClosed, ShieldOff, Share2 } from "lucide-react";
 
 const Icons = {
   Terminal: (
@@ -28,6 +32,7 @@ const Icons = {
   MyWorld: <Globe className="w-4 h-4" strokeWidth={1.5} />,
   SundayMorning: <Sun className="w-4 h-4" strokeWidth={1.5} />,
   Magnetic: <Magnet className="w-4 h-4" strokeWidth={1.5} />,
+  MidnightFiction: <Share2 className="w-4 h-4" strokeWidth={1.5} />,
 };
 
 export const TOOLS_CONFIG: Tool[] = [
@@ -65,5 +70,12 @@ export const TOOLS_CONFIG: Tool[] = [
     icon: Icons.Magnetic,
     component: Magnetic,
     sidebarComponent: MagneticSidebar,
+  },
+  {
+    id: "MIDNIGHT_FICTION",
+    label: "Midnight Fiction",
+    icon: Icons.MidnightFiction,
+    component: MidnightFiction,
+    sidebarComponent: MidnightFictionSidebar,
   },
 ];

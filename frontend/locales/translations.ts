@@ -21,8 +21,8 @@ export const TRANSLATIONS: Translations = {
     },
     contact: {
       title: "CONTACT",
-      email: "HELLO@VON.CORE",
-      social: "FOLLOW THE VOID",
+      email: "alonarvoncedric@gmail.com",
+      social: "COLLABORATE WITH ME!",
     },
   },
   JPN: {
@@ -45,8 +45,8 @@ export const TRANSLATIONS: Translations = {
     },
     contact: {
       title: "連絡先",
-      email: "HELLO@VON.CORE",
-      social: "ボイドをフォロー",
+      email: "alonarvoncedric@gmail.com",
+      social: "私とコラボレーションしましょう！",
     },
   },
   KOR: {
@@ -69,8 +69,8 @@ export const TRANSLATIONS: Translations = {
     },
     contact: {
       title: "연락처",
-      email: "HELLO@VON.CORE",
-      social: "보이드를 팔로우하세요",
+      email: "alonarvoncedric@gmail.com",
+      social: "저와 협업해요!",
     },
   },
   RUS: {
@@ -90,8 +90,8 @@ export const TRANSLATIONS: Translations = {
     },
     contact: {
       title: "КОНТАКТЫ",
-      email: "HELLO@VON.CORE",
-      social: "СЛЕДУЙ ЗА ПУСТОТОЙ",
+      email: "alonarvoncedric@gmail.com",
+      social: "СОТРУДНИЧАЙТЕ СО МНОЙ!",
     },
   },
   PH: {
@@ -111,8 +111,8 @@ export const TRANSLATIONS: Translations = {
     },
     contact: {
       title: "CONTACT",
-      email: "HELLO@VON.CORE",
-      social: "SUNDAN ANG VOID",
+      email: "alonarvoncedric@gmail.com",
+      social: "MAKIPAGTULUNGAN SA AKIN!",
     },
   },
 };

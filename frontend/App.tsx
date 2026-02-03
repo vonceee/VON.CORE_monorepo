@@ -14,6 +14,7 @@ import HeroSection from "./features/portfolio/HeroSection";
 import AboutSection from "./features/portfolio/AboutSection";
 import PortfolioSection from "./features/portfolio/PortfolioSection";
 import ContactSection from "./features/portfolio/ContactSection";
+import DeepDiveSection from "./features/portfolio/DeepDiveSection";
 import MainLayout from "./components/layout/MainLayout";
 import BootSequence from "./components/BootSequence";
 
@@ -97,6 +98,7 @@ const AppContent: React.FC = () => {
         <HeroSection />
         <AboutSection />
         <PortfolioSection />
+        <DeepDiveSection />
         <ContactSection />
       </div>
 

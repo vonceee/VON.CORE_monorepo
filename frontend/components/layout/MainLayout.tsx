@@ -74,6 +74,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({
               PORTFOLIO
             </button>
             <button
+              onClick={() => onScrollTo("DEEP_DIVE")}
+              className="hover:text-orange-500 transition-colors"
+            >
+              DEEP DIVE
+            </button>
+            <button
               onClick={() => onScrollTo("CONTACT")}
               className="hover:text-orange-500 transition-colors"
             >

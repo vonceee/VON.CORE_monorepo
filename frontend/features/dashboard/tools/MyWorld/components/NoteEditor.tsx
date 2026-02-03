@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Note } from "./types";
+import { Note } from "../types";
 import { Pen, X, Info } from "lucide-react";
 import clsx from "clsx";
-import { IntroductionView } from "./components/IntroductionView";
+import { IntroductionView } from "./IntroductionView";
 
 interface NoteEditorProps {
   note: Note | null;

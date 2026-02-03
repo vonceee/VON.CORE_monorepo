@@ -31,7 +31,7 @@ const SHORT_DAY_NAMES: Record<string, string> = {
   Sunday: "Su",
 };
 
-const NotCuteAnymore: React.FC = () => {
+export const NotCuteAnymore: React.FC = () => {
   const {
     currentDay,
     setCurrentDay,
@@ -246,5 +246,3 @@ const NotCuteAnymore: React.FC = () => {
     </div>
   );
 };
-
-export default NotCuteAnymore;

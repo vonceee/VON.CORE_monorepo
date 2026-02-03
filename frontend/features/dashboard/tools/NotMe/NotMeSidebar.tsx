@@ -12,7 +12,7 @@ import {
   Check,
   X,
 } from "lucide-react";
-import { NotMeListSkeleton } from "./NotMeSkeleton";
+import { NotMeListSkeleton } from "./components/NotMeSkeleton";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Droplets,

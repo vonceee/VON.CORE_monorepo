@@ -1,12 +1,15 @@
 import React, { useMemo, useState } from "react";
+import { Info } from "lucide-react";
+import { IntroductionView } from "./components/IntroductionView";
 import { useMagnetic } from "./hooks/useMagnetic";
 import { ChronoStream } from "./components/ChronoStream";
 import { CountdownGrid } from "./components/CountdownGrid";
-import { MagneticToolSkeleton } from "./MagneticToolSkeleton";
+import { MagneticToolSkeleton } from "./components/MagneticToolSkeleton";
 import { getNextOccurrence } from "./utils";
 
 export const Magnetic: React.FC = () => {
   const { milestones, isLoading } = useMagnetic();
+  const [showIntro, setShowIntro] = useState(false);
 
   const [viewMode, setViewMode] = useState<"grid" | "timeline">("grid");
 
@@ -49,11 +52,27 @@ export const Magnetic: React.FC = () => {
   return (
     <div className="flex w-full h-full bg-[#F2F4F7] text-[#2C2E33] overflow-hidden relative animate-fade-in">
       <div className="bg-[#1B264F]/5 absolute inset-0 pointer-events-none" />
+
+      {showIntro && (
+        <div className="absolute inset-0 z-50">
+          <IntroductionView onClose={() => setShowIntro(false)} />
+        </div>
+      )}
+
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <header className="px-8 py-6 border-b border-[#D1D5DB] flex items-center justify-between">
-          <h1 className="text-2xl font-light tracking-tight text-[#1B264F]">
-            Timeline
-          </h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-light tracking-tight text-[#1B264F]">
+              Timeline
+            </h1>
+            <button
+              onClick={() => setShowIntro(true)}
+              className="p-1.5 text-[#8E9299] hover:text-[#1B264F] hover:bg-[#1B264F]/5 rounded-full transition-colors"
+              title="Information"
+            >
+              <Info className="w-5 h-5" />
+            </button>
+          </div>
 
           <div className="flex items-center bg-white p-1 rounded-lg border border-[#D1D5DB] shadow-sm">
             <button

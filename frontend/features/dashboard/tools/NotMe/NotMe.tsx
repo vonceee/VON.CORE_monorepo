@@ -1,8 +1,8 @@
 import React from "react";
 import { useNotMe, TrackerConfig } from "./hooks/useNotMe";
 import { IntroductionView } from "./components/IntroductionView";
-import { NotMeCalendar } from "./NotMeCalendar";
-import { NotMeGridSkeleton } from "./NotMeSkeleton";
+import { NotMeCalendar } from "./components/NotMeCalendar";
+import { NotMeGridSkeleton } from "./components/NotMeSkeleton";
 import {
   Droplets,
   Gamepad2,
@@ -39,7 +39,7 @@ const getISODate = (date = new Date()) => {
   return `${year}-${month}-${day}`;
 };
 
-const NotMe: React.FC = () => {
+export const NotMe: React.FC = () => {
   const [activeDate, setActiveDate] = React.useState(getISODate());
   /* Add Habit Modal State - REMOVED (Moved to Sidebar) */
   const { listItems, updateValue, getValue, history, addItem, isLoading } =
@@ -420,5 +420,3 @@ const NotMe: React.FC = () => {
     </div>
   );
 };
-
-export default NotMe;

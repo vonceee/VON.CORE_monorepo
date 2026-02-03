@@ -10,7 +10,7 @@ import {
   Zap,
   MessageSquare,
 } from "lucide-react";
-import { TrackerConfig, HistoryState } from "./types";
+import { TrackerConfig, HistoryState } from "../types";
 
 interface NotMeCalendarProps {
   activeDate: string;
@@ -34,7 +34,7 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
   listItems,
 }) => {
   const [selectedHabitId, setSelectedHabitId] = useState<string>(
-    listItems[0]?.id || ""
+    listItems[0]?.id || "",
   );
 
   const [currentMonth, setCurrentMonth] = useState(new Date(activeDate));
@@ -44,13 +44,13 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
   // Month Navigation
   const nextMonth = () => {
     setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1),
     );
   };
 
   const prevMonth = () => {
     setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1),
     );
   };
 
@@ -58,13 +58,13 @@ export const NotMeCalendar: React.FC<NotMeCalendarProps> = ({
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
     currentMonth.getMonth() + 1,
-    0
+    0,
   ).getDate();
 
   const firstDayOfMonth = new Date(
     currentMonth.getFullYear(),
     currentMonth.getMonth(),
-    1
+    1,
   ).getDay(); // 0 = Sunday
 
   // Array of days to render

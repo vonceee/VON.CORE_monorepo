@@ -5,14 +5,16 @@ import { Gallery } from "./components/Gallery";
 import { Lyrics } from "./components/Lyrics";
 
 import { NavBar } from "./components/NavBar";
+import { IntroductionView } from "./components/IntroductionView"; // [NEW]
 
 import { DesignSystemPlayground } from "./components/DesignSystemPlayground";
 import "./SundayMorning.css";
 // import { Moon, Sun } from "lucide-react"; // Assuming lucide-react is available - these are now handled by NavBar
 
-const SundayMorning: React.FC = () => {
+export const SundayMorning: React.FC = () => {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [showPlayground, setShowPlayground] = useState(false);
+  const [showIntro, setShowIntro] = useState(false); // [NEW]
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const toggleTheme = () => {
@@ -49,11 +51,19 @@ const SundayMorning: React.FC = () => {
       className="sm-theme h-full w-full overflow-hidden flex relative"
       data-theme={theme}
     >
+      {/* Intro View Overlay */}
+      {showIntro && (
+        <div className="absolute inset-0 z-[60]">
+          <IntroductionView onClose={() => setShowIntro(false)} />
+        </div>
+      )}
+
       <NavBar
         theme={theme}
         toggleTheme={toggleTheme}
         onOpenPlayground={() => setShowPlayground(true)}
         onToggleFullscreen={toggleFullscreen}
+        onShowIntro={() => setShowIntro(true)} // [NEW]
       />
 
       {/* Main Content Area */}
@@ -70,5 +80,3 @@ const SundayMorning: React.FC = () => {
     </div>
   );
 };
-
-export default SundayMorning;

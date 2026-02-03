@@ -1,15 +1,20 @@
-This README covers the **VON.CORE Monorepo**, which consists of a Laravel-based backend and a React/Vite-based frontend portfolio and developer dashboard.
-
----
-
 # VON.CORE Monorepo
 
-VON.CORE is a creative development platform and portfolio designed with a minimalist aesthetic, functioning as both a personal showcase and a suite of digital tools. The project is structured as a monorepo containing a high-performance Laravel backend and a modern React frontend.
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+
+**VON.CORE** is a creative development platform and portfolio designed with a minimalist aesthetic, functioning as both a personal showcase and a suite of digital tools. The project is structured as a monorepo containing a high-performance Laravel backend and a modern React frontend.
+
+---
 
 ## 🏗️ Project Structure
 
 - **`/backend`**: Laravel 12 API providing data services and system health monitoring.
 - **`/frontend`**: React 19 application featuring a portfolio, terminal interface, and developer dashboard.
+- **`/scripts`**: Windows automation scripts for easy development workflow.
 
 ---
 
@@ -21,64 +26,41 @@ VON.CORE is a creative development platform and portfolio designed with a minima
 - **Node.js**: Latest LTS recommended
 - **Composer**: For PHP dependency management
 
-### Backend Setup (Laravel)
+### Quick Start (Windows)
 
-1. Navigate to the backend directory:
+The easiest way to run the entire stack (Frontend + Backend + Database) is using the included VBS scripts.
+
+1. **Start the Application**:
+   Double-click `scripts/launch_app.vbs`.
+   - Starts XAMPP/MariaDB (if configured).
+   - Serves the Laravel Backend (`localhost:8000`).
+   - Starts the Vite Frontend Dev Server (`localhost:5173`).
+   - Opens the browser automatically.
+
+2. **Stop the Application**:
+   Double-click `scripts/kill_app.vbs`.
+   - Safely terminates all related Node.js and PHP processes.
+
+### Manual Setup
+
+#### Backend (Laravel)
 
 ```bash
 cd backend
-
-```
-
-2. Install dependencies:
-
-```bash
 composer install
-
-```
-
-3. Initialize the environment:
-
-```bash
 php -r "file_exists('.env') || copy('.env.example', '.env');"
 php artisan key:generate
-
-```
-
-4. Run migrations and start the server:
-
-```bash
 php artisan migrate
 php artisan serve
-
 ```
 
-### Frontend Setup (React + Vite)
-
-1. Navigate to the frontend directory:
+#### Frontend (React + Vite)
 
 ```bash
 cd frontend
-
-```
-
-2. Install dependencies:
-
-```bash
 npm install
-
-```
-
-3. Configure the environment:
-
-- Create a `.env.local` file.
-- Add your `GEMINI_API_KEY`.
-
-4. Start the development server:
-
-```bash
+# Configure .env.local with your GEMINI_API_KEY if needed
 npm run dev
-
 ```
 
 ---
@@ -87,33 +69,33 @@ npm run dev
 
 ### Digital Portfolio
 
-A multi-language portfolio (ENG, JPN, KOR, RUS, PH) showcasing projects like **NEO-STRUCT** and **CORE_SYSTEM**. It is built for "Digital Architects" who push the boundaries between art and technology.
+A multi-language portfolio (ENG, JPN, KOR, RUS, PH) showcasing projects like **NEO-STRUCT** and **CORE_SYSTEM**. Built for "Digital Architects" who push the boundaries between art and technology.
 
 ### Developer Dashboard
 
-A centralized interface (`toolRegistry.tsx`) providing access to various internal tools:
+A centralized powerhouse for productivity and creativity, featuring a **resizable split-pane grid** layout for multitasking.
 
-- **Magnetic**: A specialized utility tool.
-- **Midnight Fiction**: Time-based or narrative tool.
-- **Not Cute Anymore**: A comprehensive task and routine management system featuring a Quest Log and Terminal Log.
+- **Magnetic**: A specialized scheduling and utility tool for tracking upcoming and past events with a timeline view.
+- **Midnight Fiction**: A creative node-based editor for narrative planning, featuring drag-and-drop nodes and locked/unlocked states.
+- **Not Cute Anymore**: A comprehensive task and routine management system featuring a "Quest Log" for daily objectives and a "Terminal Log" for tracking history.
 
-### API Services
+### System & Architecture
 
-The backend provides essential endpoints for the ecosystem:
-
-- `GET /api/health`: Monitor service status.
-- `GET /api/posts`: Retrieve portfolio or system updates.
+- **Terminal Interface**: A retro-futuristic command line interface integrated into the web experience.
+- **API Services**: Robust Laravel 12 API endpoints for data persistence and health monitoring (`GET /api/health`).
 
 ---
 
 ## 🧪 Tech Stack
 
-| Component    | Technology                                 |
-| ------------ | ------------------------------------------ |
-| **Backend**  | Laravel 12, PHP 8.2, Sanctum               |
-| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS 4 |
-| **Icons**    | Lucide React                               |
-| **Testing**  | PHPUnit 11                                 |
+| Component         | Technology                                                 |
+| :---------------- | :--------------------------------------------------------- |
+| **Backend**       | Laravel 12, PHP 8.2, Sanctum                               |
+| **Frontend**      | React 19, TypeScript, Vite 6, Tailwind CSS 4               |
+| **State & Logic** | React Hooks, Context API                                   |
+| **UI / UX**       | `@dnd-kit` (Drag & Drop), Lucide React (Icons), Classnames |
+| **HTTP Client**   | Axios                                                      |
+| **Testing**       | PHPUnit 11                                                 |
 
 ---
 

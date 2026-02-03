@@ -1,17 +1,11 @@
 import React from "react";
 import { Tool } from "../../types/index";
-import NotCuteAnymore from "./tools/NotCuteAnymore/NotCuteAnymore";
-import { NotCuteAnymoreSidebar } from "./tools/NotCuteAnymore/NotCuteAnymoreSidebar";
-import { EyeClosed, ShieldOff } from "lucide-react";
-import NotMe from "./tools/NotMe/NotMe";
-import { NotMeSidebar } from "./tools/NotMe/NotMeSidebar";
-import MyWorld from "./tools/MyWorld/MyWorld";
-import { MyWorldSidebar } from "./tools/MyWorld/MyWorldSidebar";
-import SundayMorning from "./tools/SundayMorning/SundayMorning";
-import { SundayMorningSidebar } from "./tools/SundayMorning/SundayMorningSidebar";
-import { Globe, Sun, Magnet } from "lucide-react";
-import { Magnetic } from "./tools/Magnetic/Magnetic";
-import { MagneticSidebar } from "./tools/Magnetic/MagneticSidebar";
+import { NotCuteAnymore, NotCuteAnymoreSidebar } from "./tools/NotCuteAnymore";
+import { NotMe, NotMeSidebar } from "./tools/NotMe";
+import { MyWorld, MyWorldSidebar } from "./tools/MyWorld";
+import { SundayMorning, SundayMorningSidebar } from "./tools/SundayMorning";
+import { Magnetic, MagneticSidebar } from "./tools/Magnetic";
+import { Globe, Sun, Magnet, EyeClosed, ShieldOff } from "lucide-react";
 
 const Icons = {
   Terminal: (

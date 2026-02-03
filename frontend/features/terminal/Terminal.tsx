@@ -108,44 +108,44 @@ const Terminal: React.FC<TerminalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 terminal-blur bg-black/40">
-      <div className="w-full max-w-2xl h-auto max-h-[500px] bg-black border border-white/20 rounded shadow-2xl flex flex-col font-mono text-xl md:text-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-2 bg-neutral-900 border-b border-white/10 lowercase">
-          <span className="text-white/60">
-            terminal.sh {isDevMode ? "[dev]" : ""}
-          </span>
-          <button onClick={onClose} className="text-white/60 hover:text-white">
-            ✕
+      <div className="w-full max-w-3xl h-auto max-h-[600px] bg-black border-2 border-white shadow-none flex flex-col font-mono text-lg md:text-xl">
+        <div className="flex items-center justify-between px-2 py-1 bg-white text-black border-b-2 border-white uppercase tracking-wider">
+          <span className="font-bold">Version 1.0.42</span>
+          <button
+            onClick={onClose}
+            className="hover:bg-black hover:text-white px-1"
+          >
+            [X]
           </button>
         </div>
 
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-4 space-y-2 lowercase custom-scroll"
+          className="flex-1 overflow-y-auto p-4 space-y-1 custom-scroll"
         >
           {lines.map((line, i) => (
             <div
               key={i}
               className={
-                line.startsWith(">") ? "text-orange-500" : "text-neutral-300"
+                line.startsWith(">") ? "text-neutral-400" : "text-white"
               }
             >
+              <span className="mr-2">{line.startsWith(">") ? "" : ""}</span>
               {line}
             </div>
           ))}
         </div>
 
-        <form
-          onSubmit={handleCommand}
-          className="p-4 border-t border-white/10 flex"
-        >
-          <span className="text-orange-500 mr-2">$</span>
+        <form onSubmit={handleCommand} className="p-4 flex bg-black">
+          <span className="text-white mr-2">C:\&gt;</span>
           <input
             autoFocus
             type={isAuthenticating ? "password" : "text"}
-            className="bg-transparent border-none outline-none text-white w-full lowercase"
+            className="bg-transparent border-none outline-none text-orange-500 w-full caret-orange-500"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value.toLowerCase())}
+            onChange={(e) => setInputValue(e.target.value)}
             placeholder={isAuthenticating ? "********" : ""}
+            spellCheck={false}
           />
         </form>
       </div>

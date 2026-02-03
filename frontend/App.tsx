@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { ThemeProvider } from "./context/ThemeContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { useAppMode } from "./hooks/useAppMode";
+import { usePersona } from "./hooks/usePersona";
 import { SectionId } from "./types";
+import { PersonaProvider } from "./context/PersonaContext";
+import EntryGate from "./components/EntryGate";
 
 // Features
 import Terminal from "./features/terminal/Terminal";
@@ -16,22 +19,15 @@ import BootSequence from "./components/BootSequence";
 
 const AppContent: React.FC = () => {
   const { mode, setMode } = useAppMode();
+  const { persona, setPersona } = usePersona();
   const [activeSection, setActiveSection] = useState<SectionId>("HERO");
   const [isBooting, setIsBooting] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // test connection to backend
-  // useEffect(() => {
-  //   fetch("http://127.0.0.1:8000/api/health")
-  //     .then((res) => res.json())
-  //     .then((data) => console.log(data))
-  //     .catch((err) => console.error("Backend connection failed:", err));
-  // }, []);
-
   // Scroll Spy Logic
   useEffect(() => {
-    if (mode === "public") {
+    if (mode === "public" && persona) {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -40,7 +36,7 @@ const AppContent: React.FC = () => {
             }
           });
         },
-        { threshold: 0.6 }
+        { threshold: 0.6 },
       );
 
       const sections = document.querySelectorAll(".snap-section");
@@ -48,7 +44,7 @@ const AppContent: React.FC = () => {
 
       return () => observer.disconnect();
     }
-  }, [mode]);
+  }, [mode, persona]);
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -65,6 +61,10 @@ const AppContent: React.FC = () => {
     setMode("public");
     setIsTerminalOpen(false);
   };
+
+  if (!persona) {
+    return <EntryGate onSelect={setPersona} />;
+  }
 
   if (mode === "dev") {
     if (isBooting)
@@ -90,7 +90,10 @@ const AppContent: React.FC = () => {
       onScrollTo={scrollTo}
       onOpenTerminal={() => setIsTerminalOpen(true)}
     >
-      <div ref={containerRef} className="snap-container">
+      <div
+        ref={containerRef}
+        className={`snap-container ${persona === "hr" ? "theme-hr" : ""}`}
+      >
         <HeroSection />
         <AboutSection />
         <PortfolioSection />
@@ -112,7 +115,9 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <AppContent />
+        <PersonaProvider>
+          <AppContent />
+        </PersonaProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

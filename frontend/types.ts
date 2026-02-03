@@ -1,7 +1,9 @@
 export type Language = "ENG" | "JPN" | "KOR" | "RUS" | "PH";
 export type Theme = "dark" | "light";
 export type SectionId = "HERO" | "ABOUT" | "PORTFOLIO" | "CONTACT";
+
 export type AppMode = "public" | "dev";
+export type Persona = "developer" | "hr" | null;
 export type ToolId = "MAGNETIC" | "LUCKY_GIRL_SYNDROME" | "MIDNIGHT_FICTION";
 
 export interface Translation {

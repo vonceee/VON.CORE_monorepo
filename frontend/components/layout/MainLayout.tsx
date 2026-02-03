@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { SectionId } from "../../types";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
+import { usePersona } from "../../hooks/usePersona";
 import AnimatedText from "../ui/AnimatedText";
 
 interface MainLayoutProps {
@@ -19,11 +20,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 }) => {
   const { theme, toggleTheme } = useTheme();
   const { lang, setLang, availableLanguages } = useLanguage();
+  const { persona, setPersona } = usePersona();
 
   return (
     <div
       className={`${
-        theme === "dark" ? "bg-black text-white" : "bg-white text-black"
+        persona === "hr"
+          ? theme === "dark"
+            ? "bg-slate-900 text-slate-100"
+            : "bg-slate-50 text-slate-800"
+          : theme === "dark"
+            ? "bg-black text-white"
+            : "bg-white text-black"
       } transition-colors duration-500`}
     >
       {/* Navbar */}
@@ -72,11 +80,24 @@ const MainLayout: React.FC<MainLayoutProps> = ({
               CONTACT
             </button>
           </div>
+
           <button
             onClick={toggleTheme}
             className="p-2 border border-current rounded-full w-10 h-10 md:w-11 md:h-11 xl:w-12 xl:h-12 flex items-center justify-center"
           >
             {theme === "dark" ? "☀" : "☾"}
+          </button>
+
+          {/* Persona Toggle */}
+          <button
+            onClick={() => setPersona(persona === "hr" ? "developer" : "hr")}
+            className={`px-3 py-1 border text-xs tracking-widest transition-all duration-300 ${
+              persona === "hr"
+                ? "border-slate-400 text-slate-500 hover:bg-slate-100"
+                : "border-white/20 text-neutral-500 hover:text-white hover:border-white"
+            }`}
+          >
+            {persona === "hr" ? "HR MODE" : "DEV MODE"}
           </button>
         </div>
       </nav>

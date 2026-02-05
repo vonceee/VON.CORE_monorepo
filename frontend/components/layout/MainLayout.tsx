@@ -26,10 +26,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     <div
       className={`${
         persona === "hr"
-          ? theme === "dark"
+          ? theme !== "light"
             ? "bg-slate-900 text-slate-100"
             : "bg-slate-50 text-slate-800"
-          : theme === "dark"
+          : theme !== "light"
             ? "bg-black text-white"
             : "bg-white text-black"
       } transition-colors duration-500`}
@@ -37,7 +37,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       {/* Navbar */}
       <nav
         className={`fixed top-0 left-0 w-full z-50 flex flex-col md:flex-row items-center justify-between p-6 lg:p-8 2xl:p-12 transition-all duration-300 ${
-          theme === "dark" ? "mix-blend-difference text-white" : "text-black"
+          theme !== "light" ? "mix-blend-difference text-white" : "text-black"
         }`}
       >
         <div className="flex items-center space-x-6 text-sm lg:text-base 2xl:text-xl font-bold tracking-widest">
@@ -91,7 +91,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             onClick={toggleTheme}
             className="p-2 border border-current rounded-full w-10 h-10 md:w-11 md:h-11 xl:w-12 xl:h-12 flex items-center justify-center"
           >
-            {theme === "dark" ? "☀" : "☾"}
+            {theme !== "light" ? "☀" : "☾"}
           </button>
 
           {/* Persona Toggle */}

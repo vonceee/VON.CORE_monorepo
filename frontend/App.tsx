@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { useAppMode } from "./hooks/useAppMode";
 import { usePersona } from "./hooks/usePersona";
@@ -19,6 +19,7 @@ import MainLayout from "./components/layout/MainLayout";
 import BootSequence from "./components/BootSequence";
 import { DemoProvider } from "./context/DemoContext";
 import { DemoLayout } from "./components/layout/DemoLayout";
+import ParticleOverlay from "./components/effects/ParticleOverlay";
 
 const AppContent: React.FC = () => {
   const { mode, setMode } = useAppMode();
@@ -65,54 +66,56 @@ const AppContent: React.FC = () => {
     setIsTerminalOpen(false);
   };
 
-  if (!persona) {
-    return <EntryGate onSelect={setPersona} />;
-  }
-
-  if (mode === "dev") {
-    if (isBooting)
-      return <BootSequence onComplete={() => setIsBooting(false)} />;
-
-    return (
-      <>
-        <DevDashboard onExit={handleDevModeOff} />
-        <Terminal
-          isOpen={isTerminalOpen}
-          onClose={() => setIsTerminalOpen(false)}
-          onDevModeSuccess={handleDevModeOn}
-          onDevModeOff={handleDevModeOff}
-          isDevMode={true}
-        />
-      </>
-    );
-  }
-
+  // Global particle overlay regardless of mode
   return (
-    <MainLayout
-      activeSection={activeSection}
-      onScrollTo={scrollTo}
-      onOpenTerminal={() => setIsTerminalOpen(true)}
-    >
-      <DemoLayout />
-      <div
-        ref={containerRef}
-        className={`snap-container ${persona === "hr" ? "theme-hr" : ""}`}
-      >
-        <HeroSection />
-        <AboutSection />
-        <PortfolioSection />
-        <DeepDiveSection />
-        <ContactSection />
-      </div>
+    <>
+      <ParticleOverlay />
 
-      <Terminal
-        isOpen={isTerminalOpen}
-        onClose={() => setIsTerminalOpen(false)}
-        onDevModeSuccess={handleDevModeOn}
-        onDevModeOff={handleDevModeOff}
-        isDevMode={false}
-      />
-    </MainLayout>
+      {!persona ? (
+        <EntryGate onSelect={setPersona} />
+      ) : mode === "dev" ? (
+        isBooting ? (
+          <BootSequence onComplete={() => setIsBooting(false)} />
+        ) : (
+          <>
+            <DevDashboard onExit={handleDevModeOff} />
+            <Terminal
+              isOpen={isTerminalOpen}
+              onClose={() => setIsTerminalOpen(false)}
+              onDevModeSuccess={handleDevModeOn}
+              onDevModeOff={handleDevModeOff}
+              isDevMode={true}
+            />
+          </>
+        )
+      ) : (
+        <MainLayout
+          activeSection={activeSection}
+          onScrollTo={scrollTo}
+          onOpenTerminal={() => setIsTerminalOpen(true)}
+        >
+          <DemoLayout />
+          <div
+            ref={containerRef}
+            className={`snap-container ${persona === "hr" ? "theme-hr" : ""}`}
+          >
+            <HeroSection />
+            <AboutSection />
+            <PortfolioSection />
+            <DeepDiveSection />
+            <ContactSection />
+          </div>
+
+          <Terminal
+            isOpen={isTerminalOpen}
+            onClose={() => setIsTerminalOpen(false)}
+            onDevModeSuccess={handleDevModeOn}
+            onDevModeOff={handleDevModeOff}
+            isDevMode={false}
+          />
+        </MainLayout>
+      )}
+    </>
   );
 };
 

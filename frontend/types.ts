@@ -1,5 +1,5 @@
 export type Language = "ENG" | "JPN" | "KOR" | "RUS" | "PH";
-export type Theme = "dark" | "light";
+export type Theme = "dark" | "light" | "valentines" | "halloween" | "snow";
 export type SectionId =
   | "HERO"
   | "ABOUT"

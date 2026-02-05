@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 interface TerminalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ const Terminal: React.FC<TerminalProps> = ({
   onDevModeOff,
   isDevMode,
 }) => {
+  const themeContext = useTheme();
   const [lines, setLines] = useState<string[]>([
     "von.core [version 1.0.42]",
     "initializing secure link...",
@@ -64,42 +66,65 @@ const Terminal: React.FC<TerminalProps> = ({
     const cmd = cleanInput;
     let response = "";
 
-    switch (cmd) {
-      case "help":
+    if (cmd.startsWith("theme")) {
+      const parts = cmd.split(" ").filter((p) => p.trim() !== "");
+
+      if (parts.length === 1) {
+        response = `current theme: ${themeContext.theme}`;
+      } else if (parts[1] === "--help" || parts[1] === "-h") {
         response =
-          "available: whois, portfolio, clear, contact, dev on, dev off, exit";
-        break;
-      case "whois":
-        response =
-          "von.core: a digital entity focused on brutalist minimalism.";
-        break;
-      case "dev on":
-        if (isDevMode) {
-          response = "already in dev mode.";
+          "usage: theme [--set <name>]\navailable themes: dark, valentines, halloween, snow";
+      } else if (parts[1] === "--set" && parts[2]) {
+        const newTheme = parts[2] as any;
+        const allowedThemes = ["dark", "valentines", "halloween", "snow"];
+
+        if (allowedThemes.includes(newTheme)) {
+          themeContext.setTheme(newTheme);
+          response = `theme set to '${newTheme}'.`;
         } else {
-          setIsAuthenticating(true);
-          setLines((prev) => [...prev, `> ${cleanInput}`, "enter password:"]);
+          response = `error: theme '${newTheme}' not found. type 'theme --help' for available options.`;
+        }
+      } else {
+        response = "invalid syntax. try 'theme --help'.";
+      }
+    } else {
+      switch (cmd) {
+        case "help":
+          response =
+            "available: whois, portfolio, clear, contact, dev on, dev off, theme, exit";
+          break;
+        case "whois":
+          response =
+            "von.core: a digital entity focused on brutalist minimalism.";
+          break;
+        case "dev on":
+          if (isDevMode) {
+            response = "already in dev mode.";
+          } else {
+            setIsAuthenticating(true);
+            setLines((prev) => [...prev, `> ${cleanInput}`, "enter password:"]);
+            setInputValue("");
+            return;
+          }
+          break;
+        case "dev off":
+          if (!isDevMode) {
+            response = "not in dev mode.";
+          } else {
+            onDevModeOff();
+            response = "exiting dev mode. returning to public view...";
+          }
+          break;
+        case "clear":
+          setLines([]);
           setInputValue("");
           return;
-        }
-        break;
-      case "dev off":
-        if (!isDevMode) {
-          response = "not in dev mode.";
-        } else {
-          onDevModeOff();
-          response = "exiting dev mode. returning to public view...";
-        }
-        break;
-      case "clear":
-        setLines([]);
-        setInputValue("");
-        return;
-      case "exit":
-        onClose();
-        return;
-      default:
-        response = `command not found: ${cmd}`;
+        case "exit":
+          onClose();
+          return;
+        default:
+          response = `command not found: ${cmd}`;
+      }
     }
 
     setLines((prev) => [...prev, `> ${cleanInput}`, response]);

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { isToday } from "date-fns";
 import { Milestone } from "../types";
 import { Clock, Calendar as CalendarIcon, Edit2 } from "lucide-react";
 import { MilestoneModal } from "./MilestoneModal";
@@ -15,9 +16,20 @@ const CountdownCard: React.FC<{
   onEdit: (m: Milestone) => void;
 }> = ({ milestone, onEdit }) => {
   const targetDate = getNextOccurrence(milestone);
+  // Calculate if the target date is today.
+  // We use the local date logic. isToday from date-fns is handy but we have utils.
+  // Let's import isToday from date-fns to be robust.
+  const isEventToday = isToday(targetDate);
+
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(targetDate));
 
   useEffect(() => {
+    // If it's today, we might still want to tick, but visual is static "Today" usually.
+    // However, timeLeft will be 0 days 0 hours.
+
+    // Update immediately
+    setTimeLeft(calculateTimeLeft(targetDate));
+
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(targetDate));
     }, 60000); // update every minute
@@ -26,40 +38,74 @@ const CountdownCard: React.FC<{
 
   return (
     <div
-      className={`p-6 rounded-xl bg-white border border-[#D1D5DB] hover:border-[#1B264F] hover:shadow-[0_8px_30px_rgba(27,38,79,0.1)] transition-all duration-300 relative overflow-hidden group`}
+      className={`p-6 rounded-xl border transition-all duration-[400ms] relative overflow-hidden group ease-[cubic-bezier(0.4,0,0.2,1)]
+        ${
+          isEventToday
+            ? "bg-[#1B264F] border-[#1B264F] shadow-[0_8px_30px_rgba(27,38,79,0.2)]"
+            : "bg-white border-[#D1D5DB] hover:border-[#1B264F] hover:shadow-[0_8px_30px_rgba(27,38,79,0.1)]"
+        }
+      `}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1B264F]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      {/* Background/Hover Effects */}
+      <div
+        className={`absolute inset-0 transition-opacity duration-500
+          ${
+            isEventToday
+              ? "bg-gradient-to-br from-white/10 to-transparent opacity-100"
+              : "bg-gradient-to-br from-[#1B264F]/5 to-transparent opacity-0 group-hover:opacity-100"
+          }
+        `}
+      />
 
       <div className="flex justify-between items-center mb-4 relative z-10">
-        <h3 className="font-semibold text-lg text-[#1B264F]">
+        <h3
+          className={`font-semibold text-lg transition-colors duration-300 ${isEventToday ? "text-white" : "text-[#1B264F]"}`}
+        >
           {milestone.name}
         </h3>
         <button
           onClick={() => onEdit(milestone)}
-          className="text-[#8E9299] hover:text-[#1B264F] transition-colors p-1 rounded-full hover:bg-gray-100"
+          className={`transition-colors p-1 rounded-full 
+            ${
+              isEventToday
+                ? "text-white/70 hover:text-white hover:bg-white/10"
+                : "text-[#8E9299] hover:text-[#1B264F] hover:bg-gray-100"
+            }`}
         >
           <Edit2 className="w-4 h-4" />
         </button>
       </div>
 
       <div className="flex items-baseline space-x-1 relative z-10">
-        <span className="text-4xl font-bold bg-gradient-to-br from-[#F2F4F7] to-[#D1D5DB] bg-clip-text text-transparent drop-shadow-sm">
-          {timeLeft.days}
-        </span>
-        <span className="text-sm text-[#8E9299] font-medium tracking-wide">
-          DAYS
-        </span>
-        <span className="text-2xl font-bold ml-2 text-[#D1D5DB]/80">
-          {timeLeft.hours}
-        </span>
-        <span className="text-xs text-[#8E9299] font-medium tracking-wide">
-          HRS
-        </span>
+        {isEventToday ? (
+          <span className="text-3xl font-bold text-white tracking-wide scale-100 animate-[pulse_3s_ease-in-out_infinite]">
+            TODAY
+          </span>
+        ) : (
+          <>
+            <span className="text-4xl font-bold bg-gradient-to-br from-[#F2F4F7] to-[#D1D5DB] bg-clip-text text-transparent drop-shadow-sm">
+              {timeLeft.days}
+            </span>
+            <span className="text-sm text-[#8E9299] font-medium tracking-wide">
+              DAYS
+            </span>
+            <span className="text-2xl font-bold ml-2 text-[#D1D5DB]/80">
+              {timeLeft.hours}
+            </span>
+            <span className="text-xs text-[#8E9299] font-medium tracking-wide">
+              HRS
+            </span>
+          </>
+        )}
       </div>
 
-      <div className="mt-4 flex items-center text-xs text-[#8E9299] relative z-10">
+      <div
+        className={`mt-4 flex items-center text-xs relative z-10 transition-colors duration-300 ${isEventToday ? "text-white/80" : "text-[#8E9299]"}`}
+      >
         <Clock className="w-3 h-3 mr-1" />
-        <span>Next: {targetDate.toLocaleDateString()}</span>
+        <span>
+          {isEventToday ? "Active" : `Next: ${targetDate.toLocaleDateString()}`}
+        </span>
       </div>
     </div>
   );

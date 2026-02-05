@@ -4,6 +4,7 @@ import { IntroductionView } from "./components/IntroductionView";
 import { useMagnetic } from "./hooks/useMagnetic";
 import { ChronoStream } from "./components/ChronoStream";
 import { CountdownGrid } from "./components/CountdownGrid";
+import { CalendarView } from "./components/CalendarView";
 import { MagneticToolSkeleton } from "./components/MagneticToolSkeleton";
 import { getNextOccurrence } from "./utils";
 
@@ -11,7 +12,9 @@ export const Magnetic: React.FC = () => {
   const { milestones, isLoading } = useMagnetic();
   const [showIntro, setShowIntro] = useState(false);
 
-  const [viewMode, setViewMode] = useState<"grid" | "timeline">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "timeline" | "calendar">(
+    "grid",
+  );
 
   const { upcoming, history } = useMemo(() => {
     const now = new Date();
@@ -95,32 +98,36 @@ export const Magnetic: React.FC = () => {
             >
               Timeline View
             </button>
+            <button
+              onClick={() => setViewMode("calendar")}
+              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                viewMode === "calendar"
+                  ? "bg-[#1B264F] text-white shadow-sm"
+                  : "text-[#8E9299] hover:text-[#1B264F] hover:bg-[#F3F4F6]"
+              }`}
+            >
+              Calendar View
+            </button>
           </div>
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          <div className="w-full space-y-8 pb-20 pt-6">
+          <div className="w-full space-y-8 pb-20">
             {viewMode === "grid" && (
               <section>
-                <div className="px-8 pb-4 flex items-center space-x-2">
-                  <div className="h-1.5 w-1.5 rounded-full bg-[#1B264F] animate-pulse" />
-                  <h2 className="text-sm font-semibold text-[#8E9299] uppercase tracking-wider">
-                    Grid View
-                  </h2>
-                </div>
                 <CountdownGrid milestones={upcoming} />
               </section>
             )}
 
             {viewMode === "timeline" && (
               <section>
-                <div className="px-8 pb-4 flex items-center space-x-2">
-                  <div className="h-1.5 w-1.5 rounded-full bg-[#8E9299]" />
-                  <h2 className="text-sm font-semibold text-[#8E9299] uppercase tracking-wider">
-                    Timeline View
-                  </h2>
-                </div>
                 <ChronoStream milestones={history} />
+              </section>
+            )}
+
+            {viewMode === "calendar" && (
+              <section className="h-[calc(100vh-200px)] px-8">
+                <CalendarView milestones={milestones} />
               </section>
             )}
           </div>

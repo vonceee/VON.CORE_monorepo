@@ -13,7 +13,7 @@ export type MidnightNode = Node<NodeData>;
 export interface Template {
   id: string;
   name: string;
-  icon: React.ReactNode;
   description: string;
+  isCustom?: boolean;
   data: { nodes: MidnightNode[]; edges: Edge[] };
 }

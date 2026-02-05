@@ -4,9 +4,18 @@ import {
   Background,
   Controls,
   BackgroundVariant,
+  useReactFlow,
+  ReactFlowProvider,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Lock, Unlock, Copy as CopyIcon, Plus } from "lucide-react";
+import {
+  Lock,
+  Unlock,
+  Copy as CopyIcon,
+  Plus,
+  Save,
+  Network,
+} from "lucide-react";
 import { useMidnightStore } from "./hooks/useMidnightStore";
 import { MidnightNode } from "./types";
 import {
@@ -15,8 +24,9 @@ import {
   DecisionNode,
 } from "./components/CustomNodes";
 import { NodeEditorModal } from "./components/NodeEditorModal";
+import { midnightService } from "../../../../services/api/midnight";
 
-export const MidnightFiction: React.FC = () => {
+const MidnightFictionContent: React.FC = () => {
   // Graph State from Store
   const {
     nodes,
@@ -28,6 +38,11 @@ export const MidnightFiction: React.FC = () => {
     resetCanvas,
     cloneCanvas,
     updateNodeData,
+    saveCurrentAsTemplate,
+    setNodes,
+    setEdges,
+    workflowName,
+    setWorkflowName,
   } = useMidnightStore();
 
   const [editingNode, setEditingNode] = useState<MidnightNode | null>(null);
@@ -60,19 +75,63 @@ export const MidnightFiction: React.FC = () => {
     [],
   );
 
-  const handleSave = useCallback(() => {
-    const graphData = {
-      nodes,
-      edges,
+  const handleAddAction = () => {
+    // Find selected node
+    const selectedNode = nodes.find((n) => n.selected);
+
+    // Calculate position
+    let position = { x: 250, y: 100 };
+    if (selectedNode) {
+      position = {
+        x: selectedNode.position.x,
+        y: selectedNode.position.y + 150,
+      };
+    } else if (nodes.length > 0) {
+      // Place below the last node
+      const lastNode = nodes[nodes.length - 1];
+      position = {
+        x: lastNode.position.x,
+        y: lastNode.position.y + 150,
+      };
+    }
+
+    const newNode: MidnightNode = {
+      id:
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Date.now().toString(),
+      type: "action",
+      position,
+      data: { label: "New Action" },
+      selected: true, // Select the new node
     };
-    console.log("Saving Graph Data:", JSON.stringify(graphData, null, 2));
-    // TODO: Replace with axios.post('/api/midnight-fiction/save', graphData)
-    alert("Graph saved to console! (Backend integration pending)");
-  }, [nodes, edges]);
+
+    // deselect others and add new node
+    const updatedNodes = [
+      ...nodes.map((n) => ({ ...n, selected: false })),
+      newNode,
+    ];
+    setNodes(updatedNodes);
+
+    if (selectedNode) {
+      const newEdge = {
+        id: `e${selectedNode.id}-${newNode.id}`,
+        source: selectedNode.id,
+        target: newNode.id,
+      };
+      setEdges([...edges, newEdge]);
+    }
+  };
 
   return (
     <div className="w-full h-full bg-[#0F0F12] relative font-sans">
-      {/* Editor Modal */}
+      <style>
+        {`
+          .react-flow__attribution {
+            background: transparent !important;
+          }
+        `}
+      </style>
       {editingNode && (
         <NodeEditorModal
           node={editingNode}
@@ -80,10 +139,29 @@ export const MidnightFiction: React.FC = () => {
           onCancel={() => setEditingNode(null)}
         />
       )}
-
       {/* Header / Controls */}
       <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 items-end">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <input
+            value={workflowName}
+            onChange={(e) => setWorkflowName(e.target.value)}
+            className="bg-[#1B1B1F] border border-[#2C2C30] px-3 py-2 rounded text-[#C78BA1] text-sm focus:outline-none focus:border-pink-500 w-48"
+            placeholder="Workflow Name..."
+          />
+
+          {!isLocked && (
+            <>
+              <button
+                onClick={handleAddAction}
+                className="bg-[#1B1B1F] border border-[#2C2C30] p-2 rounded text-[#C78BA1] hover:bg-[#2C2C30] transition-colors"
+                title="Add Action Node"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <div className="w-px h-8 bg-[#2C2C30] mx-1" />
+            </>
+          )}
+
           <button
             onClick={resetCanvas}
             className="bg-[#1B1B1F] border border-[#2C2C30] p-2 rounded text-[#C78BA1] hover:bg-[#2C2C30] transition-colors"
@@ -102,10 +180,10 @@ export const MidnightFiction: React.FC = () => {
           <div className="w-px h-8 bg-[#2C2C30] mx-1" />
 
           <button
-            onClick={handleSave}
-            className="bg-[#1B1B1F] border border-[#2C2C30] px-3 py-2 rounded text-[#C78BA1] hover:bg-[#2C2C30] transition-colors text-sm font-medium"
+            onClick={saveCurrentAsTemplate}
+            className="bg-pink-600 hover:bg-pink-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors"
           >
-            Save Map
+            Save
           </button>
 
           <button
@@ -121,7 +199,6 @@ export const MidnightFiction: React.FC = () => {
           </button>
         </div>
       </div>
-
       {/* Canvas */}
       <div className="w-full h-full">
         <ReactFlow
@@ -143,26 +220,17 @@ export const MidnightFiction: React.FC = () => {
             size={1}
             color="#2C2C30"
           />
-          <Controls
-            className="rounded-lg overflow-hidden border border-[#2C2C30] shadow-xl"
-            style={
-              {
-                backgroundColor: "#1B1B1F",
-                "--xy-controls-button-bg": "#1B1B1F",
-                "--xy-controls-button-bg-hover": "#2C2C30",
-                "--xy-controls-button-color": "#C78BA1",
-                "--xy-controls-button-border-color": "#2C2C30",
-              } as React.CSSProperties
-            }
-          />
+          <Controls />
         </ReactFlow>
       </div>
-
-      {/* Status Bar */}
-      <div className="absolute bottom-4 left-4 z-10 text-xs text-gray-500 font-mono">
-        {nodes.length} nodes • {edges.length} edges •{" "}
-        {isLocked ? "READ-ONLY" : "EDIT MODE"}
-      </div>
     </div>
+  );
+};
+
+export const MidnightFiction: React.FC = () => {
+  return (
+    <ReactFlowProvider>
+      <MidnightFictionContent />
+    </ReactFlowProvider>
   );
 };

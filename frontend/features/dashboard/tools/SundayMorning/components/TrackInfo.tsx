@@ -50,7 +50,7 @@ export const TrackInfo: React.FC = () => {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
-  // Sync isPlaying state if audio ends
+  // sync isPlaying state if audio ends
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) {
@@ -140,7 +140,7 @@ export const TrackInfo: React.FC = () => {
                 willChange: "transform",
               }}
             >
-              {/* Vinyl Grooves effect */}
+              {/* Vinyl Grooves Effect */}
               <div className="absolute inset-2 rounded-full border border-gray-800 opacity-50" />
               <div className="absolute inset-4 rounded-full border border-gray-800 opacity-50" />
               <div className="absolute inset-8 rounded-full border border-gray-800 opacity-50" />

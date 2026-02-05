@@ -49,6 +49,7 @@ Route::prefix('v1/my-world')->group(function () {
     Route::delete('/folders/{folder}', [NoteController::class, 'folderDestroy']);
 });
 
+
 use App\Http\Controllers\Api\MilestoneController;
 
 Route::prefix('v1/magnetic')->group(function () {
@@ -56,4 +57,12 @@ Route::prefix('v1/magnetic')->group(function () {
     Route::post('/milestones', [MilestoneController::class, 'store']);
     Route::patch('/milestones/{milestone}', [MilestoneController::class, 'update']);
     Route::delete('/milestones/{milestone}', [MilestoneController::class, 'destroy']);
+});
+
+use App\Http\Controllers\Api\MidnightFictionController;
+
+Route::prefix('v1/midnight-fiction')->group(function () {
+    Route::post('/save', [MidnightFictionController::class, 'save']);
+    Route::get('/list', [MidnightFictionController::class, 'index']);
+    Route::get('/load/{id}', [MidnightFictionController::class, 'show']);
 });

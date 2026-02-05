@@ -2,8 +2,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { usePersona } from "../../hooks/usePersona";
 import { useLanguage } from "../../context/LanguageContext";
-import LiveStatus from "./Components/LiveStatus";
-import TechRadar from "./Components/TechRadar";
+import LiveStatus from "./components/LiveStatus";
+import TechRadar from "./components/TechRadar";
 import {
   User,
   Code2,
@@ -79,7 +79,7 @@ const DeepDiveSection: React.FC = () => {
 
         {/* Main Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-auto md:h-[600px]">
-          {/* 1. Live Status / Terminal (Large Block) */}
+          {/* Live Status / Terminal (Large Block) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -89,7 +89,7 @@ const DeepDiveSection: React.FC = () => {
             <LiveStatus />
           </motion.div>
 
-          {/* 2. Tech Radar (Medium Block) */}
+          {/* Tech Radar (Medium Block) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -99,7 +99,7 @@ const DeepDiveSection: React.FC = () => {
             <TechRadar />
           </motion.div>
 
-          {/* 3. Stat Cards (Small Blocks Stacked) */}
+          {/* Stat Cards (Small Blocks Stacked) */}
           <div className="col-span-1 md:col-span-1 lg:col-span-1 row-span-2 flex flex-col gap-4 h-full">
             {/* Box A: Workflow / Tools */}
             <motion.div

@@ -1,149 +1,24 @@
 import React from "react";
-import { LayoutTemplate, GitGraph, Box } from "lucide-react";
-import { useMidnightStore, MidnightNode } from "./store";
-import { Edge } from "@xyflow/react";
+import { LayoutTemplate, GitGraph, Box, FileClock } from "lucide-react";
+import { useMidnightStore } from "./hooks/useMidnightStore";
+import { Template } from "./types";
 
-interface Template {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-  description: string;
-  data: { nodes: MidnightNode[]; edges: Edge[] };
-}
-
-const TEMPLATES: Template[] = [
-  {
-    id: "chess-improvement",
-    name: "Chess Improvement",
-    icon: <Box className="w-4 h-4" />,
-    description: "Study plan and practice drill workflow.",
-    data: {
-      nodes: [
-        {
-          id: "1",
-          type: "action",
-          position: { x: 250, y: 0 },
-          data: { label: "Daily Puzzle" },
-        },
-        {
-          id: "2",
-          type: "decision",
-          position: { x: 250, y: 100 },
-          data: { label: "Solved Correctly?" },
-        },
-        {
-          id: "3",
-          type: "resource",
-          position: { x: 100, y: 200 },
-          data: {
-            label: "Analyze Mistakes",
-            description: "https://lichess.org/analysis",
-          },
-        },
-        {
-          id: "4",
-          type: "action",
-          position: { x: 400, y: 200 },
-          data: { label: "Play Rapid Game" },
-        },
-      ],
-      edges: [
-        { id: "e1-2", source: "1", target: "2" },
-        { id: "e2-3", source: "2", target: "3", label: "No" },
-        { id: "e2-4", source: "2", target: "4", label: "Yes" },
-      ],
-    },
-  },
-  {
-    id: "git-workflow",
-    name: "Git Workflow",
-    icon: <GitGraph className="w-4 h-4" />,
-    description: "Standard branching and merging strategy.",
-    data: {
-      nodes: [
-        {
-          id: "1",
-          type: "action",
-          position: { x: 250, y: 0 },
-          data: { label: "git checkout -b feature" },
-        },
-        {
-          id: "2",
-          type: "action",
-          position: { x: 250, y: 100 },
-          data: { label: "Code & Commit" },
-        },
-        {
-          id: "3",
-          type: "decision",
-          position: { x: 250, y: 200 },
-          data: { label: "Tests Pass?" },
-        },
-        {
-          id: "4",
-          type: "resource",
-          position: { x: 100, y: 300 },
-          data: { label: "Fix Bugs" },
-        },
-        {
-          id: "5",
-          type: "action",
-          position: { x: 400, y: 300 },
-          data: { label: "git push" },
-        },
-      ],
-      edges: [
-        { id: "e1-2", source: "1", target: "2" },
-        { id: "e2-3", source: "2", target: "3" },
-        { id: "e3-4", source: "3", target: "4", label: "No" },
-        { id: "e3-5", source: "3", target: "5", label: "Yes" },
-        { id: "e4-2", source: "4", target: "2" },
-      ],
-    },
-  },
-  {
-    id: "laravel-feature",
-    name: "Laravel Feature Start",
-    icon: <LayoutTemplate className="w-4 h-4" />,
-    description: "Checklist for new feature implementation.",
-    data: {
-      nodes: [
-        {
-          id: "1",
-          type: "action",
-          position: { x: 250, y: 0 },
-          data: { label: "php artisan make:model -mcr" },
-        },
-        {
-          id: "2",
-          type: "action",
-          position: { x: 250, y: 100 },
-          data: { label: "Define Migration" },
-        },
-        {
-          id: "3",
-          type: "action",
-          position: { x: 250, y: 200 },
-          data: { label: "Define Factory/Seeder" },
-        },
-        {
-          id: "4",
-          type: "resource",
-          position: { x: 250, y: 300 },
-          data: { label: "API Routes", description: "Route::apiResource(...)" },
-        },
-      ],
-      edges: [
-        { id: "e1-2", source: "1", target: "2" },
-        { id: "e2-3", source: "2", target: "3" },
-        { id: "e3-4", source: "3", target: "4" },
-      ],
-    },
-  },
-];
+const getIcon = (id: string) => {
+  switch (id) {
+    case "chess-improvement":
+      return <Box className="w-4 h-4" />;
+    case "git-workflow":
+      return <GitGraph className="w-4 h-4" />;
+    case "laravel-feature":
+      return <LayoutTemplate className="w-4 h-4" />;
+    default:
+      return <FileClock className="w-4 h-4" />; // Default icon for custom templates
+  }
+};
 
 export const MidnightFictionSidebar: React.FC = () => {
   const loadTemplate = useMidnightStore((state) => state.loadTemplate);
+  const savedTemplates = useMidnightStore((state) => state.savedTemplates);
 
   const handleTemplateClick = (template: Template) => {
     loadTemplate(template.data.nodes, template.data.edges);
@@ -159,7 +34,7 @@ export const MidnightFictionSidebar: React.FC = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {TEMPLATES.map((template) => (
+        {(savedTemplates || []).map((template) => (
           <button
             key={template.id}
             onClick={() => handleTemplateClick(template)}
@@ -170,7 +45,7 @@ export const MidnightFictionSidebar: React.FC = () => {
                 {template.name}
               </span>
               <span className="text-gray-500 group-hover:text-[#C78BA1]">
-                {template.icon}
+                {getIcon(template.id)}
               </span>
             </div>
             <p className="text-xs text-gray-500 line-clamp-2 group-hover:text-gray-400">
@@ -178,10 +53,6 @@ export const MidnightFictionSidebar: React.FC = () => {
             </p>
           </button>
         ))}
-      </div>
-
-      <div className="p-4 border-t border-[#2C2C30] text-xs text-center text-gray-500">
-        Select a template to load
       </div>
     </div>
   );

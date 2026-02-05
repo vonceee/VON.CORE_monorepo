@@ -12,7 +12,12 @@ import {
 import { usePersona } from "../../../hooks/usePersona";
 
 const TOOLS = [
-  { id: "MAGNETIC", name: "Magnetic", status: "Active", type: "Utility" },
+  {
+    id: "MAGNETIC",
+    name: "Magnetic",
+    status: "Active",
+    type: "Timeline Maker",
+  },
   {
     id: "LUCKY_GIRL",
     name: "Lucky Girl Syndrome",
@@ -23,17 +28,32 @@ const TOOLS = [
     id: "MIDNIGHT",
     name: "Midnight Fiction",
     status: "Stable",
-    type: "Creative",
+    type: "Workflow Maker",
   },
-  { id: "MY_WORLD", name: "My World", status: "Online", type: "Social" },
+  {
+    id: "MY_WORLD",
+    name: "My World",
+    status: "Online",
+    type: "Note Taking App",
+  },
   {
     id: "NOT_CUTE",
     name: "Not Cute Anymore",
     status: "Legacy",
-    type: "Archive",
+    type: "Routine Maker",
   },
-  { id: "NOT_ME", name: "Not Me", status: "Hidden", type: "Privacy" },
-  { id: "SUNDAY", name: "Sunday Morning", status: "Live", type: "Lifestyle" },
+  {
+    id: "NOT_ME",
+    name: "Not Me",
+    status: "Hidden",
+    type: "Habit Tracker",
+  },
+  {
+    id: "SUNDAY",
+    name: "Sunday Morning",
+    status: "Live",
+    type: "Brochureware",
+  },
 ];
 
 const LiveStatus: React.FC = () => {

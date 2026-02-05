@@ -73,10 +73,10 @@ const Terminal: React.FC<TerminalProps> = ({
         response = `current theme: ${themeContext.theme}`;
       } else if (parts[1] === "--help" || parts[1] === "-h") {
         response =
-          "usage: theme [--set <name>]\navailable themes: dark, valentines, halloween, snow";
+          "usage: theme [--set <name>]\navailable themes: dark, valentines, snow";
       } else if (parts[1] === "--set" && parts[2]) {
         const newTheme = parts[2] as any;
-        const allowedThemes = ["dark", "valentines", "halloween", "snow"];
+        const allowedThemes = ["dark", "valentines", "snow"];
 
         if (allowedThemes.includes(newTheme)) {
           themeContext.setTheme(newTheme);
@@ -166,7 +166,7 @@ const Terminal: React.FC<TerminalProps> = ({
           <input
             autoFocus
             type={isAuthenticating ? "password" : "text"}
-            className="bg-transparent border-none outline-none text-orange-500 w-full caret-orange-500"
+            className="bg-transparent border-none outline-none w-full font-mono"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={isAuthenticating ? "********" : ""}

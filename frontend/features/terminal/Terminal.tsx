@@ -19,8 +19,7 @@ const Terminal: React.FC<TerminalProps> = ({
   const themeContext = useTheme();
   const [lines, setLines] = useState<string[]>([
     "von.core [version 1.0.42]",
-    "initializing secure link...",
-    "ready.",
+    "(c) von.core 2024. all rights reserved.",
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -73,7 +72,7 @@ const Terminal: React.FC<TerminalProps> = ({
         response = `current theme: ${themeContext.theme}`;
       } else if (parts[1] === "--help" || parts[1] === "-h") {
         response =
-          "usage: theme [--set <name>]\navailable themes: dark, valentines, snow";
+          "usage:\n  theme [--set <name>]\navailable themes:\n  dark\n  valentines\n  snow";
       } else if (parts[1] === "--set" && parts[2]) {
         const newTheme = parts[2] as any;
         const allowedThemes = ["dark", "valentines", "snow"];
@@ -152,7 +151,9 @@ const Terminal: React.FC<TerminalProps> = ({
             <div
               key={i}
               className={
-                line.startsWith(">") ? "text-neutral-400" : "text-white"
+                line.startsWith(">")
+                  ? "text-neutral-400 whitespace-pre-wrap"
+                  : "text-white whitespace-pre-wrap"
               }
             >
               <span className="mr-2">{line.startsWith(">") ? "" : ""}</span>

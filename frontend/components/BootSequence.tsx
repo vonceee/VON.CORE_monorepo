@@ -4,483 +4,419 @@ interface BootSequenceProps {
   onComplete: () => void;
 }
 
+// --- Data Structures ---
+
 interface BootLine {
+  id: number;
   text: string;
-  style?: string;
+  timestamp: string;
   isAscii?: boolean;
-  isError?: boolean;
-  isProgress?: boolean;
-  progress?: number;
+  style?: string;
 }
 
-const ASCII_LOGO = `
-    ██╗   ██╗ ██████╗ ███╗   ██╗
-    ██║   ██║██╔═══██╗████╗  ██║
-    ██║   ██║██║   ██║██╔██╗ ██║
-    ╚██╗ ██╔╝██║   ██║██║╚██╗██║
-     ╚████╔╝ ╚██████╔╝██║ ╚████║
-      ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝
-    ═════════════════════════════
-          S Y S T E M  C O R E
-`;
+type WindowType = "MEMORY" | "THREADS" | "NETWORK";
 
-const MATRIX_CHARS = "ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ01";
-
-const BASE_DELAY = 30;
-const BURST_DELAY = 10;
-const PAUSE_SHORT = 400;
-const PAUSE_LONG = 800;
-
-const SEQUENCE_STEPS: {
+interface SequenceStep {
   content: string;
   delay: number;
   style?: string;
   isAscii?: boolean;
-  isError?: boolean;
-  isProgress?: boolean;
-}[] = [
-  {
-    content: "VON.CORE BIOS v3.0.1 - BUILD 2024.12.24",
-    delay: 100,
-    style: "text-orange-500 font-bold",
-  },
-  { content: "Initializing Memory Controller...", delay: 80 },
-  { content: "CHECKING RAM: 64TB [OK]", delay: 80 },
-  { content: "DETECTING CPU: NEURAL_ENGINE_X9 [OK]", delay: 80 },
-  { content: "PRIMARY BUS: ONLINE", delay: 200 },
-  { content: "SCANNING PERIPHERAL DEVICES...", delay: 150 },
-  { content: "├─ QUANTUM DRIVE: DETECTED", delay: 60 },
-  { content: "├─ NEURAL INTERFACE: ACTIVE", delay: 60 },
-  { content: "└─ HOLOGRAPHIC DISPLAY: READY", delay: PAUSE_SHORT },
+  trigger?: {
+    type: "MOUNT" | "AUTH_BLOCK";
+    target?: WindowType;
+  };
+}
 
-  {
-    content: ASCII_LOGO,
-    delay: PAUSE_LONG,
-    isAscii: true,
-    style: "text-orange-500/80 leading-none my-4",
-  },
+// --- Sub-Components ---
 
-  { content: "MOUNTING FILESYSTEM...", delay: 200, isProgress: true },
-  { content: "/dev/sda1 mounted as /root", delay: 150 },
-  { content: "Verifying Encryption Keys...", delay: 200 },
-  { content: "KEY_PAIR_A: VERIFIED", delay: 100, style: "text-green-500" },
-  { content: "KEY_PAIR_B: VERIFIED", delay: 100, style: "text-green-500" },
-  { content: "KEY_PAIR_C: CHECKING...", delay: 300 },
+const BrutalistPane: React.FC<{
+  title: string;
+  className?: string;
+  children: React.ReactNode;
+  isActive?: boolean;
+}> = ({ title, className, children, isActive = true }) => (
+  <div
+    className={`flex flex-col border border-green-900 bg-black overflow-hidden relative transition-opacity duration-500 ${
+      isActive ? "opacity-100" : "opacity-30 grayscale"
+    } ${className}`}
+  >
+    {/* ASCII Style Header */}
+    <div className="bg-green-900/10 text-green-600 text-[10px] px-2 py-1 uppercase font-bold tracking-widest border-b border-green-900 flex justify-between select-none">
+      <span>{title}</span>
+      <span>{isActive ? "[ACTIVE]" : "[OFFLINE]"}</span>
+    </div>
+    <div className="flex-1 p-2 overflow-hidden relative">{children}</div>
+    {/* Grid Lines Pattern */}
+    <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
+  </div>
+);
+
+const MemoryDump: React.FC = () => {
+  const [lines, setLines] = useState<string[]>([]);
+  useEffect(() => {
+    const chars = "0123456789ABCDEF";
+    const interval = setInterval(() => {
+      const line = Array(4)
+        .fill(0)
+        .map(
+          () =>
+            `0x${chars[Math.floor(Math.random() * 16)]}${
+              chars[Math.floor(Math.random() * 16)]
+            }`,
+        )
+        .join(" ");
+      setLines((prev) => [...prev.slice(-15), line]);
+    }, 80);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div className="font-mono text-[10px] text-green-700 leading-tight">
+      {lines.map((l, i) => (
+        <div key={i}>{l}</div>
+      ))}
+    </div>
+  );
+};
+
+const ThreadManager: React.FC = () => {
+  const [threads, setThreads] = useState([
+    { id: 101, name: "kernel_task", status: "RUN" },
+    { id: 402, name: "kworker/u", status: "WAIT" },
+    { id: 550, name: "init_gfx", status: "WAIT" },
+    { id: 899, name: "watchdog", status: "RUN" },
+  ]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setThreads((prev) =>
+        prev.map((t) => ({
+          ...t,
+          status:
+            Math.random() > 0.7
+              ? Math.random() > 0.5
+                ? "RUN"
+                : "WAIT"
+              : t.status,
+        })),
+      );
+    }, 300);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div className="flex flex-col gap-1 font-mono text-[10px] w-full">
+      <div className="flex justify-between border-b border-green-900/50 pb-1 text-green-800">
+        <span>PID</span>
+        <span>PROC</span>
+        <span>STAT</span>
+      </div>
+      {threads.map((t) => (
+        <div key={t.id} className="flex justify-between text-green-600">
+          <span>{t.id}</span>
+          <span>{t.name}</span>
+          <span
+            className={t.status === "RUN" ? "text-green-400" : "text-green-800"}
+          >
+            {t.status}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const NetworkTopology: React.FC = () => {
+  const [activeNode, setActiveNode] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveNode((prev) => (prev + 1) % 4);
+    }, 400);
+    return () => clearInterval(interval);
+  }, []);
+
+  const nodes = [
+    { x: "10%", y: "20%", name: "GTW" },
+    { x: "80%", y: "20%", name: "DNS" },
+    { x: "50%", y: "50%", name: "L-H" }, // Localhost
+    { x: "50%", y: "80%", name: "DB" },
+  ];
+
+  return (
+    <div className="relative w-full h-full font-mono text-[9px] text-green-800">
+      {/* ASCII Connections */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30">
+        <line
+          x1="10%"
+          y1="20%"
+          x2="50%"
+          y2="50%"
+          stroke="currentColor"
+          strokeWidth="1"
+        />
+        <line
+          x1="80%"
+          y1="20%"
+          x2="50%"
+          y2="50%"
+          stroke="currentColor"
+          strokeWidth="1"
+        />
+        <line
+          x1="50%"
+          y1="50%"
+          x2="50%"
+          y2="80%"
+          stroke="currentColor"
+          strokeWidth="1"
+          dasharray="4 2"
+        />
+      </svg>
+      {/* Nodes */}
+      {nodes.map((node, i) => (
+        <div
+          key={i}
+          className={`absolute transform -translate-x-1/2 -translate-y-1/2 border bg-black px-1 transition-colors duration-200 ${
+            activeNode === i
+              ? "border-green-400 text-green-400"
+              : "border-green-900 text-green-900"
+          }`}
+          style={{ left: node.x, top: node.y }}
+        >
+          {node.name}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// --- Boot Logic ---
+
+const ASCII_LOGO = `
+██╗   ██╗ ██████╗ ███╗   ██╗
+██║   ██║██╔═══██╗████╗  ██║
+██║   ██║██║   ██║██╔██╗ ██║
+╚██╗ ██╔╝██║   ██║██║╚██╗██║
+ ╚████╔╝ ╚██████╔╝██║ ╚████║
+  ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝
+VON.CORE SYSTEM INTERFACE
+`;
+
+const SEQUENCE: SequenceStep[] = [
+  { content: "BIOS_REV: 0x44A [Legacy Mode]", delay: 100 },
+  { content: "Probing EDI/MMX Registers...", delay: 80 },
+  { content: "Initializing Northbridge...", delay: 80 },
+  { content: "Primary Master: VIRTUAL_DISK_IMAGE (64GB)", delay: 80 },
+  { content: "MEM_ALLOC: Reserve 4096MB base", delay: 150 },
   {
-    content: "KEY_PAIR_C: WARNING - REGENERATING",
+    content: "MOUNTING SUBSYSTEMS...",
+    delay: 200,
+    trigger: { type: "MOUNT", target: "MEMORY" },
+  },
+  { content: "Allocating DMA Channels 0-15...", delay: 100 },
+  { content: "Interrupter Vector Table... OK", delay: 100 },
+  { content: "Loading Kernel Image v5.19", delay: 300 },
+  { content: "Checking Root Filesystem...", delay: 150 },
+  {
+    content: "SECURITY_DAEMON: STARTING...",
     delay: 400,
-    style: "text-yellow-500",
-    isError: true,
+    trigger: { type: "AUTH_BLOCK" }, // <--- Blocks sequence
   },
-  { content: "KEY_PAIR_C: VERIFIED", delay: 200, style: "text-green-500" },
-  { content: "Establishing Secure Handshake...", delay: 300 },
-  { content: "Handshake Accepted. Uplink Stable.", delay: 200 },
   {
-    content: "SATELLITE LINK: CONNECTED [PING: 42ms]",
-    delay: 150,
-    style: "text-cyan-500",
-  },
-
-  {
-    content: "LOADING KERNEL MODULES:",
+    content: "SECURITY_DAEMON: AUTHORIZED",
     delay: 100,
-    style: "text-orange-400 mt-2",
+    style: "text-green-400 font-bold",
   },
-  { content: " > loading module: ui_core.dll", delay: BURST_DELAY },
-  { content: " > loading module: portfolio.sys", delay: BURST_DELAY },
-  { content: " > loading module: magnetic_field.driver", delay: BURST_DELAY },
-  { content: " > loading module: lucky_girl.res", delay: BURST_DELAY },
-  { content: " > loading module: fiction_logic.bin", delay: BURST_DELAY },
-  { content: " > loading module: nav_system.x86", delay: BURST_DELAY },
-  { content: " > loading module: thermal_monitor.d", delay: BURST_DELAY },
-  { content: " > loading module: security_layer.lib", delay: BURST_DELAY },
-  { content: " > loading module: audio_subsystem.wav", delay: BURST_DELAY },
-  { content: " > loading module: gfx_renderer.gl", delay: BURST_DELAY },
-  { content: " > loading module: network_stack.tcp", delay: BURST_DELAY },
-  { content: " > loading module: user_profile.dat", delay: BURST_DELAY },
-  { content: " > loading module: dev_tools.kit", delay: BURST_DELAY },
-  { content: " > loading module: reality_engine.core", delay: BURST_DELAY },
-  { content: " > loading module: time_sync.chrono", delay: PAUSE_SHORT },
-
-  { content: "ALL MODULES LOADED.", delay: 200, style: "text-green-500" },
-  { content: "RUNNING SYSTEM DIAGNOSTICS...", delay: 300, isProgress: true },
-  { content: "├─ MEMORY TEST: PASSED", delay: 120, style: "text-green-500" },
   {
-    content: "├─ CPU STRESS TEST: PASSED",
-    delay: 120,
-    style: "text-green-500",
+    content: "Spawning User Processes...",
+    delay: 150,
+    trigger: { type: "MOUNT", target: "THREADS" },
   },
-  { content: "├─ NETWORK CHECK: PASSED", delay: 120, style: "text-green-500" },
-  { content: "└─ SECURITY SCAN: PASSED", delay: 300, style: "text-green-500" },
-  { content: "INITIALIZING DASHBOARD INTERFACE...", delay: 600 },
-  { content: "LOADING USER PREFERENCES...", delay: 200 },
-  { content: "CALIBRATING DISPLAY MATRIX...", delay: 200 },
+  { content: "init: entering runlevel 3", delay: 100 },
   {
-    content: "SYSTEM READY.",
-    delay: 800,
-    style: "text-orange-500 font-bold text-4xl",
+    content: "Starting Network Manager...",
+    delay: 200,
+    trigger: { type: "MOUNT", target: "NETWORK" },
   },
-  { content: "WELCOME BACK, DEVELOPER.", delay: 400, style: "text-cyan-400" },
-  { content: "ENTERING DEV MODE...", delay: 300 },
+  { content: "eth0: Link up (1000Mbps)", delay: 100 },
+  { content: "lo: Link up (Loopback)", delay: 100 },
+  { content: ASCII_LOGO, delay: 600, isAscii: true },
+  { content: "Loading UI Framework...", delay: 200 },
+  { content: "Mounting React Fiber Roots...", delay: 150 },
+  { content: "Hydrating State Stores...", delay: 150 },
+  { content: "SYSTEM_READY", delay: 500, style: "font-bold text-green-400" },
 ];
 
 const BootSequence: React.FC<BootSequenceProps> = ({ onComplete }) => {
   const [lines, setLines] = useState<BootLine[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [glitchActive, setGlitchActive] = useState(false);
-  const [matrixRain, setMatrixRain] = useState<
-    { x: number; char: string; speed: number }[]
-  >([]);
-  const [bootProgress, setBootProgress] = useState(0);
-  const [showScanline, setShowScanline] = useState(true);
+  const [index, setIndex] = useState(0);
+  const [mountedWindows, setMountedWindows] = useState<WindowType[]>([]);
+  const [isAuthBlocking, setIsAuthBlocking] = useState(false);
+  const [authInput, setAuthInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const playBeep = (
-    frequency: number,
-    duration: number,
-    volume: number = 0.05
-  ) => {
-    try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext ||
-          (window as any).webkitAudioContext)();
-      }
-      const ctx = audioCtxRef.current;
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
+  // time generator
+  const getKernelTime = () => `[${(performance.now() / 1000).toFixed(6)}]`;
 
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-
-      oscillator.frequency.value = frequency;
-      oscillator.type = "square";
-      gain.gain.value = volume;
-
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + duration);
-    } catch (e) {
-      // Silently fail
-    }
-  };
-
-  // Matrix rain effect on canvas
+  // auto-scroll
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const columns = Math.floor(canvas.width / 20);
-    const drops: number[] = Array(columns).fill(1);
-
-    const drawMatrix = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "#fb923080";
-      ctx.font = "15px monospace";
-
-      for (let i = 0; i < drops.length; i++) {
-        const text =
-          MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
-        ctx.fillText(text, i * 20, drops[i] * 20);
-
-        if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-    };
-
-    const interval = setInterval(drawMatrix, 50);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    bottomRef.current?.scrollIntoView({ behavior: "auto" });
   }, [lines]);
 
+  // main loop
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === "Escape" ||
-        (currentIndex >= SEQUENCE_STEPS.length &&
-          e.key !== "Shift" &&
-          e.key !== "Control" &&
-          e.key !== "Alt")
-      ) {
-        playBeep(600, 0.1, 0.1);
-        onComplete();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onComplete, currentIndex]);
-
-  // Random glitch effects
-  useEffect(() => {
-    const glitchInterval = setInterval(() => {
-      if (Math.random() > 0.85) {
-        setGlitchActive(true);
-        playBeep(800, 0.03);
-        setTimeout(() => setGlitchActive(false), 100);
-      }
-    }, 2000);
-    return () => clearInterval(glitchInterval);
-  }, []);
-
-  // Scanline sweep effect
-  useEffect(() => {
-    const scanlineInterval = setInterval(() => {
-      setShowScanline(false);
-      setTimeout(() => setShowScanline(true), 50);
-    }, 3000);
-    return () => clearInterval(scanlineInterval);
-  }, []);
-
-  // Boot progress
-  useEffect(() => {
-    const progressInterval = setInterval(() => {
-      setBootProgress((prev) => {
-        const next = prev + Math.random() * 5;
-        return next > 100 ? 100 : next;
-      });
-    }, 200);
-    return () => clearInterval(progressInterval);
-  }, []);
-
-  useEffect(() => {
-    if (currentIndex >= SEQUENCE_STEPS.length) {
-      playBeep(1000, 0.2, 0.08);
-      // Don't auto-complete, wait for user input
+    if (isAuthBlocking) return;
+    if (index >= SEQUENCE.length) {
+      setTimeout(onComplete, 1000);
       return;
     }
 
-    const step = SEQUENCE_STEPS[currentIndex];
+    const step = SEQUENCE[index];
 
-    let finalDelay = step.delay;
-    if (finalDelay < 100) {
-      finalDelay += Math.random() * 30;
+    // handle triggers (synchronously before delay)
+    if (step.trigger) {
+      if (step.trigger.type === "MOUNT" && step.trigger.target) {
+        setMountedWindows((prev) => [...prev, step.trigger.target!]);
+      }
+      if (step.trigger.type === "AUTH_BLOCK") {
+        setIsAuthBlocking(true);
+        // don't advance index yet
+        return;
+      }
     }
 
     const timer = setTimeout(() => {
       setLines((prev) => [
         ...prev,
         {
+          id: index,
           text: step.content,
-          style: step.style,
+          timestamp: getKernelTime(),
           isAscii: step.isAscii,
-          isError: step.isError,
-          isProgress: step.isProgress,
+          style: step.style,
         },
       ]);
-      setCurrentIndex((prev) => prev + 1);
-
-      if (!step.isAscii) {
-        if (step.isError) {
-          playBeep(400, 0.1, 0.08);
-        } else if (step.delay < 100) {
-          playBeep(1200 + Math.random() * 400, 0.02);
-        } else {
-          playBeep(800, 0.05, 0.03);
-        }
-      }
-    }, finalDelay);
+      setIndex((prev) => prev + 1);
+    }, step.delay);
 
     return () => clearTimeout(timer);
-  }, [currentIndex, onComplete]);
+  }, [index, isAuthBlocking, onComplete]);
+
+  // auth simulation logic
+  useEffect(() => {
+    if (!isAuthBlocking) return;
+
+    let str = "ACCESS_KEY_99";
+    let charIndex = 0;
+
+    // skip the blocking step itself to avoid loop
+    const typeTimer = setInterval(() => {
+      setAuthInput(str.slice(0, charIndex + 1));
+      charIndex++;
+      if (charIndex >= str.length) {
+        clearInterval(typeTimer);
+        setTimeout(() => {
+          setIsAuthBlocking(false);
+          setIndex((prev) => prev + 1);
+        }, 600);
+      }
+    }, 100);
+
+    return () => clearInterval(typeTimer);
+  }, [isAuthBlocking]);
+
+  // skip
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => e.key === "Escape" && onComplete();
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black text-neutral-400 font-mono text-xl md:text-2xl overflow-hidden select-none cursor-wait">
-      <style>{`
-        @keyframes flicker {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.97; }
-        }
-        @keyframes textGlow {
-          0%, 100% { text-shadow: 0 0 2px rgba(251, 146, 60, 0.3); }
-          50% { text-shadow: 0 0 8px rgba(251, 146, 60, 0.6), 0 0 12px rgba(251, 146, 60, 0.3); }
-        }
-        @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 10px rgba(251, 146, 60, 0.8); }
-          50% { box-shadow: 0 0 20px rgba(251, 146, 60, 1), 0 0 30px rgba(251, 146, 60, 0.5); }
-        }
-        @keyframes scanline {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100vh); }
-        }
-        .crt-flicker {
-          animation: flicker 0.15s infinite;
-        }
-        .text-glow {
-          animation: textGlow 3s ease-in-out infinite;
-        }
-        .glitch {
-          animation: glitch 0.1s;
-        }
-        @keyframes glitch {
-          0%, 100% { transform: translate(0); }
-          25% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
-          50% { transform: translate(2px, -2px); filter: hue-rotate(-90deg); }
-          75% { transform: translate(-2px, -2px); filter: hue-rotate(180deg); }
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateX(-4px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        @keyframes error-flash {
-          0%, 100% { background: transparent; }
-          50% { background: rgba(234, 179, 8, 0.1); }
-        }
-        .error-flash {
-          animation: error-flash 0.5s ease-in-out 2;
-        }
-        .scanline-sweep {
-          animation: scanline 2s linear;
-        }
-      `}</style>
+    <div className="fixed inset-0 z-[100] bg-black text-green-600 font-mono text-xs md:text-sm select-none cursor-wait grid grid-cols-1 lg:grid-cols-12 gap-1 p-2">
+      {/* LEFT COL: MAIN LOG (Span 8) */}
+      <BrutalistPane
+        title="KERNEL_STDOUT"
+        className="col-span-1 lg:col-span-8 lg:row-span-3"
+      >
+        <div className="flex flex-col h-full overflow-y-auto w-full pb-8 no-scrollbar">
+          {lines.map((line) => (
+            <div
+              key={line.id}
+              className={`flex items-start gap-2 ${line.style || ""} ${
+                line.isAscii
+                  ? "whitespace-pre leading-none my-4 text-green-500"
+                  : ""
+              }`}
+            >
+              {!line.isAscii && (
+                <span className="text-green-900 shrink-0 select-none">
+                  {line.timestamp}
+                </span>
+              )}
+              <span className="break-words">{line.text}</span>
+            </div>
+          ))}
+          <div
+            ref={bottomRef}
+            className="h-4 w-2 bg-green-600 animate-pulse mt-1"
+          />
+        </div>
+      </BrutalistPane>
 
-      {/* Matrix Rain Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 z-[101] opacity-10 pointer-events-none"
-      />
+      {/* RIGHT COL: UTILITIES (Span 4) */}
 
-      {/* CRT Effects */}
-      <div className="pointer-events-none absolute inset-0 z-[110] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] opacity-20 crt-flicker" />
+      {/* MEMORY DUMP */}
+      <BrutalistPane
+        title="MEM_HEX_ADDR"
+        className="col-span-1 lg:col-span-4 h-32 lg:h-auto"
+        isActive={mountedWindows.includes("MEMORY")}
+      >
+        {mountedWindows.includes("MEMORY") && <MemoryDump />}
+      </BrutalistPane>
 
-      {/* Moving Scanline */}
-      {showScanline && (
-        <div className="pointer-events-none absolute inset-x-0 h-1 bg-gradient-to-b from-transparent via-orange-500/30 to-transparent z-[115] scanline-sweep" />
+      {/* THREAD MANAGER */}
+      <BrutalistPane
+        title="PID_TABLE"
+        className="col-span-1 lg:col-span-4 h-32 lg:h-auto"
+        isActive={mountedWindows.includes("THREADS")}
+      >
+        {mountedWindows.includes("THREADS") && <ThreadManager />}
+      </BrutalistPane>
+
+      {/* NETWORK MAP */}
+      <BrutalistPane
+        title="NET_TOPOLOGY"
+        className="col-span-1 lg:col-span-4 h-40 lg:h-auto"
+        isActive={mountedWindows.includes("NETWORK")}
+      >
+        {mountedWindows.includes("NETWORK") && <NetworkTopology />}
+      </BrutalistPane>
+
+      {/* BLOCKING AUTH MODAL */}
+      {isAuthBlocking && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-[2px]">
+          <div className="border-2 border-green-500 bg-black p-6 flex flex-col items-center gap-4 w-96 shadow-[0_0_20px_rgba(0,255,0,0.2)]">
+            <div className="text-green-500 font-bold tracking-widest animate-pulse">
+              WARNING: SECURITY GATES ACTIVE
+            </div>
+            <div className="w-full flex flex-col gap-1">
+              <label className="text-[10px] text-green-800 uppercase">
+                Enter Passkey
+              </label>
+              <div className="w-full bg-green-900/10 border border-green-800 p-2 text-green-400 font-bold">
+                {authInput}
+                <span className="animate-pulse">_</span>
+              </div>
+            </div>
+            <div className="text-[10px] text-green-800 w-full text-center mt-2">
+              IDENTITY.VERIFICATION.DAEMON
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Vignette */}
-      <div className="pointer-events-none absolute inset-0 z-[110] bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.4)_100%)]" />
-
-      {/* Screen Edge Glow */}
-      <div className="pointer-events-none absolute inset-0 z-[105] shadow-[inset_0_0_100px_rgba(251,146,60,0.1)]" />
-
-      {/* Corner Decorations */}
-      <div className="absolute top-4 left-4 z-[125] text-orange-500/30 text-xs">
-        <div>┏━━━━━━━━━━━━━━━━━</div>
-        <div>┃ VON.CORE</div>
+      {/* FOOTER */}
+      <div className="fixed bottom-0 left-0 right-0 p-1 bg-black border-t border-green-900 text-green-900 text-[10px] font-mono uppercase text-center z-50">
+        [ESC] ABORT_SEQUENCE // VON.CORE v3.0 // MEM: 64TB // CPU: 12%
       </div>
-      <div className="absolute top-4 right-4 z-[125] text-orange-500/30 text-xs text-right">
-        <div>━━━━━━━━━━━━━━━━━┓</div>
-        <div>SYS.INIT ┃</div>
-      </div>
-
-      {/* System Stats */}
-      <div className="absolute top-20 right-4 z-[125] text-neutral-500 text-xs space-y-1">
-        <div>CPU: {Math.floor(bootProgress)}%</div>
-        <div>MEM: {Math.floor(bootProgress * 0.8)}%</div>
-        <div>NET: {bootProgress > 50 ? "ONLINE" : "INIT"}</div>
-        <div className="flex items-center gap-2">
-          <div className="w-16 h-1 bg-neutral-800 rounded overflow-hidden">
-            <div
-              className="h-full bg-orange-500 transition-all duration-300"
-              style={{ width: `${bootProgress}%` }}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div
-        className={`relative z-[120] h-full flex flex-col p-6 md:p-10 ${
-          glitchActive ? "glitch" : ""
-        }`}
-      >
-        <div
-          className="flex-1 overflow-y-auto overflow-x-hidden"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          <style>{`
-            .flex-1::-webkit-scrollbar {
-              display: none;
-            }
-          `}</style>
-          <div className="flex flex-col gap-1 pb-20">
-            {lines.map((line, idx) => (
-              <div
-                key={idx}
-                className={`${line.style || "text-neutral-400"} ${
-                  line.isAscii ? "whitespace-pre font-bold text-glow" : ""
-                } ${
-                  line.isError ? "error-flash" : ""
-                } transition-opacity duration-200`}
-                style={{
-                  animation: `fadeIn 0.3s ease-out ${idx * 0.02}s both`,
-                }}
-              >
-                {!line.isAscii && (
-                  <span className="mr-3 text-neutral-600 opacity-50">
-                    [
-                    {new Date().toLocaleTimeString("en-US", {
-                      hour12: false,
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                      fractionalSecondDigits: 3,
-                    })}
-                    ]
-                  </span>
-                )}
-                <span className={line.isAscii ? "" : "tracking-wide"}>
-                  {line.text}
-                </span>
-              </div>
-            ))}
-            <div
-              ref={bottomRef}
-              className="h-4 w-2 bg-orange-500 mt-2"
-              style={{ animation: "pulse-glow 1s ease-in-out infinite" }}
-            />
-          </div>
-        </div>
-
-        {/* Enhanced Footer */}
-        <div className="absolute bottom-8 left-0 right-0 flex items-center justify-between px-8">
-          <div className="text-neutral-600 text-base font-bold">
-            {currentIndex < SEQUENCE_STEPS.length ? (
-              <span className="text-orange-500 animate-pulse">
-                ◉ BOOTING...
-              </span>
-            ) : (
-              <span className="text-green-500">◉ READY</span>
-            )}
-          </div>
-          <div className="text-neutral-500 text-base animate-pulse backdrop-blur-sm bg-black/30 px-3 py-2 rounded border border-neutral-800 hover:border-orange-500/50 transition-colors">
-            {currentIndex < SEQUENCE_STEPS.length ? (
-              <>
-                <span className="text-orange-500 font-bold">[ESC]</span> TO SKIP
-                SEQUENCE
-              </>
-            ) : (
-              <>
-                <span className="text-green-500 font-bold">
-                  [PRESS ANY KEY]
-                </span>{" "}
-                TO CONTINUE
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom border */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent z-[125]" />
     </div>
   );
 };

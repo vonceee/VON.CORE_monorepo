@@ -14,7 +14,7 @@ interface DevDashboardProps {
 }
 
 const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
-  // Get initial tool from URL if present
+  // get initial tool from URL if present
   const params = new URLSearchParams(window.location.search);
   const initialToolId = params.get("tool") || undefined;
 
@@ -63,7 +63,7 @@ const DevDashboard: React.FC<DevDashboardProps> = ({ onExit }) => {
         e.preventDefault();
         togglePanel();
       }
-      // Escape closes modal
+      // Closes Modal: Escape
       else if (e.key === "Escape" && isExitModalOpen) {
         setIsExitModalOpen(false);
       }

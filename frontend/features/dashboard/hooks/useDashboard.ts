@@ -15,7 +15,7 @@ export const useDashboard = (
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [sidebarWidth, setSidebarWidth] = useState(350);
   const [activeSidebarToolId, setActiveSidebarToolId] = useState<string>(
     initialToolId || TOOLS_CONFIG[0].id,
   );

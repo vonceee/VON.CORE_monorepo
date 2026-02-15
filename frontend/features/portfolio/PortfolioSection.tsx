@@ -42,14 +42,14 @@ const PortfolioSection: React.FC = () => {
             <div className="relative z-20 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
               {/* Category & Arrow */}
               <div className="flex justify-between items-start mb-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                <span className="text-xs font-mono text-orange-500 tracking-widest uppercase">
+                <span className="text-xs font-mono text-primary tracking-widest uppercase">
                   {project.category}
                 </span>
                 <ArrowUpRight className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-500" />
               </div>
 
               {/* Title */}
-              <h3 className="text-3xl lg:text-4xl font-bold leading-none uppercase text-white mb-3 group-hover:text-orange-500 transition-colors duration-300">
+              <h3 className="text-3xl lg:text-4xl font-bold leading-none uppercase text-white mb-3 group-hover:text-primary transition-colors duration-300">
                 {project.title.replace(/_/g, " ")}
               </h3>
 

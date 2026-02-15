@@ -50,14 +50,14 @@ export const DemoLayout: React.FC = () => {
               </button>
             )}
             <div className="h-4 w-px bg-white/10 mx-1" />
-            <h2 className="font-mono text-sm font-bold tracking-wider text-orange-500">
+            <h2 className="font-mono text-sm font-bold tracking-wider text-primary">
               {tool.label.toUpperCase()}_DEMO
             </h2>
           </div>
 
           <button
             onClick={closeDemo}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-xs font-mono tracking-widest transition-all hover:border-orange-500/50 hover:text-orange-500"
+            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm text-xs font-mono tracking-widest transition-all hover:border-primary/50 hover:text-primary"
           >
             <ArrowLeft size={14} />
             EXIT DEMO

@@ -66,7 +66,7 @@ const LiveStatus: React.FC = () => {
       <div className="flex justify-between items-center mb-6 z-10">
         <div className="flex items-center gap-2">
           {persona === "developer" ? (
-            <Terminal className="text-orange-500 w-5 h-5" />
+            <Terminal className="text-primary w-5 h-5" />
           ) : (
             <Activity className="text-green-500 w-5 h-5" />
           )}
@@ -115,7 +115,7 @@ const LiveStatus: React.FC = () => {
                     {(i + 1).toString().padStart(2, "0")}
                   </div>
                   <div
-                    className={`col-span-5 font-bold ${hoveredTool === tool.id ? "text-orange-400" : "text-neutral-300"}`}
+                    className={`col-span-5 font-bold ${hoveredTool === tool.id ? "text-primary/80" : "text-neutral-300"}`}
                   >
                     {tool.name}
                   </div>
@@ -142,7 +142,7 @@ const LiveStatus: React.FC = () => {
 
             <div className="mt-4 pt-4 border-t border-white/5 flex gap-4 text-neutral-500">
               <div className="flex items-center gap-2">
-                <Zap className="w-3 h-3 text-orange-500" />
+                <Zap className="w-3 h-3 text-primary" />
                 <span>7 Modules Loaded</span>
               </div>
               <div className="flex items-center gap-2">

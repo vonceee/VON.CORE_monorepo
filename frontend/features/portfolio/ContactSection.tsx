@@ -16,7 +16,7 @@ const ContactSection: React.FC = () => {
       <div className="text-center">
         <a
           href={`mailto:${t.contact.email}`}
-          className="text-4xl md:text-6xl lg:text-7xl font-bold hover:text-orange-500 transition-colors block mb-4 underline decoration-orange-500 underline-offset-8"
+          className="text-4xl md:text-6xl lg:text-7xl font-bold hover:text-primary transition-colors block mb-4 underline decoration-primary underline-offset-8"
         >
           {t.contact.email}
         </a>

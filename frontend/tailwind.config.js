@@ -12,6 +12,9 @@ export default {
       fontFamily: {
         sans: ['Google Sans', 'sans-serif'],
       },
+      colors: {
+        primary: 'var(--primary)',
+      },
     },
   },
   plugins: [

@@ -24,6 +24,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 
   return (
     <div
+      style={
+        {
+          "--primary": theme !== "light" ? "#ffffff" : "#000000",
+        } as React.CSSProperties
+      }
       className={`${
         persona === "hr"
           ? theme !== "light"
@@ -41,7 +46,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         }`}
       >
         <div className="flex items-center space-x-6 text-sm lg:text-base 2xl:text-xl font-bold tracking-widest">
-          <div className="text-xl lg:text-2xl 2xl:text-4xl mr-8">VON.CORE</div>
+          <div className="text-xl lg:text-2xl 2xl:text-4xl mr-8">VON.DEV</div>
           <div className="hidden md:flex space-x-4">
             {availableLanguages.map((l) => (
               <button
@@ -49,8 +54,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({
                 onClick={() => setLang(l)}
                 className={`${
                   lang === l
-                    ? "text-orange-500"
-                    : "text-neutral-500 hover:text-orange-500"
+                    ? "text-primary"
+                    : "text-neutral-500 hover:text-primary"
                 }`}
               >
                 {l}
@@ -63,25 +68,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           <div className="flex space-x-6">
             <button
               onClick={() => onScrollTo("ABOUT")}
-              className="hover:text-orange-500 transition-colors"
+              className="hover:text-primary transition-colors"
             >
               ABOUT
             </button>
             <button
               onClick={() => onScrollTo("PORTFOLIO")}
-              className="hover:text-orange-500 transition-colors"
+              className="hover:text-primary transition-colors duration-300"
             >
               PORTFOLIO
             </button>
             <button
               onClick={() => onScrollTo("DEEP_DIVE")}
-              className="hover:text-orange-500 transition-colors"
+              className="hover:text-primary transition-colors duration-300"
             >
               DEEP DIVE
             </button>
             <button
               onClick={() => onScrollTo("CONTACT")}
-              className="hover:text-orange-500 transition-colors"
+              className="hover:text-primary transition-colors duration-300"
             >
               CONTACT
             </button>
@@ -93,26 +98,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           >
             {theme !== "light" ? "☀" : "☾"}
           </button>
-
-          {/* Persona Toggle */}
-          <button
-            onClick={() => setPersona(persona === "hr" ? "developer" : "hr")}
-            className={`px-3 py-1 border text-xs tracking-widest transition-all duration-300 ${
-              persona === "hr"
-                ? "border-slate-400 text-slate-500 hover:bg-slate-100"
-                : "border-white/20 text-neutral-500 hover:text-white hover:border-white"
-            }`}
-          >
-            {persona === "hr" ? "HR MODE" : "DEV MODE"}
-          </button>
         </div>
       </nav>
 
       {/* Dynamic Subheader */}
       <div className="fixed top-28 left-8 md:top-28 md:left-10 xl:top-32 xl:left-12 z-40 hidden md:block">
         <AnimatedText
-          text={`// CURRENT: ${activeSection}`}
-          className="text-lg 2xl:text-2xl tracking-[0.4em] font-mono text-orange-500"
+          text={`// ${activeSection}`}
+          className="text-lg 2xl:text-2xl tracking-[0.4em] font-mono text-primary"
           type="decode"
           once={false}
         />
@@ -121,13 +114,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       {children}
 
       {/* Floating Button */}
-      {/* Brutalist Terminal Trigger */}
-      <button
-        onClick={onOpenTerminal}
-        className="fixed bottom-8 right-8 z-50 font-mono text-xs sm:text-sm text-neutral-400 hover:text-orange-500 transition-colors duration-300"
-      >
-        [ execute_terminal_v1.0.42 ]
-      </button>
+      {/* Floating Buttons: Terminal & Persona Toggle */}
+      <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end space-y-2 font-mono text-xs sm:text-sm text-neutral-400">
+        <button
+          onClick={() => setPersona(persona === "hr" ? "developer" : "hr")}
+          className="hover:text-primary transition-colors duration-300"
+        >
+          [ switch_to_{persona === "hr" ? "dev" : "hr"}_mode ]
+        </button>
+        <button
+          onClick={onOpenTerminal}
+          className="hover:text-primary transition-colors duration-300"
+        >
+          [ execute_terminal_v1.0.42 ]
+        </button>
+      </div>
     </div>
   );
 };

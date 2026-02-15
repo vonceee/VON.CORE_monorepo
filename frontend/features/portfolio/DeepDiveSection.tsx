@@ -220,7 +220,7 @@ const DeepDiveSection: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
 
               <div className="relative z-10 p-6 mt-auto">
-                <span className="text-orange-400 text-xs font-mono uppercase tracking-wider mb-1 block">
+                <span className="text-primary/80 text-xs font-mono uppercase tracking-wider mb-1 block">
                   Current Focus
                 </span>
                 <h4 className="text-xl font-bold text-white leading-tight">

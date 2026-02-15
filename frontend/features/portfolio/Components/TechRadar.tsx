@@ -65,7 +65,7 @@ const TechRadar: React.FC = () => {
           {persona === "developer" ? "Tech Stack Radar" : "Core Competencies"}
         </h3>
         <Cpu
-          className={`w-6 h-6 ${persona === "developer" ? "text-orange-500" : "text-blue-500"}`}
+          className={`w-6 h-6 ${persona === "developer" ? "text-primary" : "text-blue-500"}`}
         />
       </div>
 
@@ -79,7 +79,7 @@ const TechRadar: React.FC = () => {
                 transition={{ delay: idx * 0.1 }}
                 className="bg-white/5 p-3 rounded hover:bg-white/10 transition-colors group cursor-default"
               >
-                <div className="flex items-center gap-2 mb-1 text-orange-400 group-hover:text-orange-300">
+                <div className="flex items-center gap-2 mb-1 text-primary/80 group-hover:text-primary/60">
                   {skill.icon}
                   <span className="text-xs font-mono uppercase opacity-70">
                     Stack

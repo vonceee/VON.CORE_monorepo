@@ -3,7 +3,7 @@ import { Translations } from "./types";
 export const TRANSLATIONS: Translations = {
   ENG: {
     hero: {
-      title: "VON.CORE",
+      title: "VON.DEV",
       subtitle: "DIGITAL ARCHITECT & CREATIVE DEVELOPER",
     },
     about: {
@@ -27,7 +27,7 @@ export const TRANSLATIONS: Translations = {
   },
   JPN: {
     hero: {
-      title: "VON.CORE",
+      title: "VON.DEV",
       subtitle: "デジタル建築家 & クリエイティブデベロッパー",
     },
     about: {
@@ -51,7 +51,7 @@ export const TRANSLATIONS: Translations = {
   },
   KOR: {
     hero: {
-      title: "VON.CORE",
+      title: "VON.DEV",
       subtitle: "디지털 아키텍트 & 크리에이티브 개발자",
     },
     about: {
@@ -74,7 +74,7 @@ export const TRANSLATIONS: Translations = {
     },
   },
   RUS: {
-    hero: { title: "VON.CORE", subtitle: "ЦИФРОВОЙ АРХИТЕКТОР" },
+    hero: { title: "VON.DEV", subtitle: "ЦИФРОВОЙ АРХИТЕКТОР" },
     about: {
       title: "О НАС",
       description:
@@ -95,7 +95,7 @@ export const TRANSLATIONS: Translations = {
     },
   },
   PH: {
-    hero: { title: "VON.CORE", subtitle: "DIGITAL ARKITEKTO" },
+    hero: { title: "VON.DEV", subtitle: "DIGITAL ARKITEKTO" },
     about: {
       title: "TUNGKOL",
       description:

@@ -102,14 +102,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       </nav>
 
       {/* Dynamic Subheader */}
-      <div className="fixed top-28 left-8 md:top-28 md:left-10 xl:top-32 xl:left-12 z-40 hidden md:block">
-        <AnimatedText
-          text={`// ${activeSection}`}
-          className="text-lg 2xl:text-2xl tracking-[0.4em] font-mono text-primary"
-          type="decode"
-          once={false}
-        />
-      </div>
 
       {children}
 

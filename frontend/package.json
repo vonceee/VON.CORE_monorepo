@@ -21,6 +21,7 @@
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "react-fast-marquee": "^1.6.5",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.18"
   },

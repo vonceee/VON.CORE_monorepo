@@ -22,6 +22,7 @@ export default function SplineAnimation({ className }: SplineAnimationProps) {
       <spline-viewer
         url="https://prod.spline.design/xp-alOYUGLnzSTo1/scene.splinecode"
         background="transparent"
+        style={{ width: "100%", height: "100%" }}
       ></spline-viewer>
     </div>
   );

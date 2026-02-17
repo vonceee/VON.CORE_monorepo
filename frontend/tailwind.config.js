@@ -11,6 +11,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Google Sans', 'sans-serif'],
+        monoton: ["Monoton", sans-serif],
       },
       colors: {
         primary: 'var(--primary)',

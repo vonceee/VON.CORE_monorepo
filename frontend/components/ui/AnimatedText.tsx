@@ -8,6 +8,7 @@ interface AnimatedTextProps {
   delay?: number;
   once?: boolean;
   speed?: number;
+  trigger?: boolean;
 }
 
 const AnimatedText: React.FC<AnimatedTextProps> = ({
@@ -18,6 +19,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
   delay = 0,
   once = true,
   speed = 0.3,
+  trigger,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [displayText, setDisplayText] = useState("");
@@ -25,6 +27,11 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%^&*()_+";
 
   useEffect(() => {
+    if (trigger !== undefined) {
+      setIsVisible(trigger);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -34,7 +41,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
           setIsVisible(false);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (elementRef.current) {
@@ -42,7 +49,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
     }
 
     return () => observer.disconnect();
-  }, [once]);
+  }, [once, trigger]);
 
   useEffect(() => {
     if (isVisible && type === "decode") {
@@ -55,7 +62,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
               if (index < iteration) return text[index];
               return chars[Math.floor(Math.random() * chars.length)];
             })
-            .join("")
+            .join(""),
         );
 
         if (iteration >= text.length) {

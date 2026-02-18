@@ -2,9 +2,13 @@ import { useEffect } from "react";
 
 interface SplineAnimationProps {
   className?: string;
+  style?: any; // Allow motion values
 }
 
-export default function SplineAnimation({ className }: SplineAnimationProps) {
+export default function SplineAnimation({
+  className,
+  style,
+}: SplineAnimationProps) {
   useEffect(() => {
     const scriptUrl =
       "https://unpkg.com/@splinetool/viewer@1.12.57/build/spline-viewer.js";
@@ -17,7 +21,10 @@ export default function SplineAnimation({ className }: SplineAnimationProps) {
   }, []);
 
   return (
-    <div className={`relative ${className || "w-10 h-10 md:w-16 md:h-16"}`}>
+    <div
+      className={`relative ${className || "w-10 h-10 md:w-16 md:h-16"}`}
+      style={style}
+    >
       {/* @ts-ignore */}
       <spline-viewer
         url="https://prod.spline.design/xp-alOYUGLnzSTo1/scene.splinecode"

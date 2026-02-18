@@ -99,8 +99,8 @@ const AppContent: React.FC = () => {
             ref={containerRef}
             className={`snap-container ${persona === "hr" ? "theme-hr" : ""}`}
           >
-            <HeroSection />
-            <AboutSection />
+            <HeroSection scrollContainerRef={containerRef} />
+            <AboutSection scrollContainerRef={containerRef} />
             <PortfolioSection />
             <ContactSection />
           </div>

@@ -70,10 +70,9 @@ const HeroSection: React.FC = () => {
         </div>
 
         {/* Right Column: Animation (Higher Z-Index) */}
-        {/* Using absolute positioning to layer it effectively on the right side */}
         <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full z-20 pointer-events-none flex items-center justify-center lg:justify-end">
           <div className="w-full h-full pointer-events-auto">
-            <SplineAnimation className="w-full h-full" />
+            <SplineAnimation className="w-full h-full scale-125" />
           </div>
         </div>
       </div>

@@ -1,7 +1,6 @@
-
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Language, Translation, Translations } from '../types';
-import { TRANSLATIONS } from '../locales/translations';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { Language, Translation } from "../types";
+import { TRANSLATIONS } from "../locales/translations";
 
 interface LanguageContextType {
   lang: Language;
@@ -10,18 +9,22 @@ interface LanguageContextType {
   availableLanguages: Language[];
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined,
+);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [lang, setLang] = useState<Language>('ENG');
-  
+  const [lang, setLang] = useState<Language>("ENG");
+
   return (
-    <LanguageContext.Provider value={{ 
-      lang, 
-      setLang, 
-      t: TRANSLATIONS[lang],
-      availableLanguages: Object.keys(TRANSLATIONS) as Language[]
-    }}>
+    <LanguageContext.Provider
+      value={{
+        lang,
+        setLang,
+        t: TRANSLATIONS[lang],
+        availableLanguages: Object.keys(TRANSLATIONS) as Language[],
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   );
@@ -29,6 +32,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
-  if (!context) throw new Error('useLanguage must be used within a LanguageProvider');
+  if (!context)
+    throw new Error("useLanguage must be used within a LanguageProvider");
   return context;
 };

@@ -94,25 +94,4 @@ export const TRANSLATIONS: Translations = {
       social: "СЛЕДУЙ ЗА ПУСТОТОЙ",
     },
   },
-  PH: {
-    hero: { title: "VON.DEV", subtitle: "DIGITAL ARKITEKTO" },
-    about: {
-      title: "TUNGKOL",
-      description:
-        "Minimalista sa disenyo, arkitekto sa kalikasan. Pagbuo ng digital na karanasan na lumalampas sa sining at teknolohiya.",
-    },
-    portfolio: {
-      title: "PORTFOLIO",
-      items: [
-        { title: "NEO-STRUCT", category: "Web App" },
-        { title: "CORE_SYSTEM", category: "Backend" },
-        { title: "VON_UI", category: "Design System" },
-      ],
-    },
-    contact: {
-      title: "CONTACT",
-      email: "alonarvoncedric@gmail.com",
-      social: "SUNDAN ANG VOID",
-    },
-  },
 };

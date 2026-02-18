@@ -3,6 +3,14 @@
 @import "tailwindcss";
 
 @layer base {
+  .font-monoton {
+    font-family: "Monoton", cursive;
+  }
+
+  .font-kumar {
+    font-family: "Kumar One Outline", sans-serif;
+  }
+
   body {
     font-family: "Google Sans", "Product Sans", sans-serif;
   }
@@ -148,5 +156,15 @@
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* ⋆｡˚ ୨୧ ˚｡⋆ Tech Dots Background ⋆｡˚ ୨୧ ˚｡⋆ */
+  .bg-tech-dots {
+    background-size: 24px 24px;
+    background-image: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.15) 1.5px,
+      transparent 1.5px
+    );
   }
 }

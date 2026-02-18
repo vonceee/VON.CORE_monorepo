@@ -10,11 +10,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Google Sans', 'sans-serif'],
-        monoton: ["Monoton", sans-serif],
+        sans: ["Google Sans", "sans-serif"],
+        monoton: ["Monoton", "Google Sans", "sans-serif"],
+        kumar: ["Kumar One Outline", "Google Sans", "sans-serif"],
       },
       colors: {
-        primary: 'var(--primary)',
+        primary: "var(--primary)",
       },
     },
   },

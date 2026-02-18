@@ -118,7 +118,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ scrollContainerRef }) => {
         <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full z-20 pointer-events-none flex items-center justify-center lg:justify-end">
           <div className="w-full h-full pointer-events-auto">
             <SplineAnimation
-              className="w-full h-full"
+              className="w-full h-full scale-125"
               style={{ scale: splineScale, y: splineY, x: splineX }}
             />
           </div>

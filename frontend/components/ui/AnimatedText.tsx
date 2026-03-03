@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 
 interface AnimatedTextProps {
   text: string;
@@ -104,15 +103,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
       style={{ transitionDelay: `${delay}ms` }}
     >
       {type === "decode" ? displayText : text}
-      {blink && (
-        <motion.span
-          animate={{ opacity: [1, 0, 1] }}
-          transition={{ duration: 0.5, repeat: Infinity }}
-          className="font-extralight ml-1"
-        >
-          |
-        </motion.span>
-      )}
+      {blink && <span className="font-extralight ml-1 animate-pulse">|</span>}
     </div>
   );
 };

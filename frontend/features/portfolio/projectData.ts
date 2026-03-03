@@ -28,22 +28,4 @@ export const PROJECTS: Project[] = [
       "A personal digital garden for organizing thoughts and documentation. Features a deep hierarchical folder structure, tabbed editing, and real-time auto-save.",
     techStack: ["React", "Rich Text", "FileSystem API", "Optimistic UI"],
   },
-  {
-    id: "SUNDAY_MORNING",
-    title: "Brochureware",
-    category: "Fan Experience",
-    image: "assets/aes/tools/brochureware.jpg",
-    description:
-      "An immersive aesthetic experience. Explore tracks, lyrics, and visuals in a curated, fan-centric interface with adaptive theming.",
-    techStack: ["React", "Web Audio API", "Masonry Layout", "Animation"],
-  },
-  {
-    id: "MAGNETIC",
-    title: "Birthday Tracker",
-    category: "Birthday Tracker",
-    image: "assets/aes/tools/birthday-tracker.jpg",
-    description:
-      "Visual milestone tracking. Monitor upcoming events and reflect on your origins through a unified, fluid timeline and countdown grid.",
-    techStack: ["React", "Date-fns", "Timeline Visualization"],
-  },
 ];

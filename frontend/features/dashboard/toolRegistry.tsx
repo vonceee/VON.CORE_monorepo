@@ -3,12 +3,6 @@ import { Tool } from "../../types/index";
 import { NotCuteAnymore, NotCuteAnymoreSidebar } from "./tools/NotCuteAnymore";
 import { NotMe, NotMeSidebar } from "./tools/NotMe";
 import { MyWorld, MyWorldSidebar } from "./tools/MyWorld";
-import { SundayMorning, SundayMorningSidebar } from "./tools/SundayMorning";
-import { Magnetic, MagneticSidebar } from "./tools/Magnetic";
-import {
-  MidnightFiction,
-  MidnightFictionSidebar,
-} from "./tools/MidnightFiction";
 import { Globe, Sun, Magnet, EyeClosed, ShieldOff, Share2 } from "lucide-react";
 
 const Icons = {
@@ -56,26 +50,5 @@ export const TOOLS_CONFIG: Tool[] = [
     icon: Icons.MyWorld,
     component: MyWorld,
     sidebarComponent: MyWorldSidebar,
-  },
-  {
-    id: "SUNDAY_MORNING",
-    label: "Sunday Morning",
-    icon: Icons.SundayMorning,
-    component: SundayMorning,
-    sidebarComponent: SundayMorningSidebar,
-  },
-  {
-    id: "MAGNETIC",
-    label: "Magnetic",
-    icon: Icons.Magnetic,
-    component: Magnetic,
-    sidebarComponent: MagneticSidebar,
-  },
-  {
-    id: "MIDNIGHT_FICTION",
-    label: "Midnight Fiction",
-    icon: Icons.MidnightFiction,
-    component: MidnightFiction,
-    sidebarComponent: MidnightFictionSidebar,
   },
 ];

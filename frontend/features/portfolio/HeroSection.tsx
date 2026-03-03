@@ -1,8 +1,7 @@
 import React from "react";
 import AnimatedText from "../../components/ui/AnimatedText";
 import { useLanguage } from "../../context/LanguageContext";
-import SplineAnimation from "@/components/ui/SplineAnimation";
-import { motion } from "framer-motion";
+import InteractiveSphere from "@/components/ui/InteractiveSphere";
 
 const HeroSection: React.FC = () => {
   const { t } = useLanguage();
@@ -16,7 +15,7 @@ const HeroSection: React.FC = () => {
     >
       <div className="container w-full h-full flex flex-col flex-row items-center justify-center relative">
         {/* Left Column: Text Content */}
-        <motion.div className="flex-1 flex flex-col items-start text-left">
+        <div className="flex-1 flex flex-col items-start text-left">
           <div className="space-y-2">
             <AnimatedText
               text={t.hero.title}
@@ -32,12 +31,12 @@ const HeroSection: React.FC = () => {
               delay={500}
             />
           </div>
-        </motion.div>
+        </div>
 
         {/* Right Column */}
         <div className="absolute top-0 right-0 w-3/5 h-full flex items-center justify-end">
           <div className="w-full h-full pointer-events-auto">
-            {/* <SplineAnimation className="w-full h-full scale-125" /> */}
+            <InteractiveSphere className="w-full h-full scale-125" />
           </div>
         </div>
       </div>

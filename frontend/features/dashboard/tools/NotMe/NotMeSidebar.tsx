@@ -114,7 +114,7 @@ export const NotMeSidebar: React.FC = () => {
                 {deleteConfirmationId === item.id ? (
                   <div className="flex items-center justify-between w-full animate-in fade-in duration-200">
                     <span className="text-sm font-medium text-red-400">
-                      Confirm delete?
+                      confirm delete?
                     </span>
                     <div className="flex items-center gap-1">
                       <button

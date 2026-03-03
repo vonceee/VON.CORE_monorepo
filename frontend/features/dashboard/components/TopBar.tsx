@@ -6,7 +6,7 @@ import {
   PanelRight,
   Search,
 } from "lucide-react";
-import VonLogo from "../../../assets/logo/von_logo.svg";
+import VonLogo from "../../../assets/logo/von_logo.ico";
 
 interface TopBarProps {
   onTogglePrimarySidebar: () => void;

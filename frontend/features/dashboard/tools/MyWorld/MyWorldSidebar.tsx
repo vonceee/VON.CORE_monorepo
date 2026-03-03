@@ -12,20 +12,6 @@ import {
   SquarePen,
   Star,
 } from "lucide-react";
-import {
-  DndContext,
-  useDraggable,
-  useDroppable,
-  DragEndEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragOverlay,
-  defaultDropAnimationSideEffects,
-  DragStartEvent,
-} from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { createPortal } from "react-dom";
 
 // --- Draggable Note Component ---
 interface NoteItemProps {
@@ -48,24 +34,14 @@ const NoteItem: React.FC<NoteItemProps> = ({
   depth,
 }) => {
   const isSelected = selectedNoteIds.includes(note.id);
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: note.id,
-      data: { type: "note", note },
-    });
 
   const style = {
     paddingLeft: `${depth * 12 + 12}px`,
-    transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.3 : 1,
   };
 
   return (
     <div
-      ref={setNodeRef}
       style={style}
-      {...listeners}
-      {...attributes}
       className={`flex items-center gap-2 py-1 px-2 cursor-pointer group select-none ${
         activeNoteId === note.id || isSelected
           ? "bg-blue-500/20 text-blue-300"
@@ -106,7 +82,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
   );
 };
 
-// --- Droppable Folder Component ---
+// --- Folder Component ---
 interface FolderItemProps {
   folder: NoteFolder;
   activeNoteId: string | null;
@@ -145,11 +121,6 @@ const FolderItem: React.FC<FolderItemProps> = ({
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(folder.name);
 
-  const { setNodeRef, isOver } = useDroppable({
-    id: folder.id,
-    data: { type: "folder", folder },
-  });
-
   const paddingLeft = `${depth * 12 + 12}px`;
 
   const handleRenameSubmit = () => {
@@ -172,12 +143,9 @@ const FolderItem: React.FC<FolderItemProps> = ({
   return (
     <div>
       <div
-        ref={setNodeRef}
         className={`group flex items-center gap-1 py-1 px-2 cursor-pointer text-gray-400 select-none transition-colors ${
           folder.isOptimistic ? "opacity-50 pointer-events-none" : ""
-        } ${isOver ? "bg-blue-500/20 ring-1 ring-blue-500/50" : ""} ${
-          isSelected ? "bg-white/10 text-white" : "hover:bg-white/5"
-        }`}
+        } ${isSelected ? "bg-white/10 text-white" : "hover:bg-white/5"}`}
         style={{ paddingLeft }}
         onClick={(e) => {
           e.stopPropagation();
@@ -210,9 +178,7 @@ const FolderItem: React.FC<FolderItemProps> = ({
           />
         ) : (
           <span
-            className={`text-sm truncate flex-1 ${
-              isOver ? "text-blue-200" : ""
-            }`}
+            className="text-sm truncate flex-1"
             onDoubleClick={(e) => {
               e.stopPropagation();
               setIsRenaming(true);
@@ -316,21 +282,11 @@ export const MyWorldSidebar: React.FC = () => {
     expandedFolderIds,
     toggleFolder,
     getVisibleNoteIds,
-    moveNotes,
     renameFolder,
     toggleFavorite,
   } = useMyWorld();
 
   const lastClickedId = useRef<string | null>(null);
-
-  // DnD Sensors
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-  );
 
   // Handle Note Selection
   const handleSelectNote = (id: string, multi: boolean, range: boolean) => {
@@ -373,30 +329,6 @@ export const MyWorldSidebar: React.FC = () => {
   const handleSelectFolder = (id: string) => {
     setSelectedFolderId(id);
     // hook clears note selection
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-    const sourceId = active.id as string;
-    const targetFolderId = over.id as string;
-    const activeData = active.data.current as { type?: string } | undefined;
-    const overData = over.data.current as { type?: string } | undefined;
-
-    if (activeData?.type === "note" && overData?.type === "folder") {
-      const isDraggedNoteSelected = selectedNoteIds.includes(sourceId);
-      const idsToMove = isDraggedNoteSelected ? selectedNoteIds : [sourceId];
-      moveNotes(idsToMove, targetFolderId);
-    }
-  };
-
-  const [activeDragItem, setActiveDragItem] = useState<Note | null>(null);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const data = event.active.data.current as { note?: Note };
-    if (data?.note) {
-      setActiveDragItem(data.note);
-    }
   };
 
   const [itemToDelete, setItemToDelete] = useState<{
@@ -446,119 +378,99 @@ export const MyWorldSidebar: React.FC = () => {
   const activeParentId = selectedFolderId;
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragEnd={handleDragEnd}
-      onDragStart={handleDragStart}
-    >
-      <div className="h-full bg-black border-r border-white/5 flex flex-col w-full relative">
-        <div className="p-3 border-b border-white/5 flex items-center justify-between">
-          <div className="flex gap-1 items-center">
-            <button
-              onClick={() => createNote("New Note", activeParentId)}
-              className="p-1 hover:bg-white/10 rounded text-gray-400 hover:text-white"
-              title={activeParentId ? "New Note in Selection" : "New Note"}
-            >
-              <SquarePen size={14} />
-            </button>
-            <button
-              onClick={() => createFolder("New Folder", activeParentId)}
-              className="p-1 hover:bg-white/10 rounded text-gray-400 hover:text-white"
-              title={activeParentId ? "New Folder in Selection" : "New Folder"}
-            >
-              <FolderPlus size={14} />
-            </button>
-          </div>
+    <div className="h-full bg-black border-r border-white/5 flex flex-col w-full relative">
+      <div className="p-3 border-b border-white/5 flex items-center justify-between">
+        <div className="flex gap-1 items-center">
+          <button
+            onClick={() => createNote("New Note", activeParentId)}
+            className="p-1 hover:bg-white/10 rounded text-gray-400 hover:text-white"
+            title={activeParentId ? "New Note in Selection" : "New Note"}
+          >
+            <SquarePen size={14} />
+          </button>
+          <button
+            onClick={() => createFolder("New Folder", activeParentId)}
+            className="p-1 hover:bg-white/10 rounded text-gray-400 hover:text-white"
+            title={activeParentId ? "New Folder in Selection" : "New Folder"}
+          >
+            <FolderPlus size={14} />
+          </button>
         </div>
-        <div
-          className="flex-1 overflow-y-auto custom-scroll"
-          onClick={() => {
-            // Clicking empty space deselects folder
-            setSelectedFolderId(null);
-            // And notes? Maybe. Usually yes.
-            setSelectedNoteIds([]);
-          }}
-        >
-          {tree.folders.map((folder) => (
-            <FolderItem
-              key={folder.id}
-              folder={folder}
-              activeNoteId={activeNoteId}
-              selectedNoteIds={selectedNoteIds}
-              selectedFolderId={selectedFolderId}
-              expandedFolderIds={expandedFolderIds}
-              onToggleFolder={toggleFolder}
-              onSelectNote={handleSelectNote}
-              onSelectFolder={handleSelectFolder}
-              onCreateFolder={createFolder}
-              onCreateNote={createNote}
-              onRenameFolder={renameFolder}
-              onDeleteItem={requestDelete}
-              onToggleFavorite={toggleFavorite}
-              depth={0}
-            />
-          ))}
-          {tree.rootNotes.map((note) => (
-            <NoteItem
-              key={note.id}
-              note={note}
-              activeNoteId={activeNoteId}
-              selectedNoteIds={selectedNoteIds}
-              onSelect={handleSelectNote}
-              onDeleteItem={(id) => requestDelete(id, "note")}
-              onToggleFavorite={(id) => toggleFavorite(id, "note")}
-              depth={0}
-            />
-          ))}
-        </div>
+      </div>
+      <div
+        className="flex-1 overflow-y-auto custom-scroll"
+        onClick={() => {
+          // Clicking empty space deselects folder
+          setSelectedFolderId(null);
+          // And notes? Maybe. Usually yes.
+          setSelectedNoteIds([]);
+        }}
+      >
+        {tree.folders.map((folder) => (
+          <FolderItem
+            key={folder.id}
+            folder={folder}
+            activeNoteId={activeNoteId}
+            selectedNoteIds={selectedNoteIds}
+            selectedFolderId={selectedFolderId}
+            expandedFolderIds={expandedFolderIds}
+            onToggleFolder={toggleFolder}
+            onSelectNote={handleSelectNote}
+            onSelectFolder={handleSelectFolder}
+            onCreateFolder={createFolder}
+            onCreateNote={createNote}
+            onRenameFolder={renameFolder}
+            onDeleteItem={requestDelete}
+            onToggleFavorite={toggleFavorite}
+            depth={0}
+          />
+        ))}
+        {tree.rootNotes.map((note) => (
+          <NoteItem
+            key={note.id}
+            note={note}
+            activeNoteId={activeNoteId}
+            selectedNoteIds={selectedNoteIds}
+            onSelect={handleSelectNote}
+            onDeleteItem={(id) => requestDelete(id, "note")}
+            onToggleFavorite={(id) => toggleFavorite(id, "note")}
+            depth={0}
+          />
+        ))}
+      </div>
 
-        {/* Confirmation Modal Overlay */}
-        {itemToDelete && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-[1px]">
-            <div className="bg-[#09090b] border border-white/10 rounded-lg shadow-2xl w-full max-w-[280px] p-4 flex flex-col gap-3 animation-fade-in">
-              <div className="flex flex-col gap-1">
-                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                  <Trash2 size={14} className="text-red-500" />
-                  Confirm Deletion
-                </h3>
-                <p className="text-xs text-gray-400 leading-relaxed">
-                  Are you sure you want to delete{" "}
-                  <span className="text-gray-200">"{itemToDelete.title}"</span>?
-                  This action cannot be undone.
-                </p>
-              </div>
-              <div className="flex gap-2 justify-end mt-1">
-                <button
-                  onClick={() => setItemToDelete(null)}
-                  className="px-3 py-1.5 rounded text-xs text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="px-3 py-1.5 rounded text-xs bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
+      {/* Confirmation Modal Overlay */}
+      {itemToDelete && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-[1px]">
+          <div className="bg-[#09090b] border border-white/10 rounded-lg shadow-2xl w-full max-w-[280px] p-4 flex flex-col gap-3 animation-fade-in">
+            <div className="flex flex-col gap-1">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Trash2 size={14} className="text-red-500" />
+                Confirm Deletion
+              </h3>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Are you sure you want to delete{" "}
+                <span className="text-gray-200">"{itemToDelete.title}"</span>?
+                This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-2 justify-end mt-1">
+              <button
+                onClick={() => setItemToDelete(null)}
+                className="px-3 py-1.5 rounded text-xs text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-3 py-1.5 rounded text-xs bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors"
+              >
+                Delete
+              </button>
             </div>
           </div>
-        )}
-      </div>
-      <DragOverlay>
-        {activeDragItem ? (
-          <div className="bg-zinc-800 text-white p-2 rounded shadow-lg flex items-center gap-2 opacity-90 w-48 border border-white/10">
-            <FileText size={14} />
-            <span className="text-sm truncate">{activeDragItem.title}</span>
-            {selectedNoteIds.length > 1 &&
-              selectedNoteIds.includes(activeDragItem.id) && (
-                <span className="text-xs bg-blue-500 px-1 rounded-full">
-                  {selectedNoteIds.length}
-                </span>
-              )}
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+        </div>
+      )}
+    </div>
   );
 };

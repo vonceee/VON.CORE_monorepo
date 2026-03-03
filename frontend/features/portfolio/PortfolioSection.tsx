@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from "react";
 import { PROJECTS } from "./projectData";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDemo } from "../../context/DemoContext";
-import { ToolId } from "../../types";
 
 const PortfolioSection: React.FC = () => {
   const { openDemo } = useDemo();
@@ -16,12 +15,30 @@ const PortfolioSection: React.FC = () => {
 
     const cards = container.querySelectorAll("[data-card-index]");
 
+    // Handle scroll-end edge case: when the user has scrolled to the
+    // very end of the container, force-activate the last card.
+    // This is necessary because the last card may never achieve a high
+    // enough intersectionRatio to "win" if the container can't scroll
+    // far enough to center it.
+    const handleScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const distanceFromEnd = scrollWidth - clientWidth - scrollLeft;
+
+      if (distanceFromEnd < 8) {
+        setActiveIndex(PROJECTS.length - 1);
+      }
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const index = Number((entry.target as HTMLElement).dataset.cardIndex);
           ratiosRef.current[index] = entry.intersectionRatio;
         });
+
+        // Don't override if we're already at the scroll end
+        const { scrollLeft, scrollWidth, clientWidth } = container;
+        if (scrollWidth - clientWidth - scrollLeft < 8) return;
 
         let maxRatio = 0;
         let maxIndex = 0;
@@ -43,7 +60,12 @@ const PortfolioSection: React.FC = () => {
     );
 
     cards.forEach((card) => observer.observe(card));
-    return () => observer.disconnect();
+    container.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      container.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const scrollLeft = () => {
@@ -170,7 +192,7 @@ const PortfolioSection: React.FC = () => {
 
                       {/* Card shell */}
                       <div
-                        onClick={() => openDemo(project.id as ToolId)}
+                        onClick={() => openDemo(project.id)}
                         className={`
                           group/card relative overflow-hidden w-full h-[45vh] cursor-pointer rounded-2xl
                           transition-all duration-700
@@ -179,7 +201,6 @@ const PortfolioSection: React.FC = () => {
                               ? [
                                   "card-active-glow",
                                   "opacity-100",
-                                  // layered box-shadow: tight colored glow + wide diffuse halo
                                   "shadow-[0_0_0_1px_rgba(34,211,238,0.15),0_0_20px_0px_rgba(34,211,238,0.2),0_0_60px_-10px_rgba(99,102,241,0.3),0_0_100px_-20px_rgba(34,211,238,0.15)]",
                                 ].join(" ")
                               : "opacity-45 hover:opacity-70 border border-white/5 hover:border-white/10 transition-opacity duration-500"
@@ -217,7 +238,7 @@ const PortfolioSection: React.FC = () => {
                 {activeProject.description}
               </p>
               <button
-                onClick={() => openDemo(activeProject.id as ToolId)}
+                onClick={() => openDemo(activeProject.id)}
                 className="mt-4 text-lg text-neutral-400 hover:text-white flex items-center gap-1 transition-colors"
               >
                 view case <ChevronRight className="w-3 h-3" />

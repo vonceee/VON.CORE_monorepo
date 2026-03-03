@@ -1,16 +1,10 @@
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-} from "framer-motion";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import AnimatedText from "../../components/ui/AnimatedText";
 import { useTheme } from "../../context/ThemeContext";
 import Marquee from "react-fast-marquee";
 import { Github, Linkedin, Facebook, Instagram, ChessPawn } from "lucide-react";
 import aesImage from "../../assets/aes/aes_lnlbes.jpg";
-import CubeCursor from "../../components/ui/CubeCursor";
+import SpinningCube from "../../components/ui/SpinningCube";
 
 const BADGES = {
   dark: [
@@ -35,17 +29,25 @@ const AboutSection: React.FC<AboutSectionProps> = ({ scrollContainerRef }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const [triggerText, setTriggerText] = useState(false);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    container: scrollContainerRef,
-    offset: ["start end", "start start"],
-  });
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTriggerText(true);
+        }
+      },
+      {
+        root: scrollContainerRef?.current || null,
+        threshold: 0.5,
+      },
+    );
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (latest > 0.5 && !triggerText) {
-      setTriggerText(true);
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
     }
-  });
+
+    return () => observer.disconnect();
+  }, [scrollContainerRef]);
 
   return (
     <section
@@ -53,10 +55,10 @@ const AboutSection: React.FC<AboutSectionProps> = ({ scrollContainerRef }) => {
       id="ABOUT"
       className={`snap-section flex items-center justify-center relative overflow-hidden`}
     >
-      {/* <CubeCursor className="absolute inset-0 z-50 scale-125 transition-all duration-300 pt-35 pl-40 pointer-events-none" /> */}
+      <SpinningCube className="absolute inset-0 z-50 scale-125 transition-all duration-300 pt-35 pl-40 pointer-events-none" />
       <div className="w-full h-full flex">
         <div className="grid grid-cols-10 grid-rows-10 overflow-hidden">
-          <motion.div
+          <div
             className={`col-span-6 row-start-1 row-span-4 p-4 pt-20 overflow-hidden bg-tech-dots flex flex-col justify-center`}
           >
             <div className="flex flex-wrap text-5xl font-bold leading-[1.2]">
@@ -85,26 +87,23 @@ const AboutSection: React.FC<AboutSectionProps> = ({ scrollContainerRef }) => {
                 className="inline text-cyan-400"
               />
             </div>
-          </motion.div>
+          </div>
           {/* IMAGE BLOCK */}
-          <div className="col-start-7 col-span-6 row-start-1 row-end-9 h-full relative z-10 flex items-end justify-end">
-            <motion.img
-              style={{
-                scale: useTransform(scrollYProgress, [0, 1], [0.8, 1]),
-              }}
+          <div className="col-start-7 col-span-6 row-start-1 row-end-9 h-full relative z-10 flex items-end justify-end group">
+            <img
               src={aesImage}
-              className="absolute inset-0 w-full h-full object-cover opacity-100 group-hover:scale-110"
+              className="absolute inset-0 w-full h-full object-cover opacity-100 transition-transform duration-700 ease-in-out group-hover:scale-110 hover:scale-110"
               alt="Aesthetic"
             />
           </div>
           {/* NAME BLOCK  */}
-          <motion.div
+          <div
             className={`col-start-4 col-span-5 row-start-5 row-span-4 z-20 border-r-2 border-t-2 ${isLight ? "border-t-black bg-white" : "border-t-white bg-black"} bg-tech-dots`}
-          ></motion.div>
+          ></div>
 
           {/* SMALL BLOCKS */}
           <div className="grid grid-cols-2 md:contents">
-            <motion.div className="col-span-3 row-start-5 row-span-2 border-t-2 border-r-2 bg-tech-dots">
+            <div className="col-span-3 row-start-5 row-span-2 border-t-2 border-r-2 bg-tech-dots">
               <div className="w-full h-full flex flex-row items-center justify-start gap-4 sm:gap-6 p-4">
                 <a
                   href="https://www.instagram.com/voncedric"
@@ -140,8 +139,8 @@ const AboutSection: React.FC<AboutSectionProps> = ({ scrollContainerRef }) => {
                   />
                 </a>
               </div>
-            </motion.div>
-            <motion.div className="md:col-span-3 md:row-start-7 md:row-span-2 p-4 flex items-center justify-start gap-4 sm:gap-6 border-t-2 border-r-2 bg-tech-dots">
+            </div>
+            <div className="md:col-span-3 md:row-start-7 md:row-span-2 p-4 flex items-center justify-start gap-4 sm:gap-6 border-t-2 border-r-2 bg-tech-dots">
               <a
                 href="https://github.com/vonceee"
                 target="_blank"
@@ -164,10 +163,10 @@ const AboutSection: React.FC<AboutSectionProps> = ({ scrollContainerRef }) => {
                   className="transform group-hover:scale-110 transition-transform"
                 />
               </a>
-            </motion.div>
+            </div>
           </div>
           {/* MARQUEE FOOTER */}
-          <motion.div className="col-span-12 row-start-9 row-span-3 text-5xl font-bold flex items-center justify-center border-t-2 min-h-[100px] order-5 md:order-none">
+          <div className="col-span-12 row-start-9 row-span-3 text-5xl font-bold flex items-center justify-center border-t-2 min-h-[100px] order-5 md:order-none">
             <Marquee
               gradient={false}
               speed={50}
@@ -186,7 +185,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ scrollContainerRef }) => {
                 ))}
               </div>
             </Marquee>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

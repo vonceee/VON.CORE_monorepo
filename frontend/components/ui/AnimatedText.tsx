@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
 interface AnimatedTextProps {
   text: string;
@@ -9,6 +10,7 @@ interface AnimatedTextProps {
   once?: boolean;
   speed?: number;
   trigger?: boolean;
+  blink?: boolean;
 }
 
 const AnimatedText: React.FC<AnimatedTextProps> = ({
@@ -20,6 +22,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
   once = true,
   speed = 0.3,
   trigger,
+  blink = false,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [displayText, setDisplayText] = useState("");
@@ -101,6 +104,15 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
       style={{ transitionDelay: `${delay}ms` }}
     >
       {type === "decode" ? displayText : text}
+      {blink && (
+        <motion.span
+          animate={{ opacity: [1, 0, 1] }}
+          transition={{ duration: 0.5, repeat: Infinity }}
+          className="font-extralight ml-1"
+        >
+          |
+        </motion.span>
+      )}
     </div>
   );
 };

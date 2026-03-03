@@ -163,7 +163,7 @@
     background-size: 24px 24px;
     background-image: radial-gradient(
       circle,
-      rgba(255, 255, 255, 0.15) 1.5px,
+      var(--dots-color, rgba(255, 255, 255, 0.15)) 1.5px,
       transparent 1.5px
     );
   }

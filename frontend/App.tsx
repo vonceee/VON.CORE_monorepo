@@ -2,10 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { useAppMode } from "./hooks/useAppMode";
-import { usePersona } from "./hooks/usePersona";
 import { SectionId } from "./types";
-import { PersonaProvider } from "./context/PersonaContext";
-import EntryGate from "./components/EntryGate";
 
 // Features
 import Terminal from "./features/terminal/Terminal";
@@ -16,22 +13,19 @@ import PortfolioSection from "./features/portfolio/PortfolioSection";
 import ContactSection from "./features/portfolio/ContactSection";
 
 import MainLayout from "./components/layout/MainLayout";
-import BootSequence from "./components/BootSequence";
 import { DemoProvider } from "./context/DemoContext";
 import { DemoLayout } from "./components/layout/DemoLayout";
 import ParticleOverlay from "./components/effects/ParticleOverlay";
 
 const AppContent: React.FC = () => {
   const { mode, setMode } = useAppMode();
-  const { persona, setPersona } = usePersona();
   const [activeSection, setActiveSection] = useState<SectionId>("HERO");
-  const [isBooting, setIsBooting] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Scroll Spy Logic
   useEffect(() => {
-    if (mode === "public" && persona) {
+    if (mode === "public") {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -48,7 +42,7 @@ const AppContent: React.FC = () => {
 
       return () => observer.disconnect();
     }
-  }, [mode, persona]);
+  }, [mode]);
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -56,7 +50,6 @@ const AppContent: React.FC = () => {
   };
 
   const handleDevModeOn = () => {
-    setIsBooting(true);
     setMode("dev");
     setIsTerminalOpen(false);
   };
@@ -66,28 +59,21 @@ const AppContent: React.FC = () => {
     setIsTerminalOpen(false);
   };
 
-  // Global particle overlay regardless of mode
   return (
     <>
       <ParticleOverlay />
 
-      {!persona ? (
-        <EntryGate onSelect={setPersona} />
-      ) : mode === "dev" ? (
-        isBooting ? (
-          <BootSequence onComplete={() => setIsBooting(false)} />
-        ) : (
-          <>
-            <DevDashboard onExit={handleDevModeOff} />
-            <Terminal
-              isOpen={isTerminalOpen}
-              onClose={() => setIsTerminalOpen(false)}
-              onDevModeSuccess={handleDevModeOn}
-              onDevModeOff={handleDevModeOff}
-              isDevMode={true}
-            />
-          </>
-        )
+      {mode === "dev" ? (
+        <>
+          <DevDashboard onExit={handleDevModeOff} />
+          <Terminal
+            isOpen={isTerminalOpen}
+            onClose={() => setIsTerminalOpen(false)}
+            onDevModeSuccess={handleDevModeOn}
+            onDevModeOff={handleDevModeOff}
+            isDevMode={true}
+          />
+        </>
       ) : (
         <MainLayout
           activeSection={activeSection}
@@ -95,10 +81,7 @@ const AppContent: React.FC = () => {
           onOpenTerminal={() => setIsTerminalOpen(true)}
         >
           <DemoLayout />
-          <div
-            ref={containerRef}
-            className={`snap-container ${persona === "hr" ? "theme-hr" : ""}`}
-          >
+          <div ref={containerRef} className={`snap-container`}>
             <HeroSection scrollContainerRef={containerRef} />
             <AboutSection scrollContainerRef={containerRef} />
             <PortfolioSection />
@@ -122,11 +105,9 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <PersonaProvider>
-          <DemoProvider>
-            <AppContent />
-          </DemoProvider>
-        </PersonaProvider>
+        <DemoProvider>
+          <AppContent />
+        </DemoProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

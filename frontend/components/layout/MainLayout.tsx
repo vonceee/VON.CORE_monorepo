@@ -2,8 +2,6 @@ import React, { ReactNode } from "react";
 import { SectionId } from "../../types";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
-import { usePersona } from "../../hooks/usePersona";
-import AnimatedText from "../ui/AnimatedText";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -20,28 +18,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 }) => {
   const { theme, toggleTheme } = useTheme();
   const { lang, setLang, availableLanguages } = useLanguage();
-  const { persona, setPersona } = usePersona();
 
   return (
     <div
       style={
         {
           "--primary": theme !== "light" ? "#ffffff" : "#000000",
+          "--dots-color":
+            theme !== "light"
+              ? "rgba(255, 255, 255, 0.15)"
+              : "rgba(0, 0, 0, 0.15)",
         } as React.CSSProperties
       }
       className={`${
-        persona === "hr"
-          ? theme !== "light"
-            ? "bg-slate-900 text-slate-100"
-            : "bg-slate-50 text-slate-800"
-          : theme !== "light"
-            ? "bg-black text-white"
-            : "bg-white text-black"
+        theme !== "light" ? "bg-black text-white" : "bg-white text-black"
       } transition-colors duration-500`}
     >
       {/* Navbar */}
       <nav
-        className={`fixed top-0 left-0 w-full z-50 flex flex-col md:flex-row items-center justify-between p-6 lg:p-8 2xl:p-12 transition-all duration-300 ${
+        className={`fixed top-0 left-0 w-full z-50 flex flex-col md:flex-row items-center justify-between p-4 transition-all duration-300 ${
           theme !== "light" ? "mix-blend-difference text-white" : "text-black"
         }`}
       >
@@ -67,26 +62,26 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <div className="flex items-center space-x-8 text-sm lg:text-base 2xl:text-xl font-bold tracking-widest mt-4 md:mt-0">
           <div className="flex space-x-6">
             <button
+              onClick={() => onScrollTo("HERO")}
+              className="hover:text-cyan-400 hover:cursor-pointer transition-colors"
+            >
+              HOME
+            </button>
+            <button
               onClick={() => onScrollTo("ABOUT")}
-              className="hover:text-primary transition-colors"
+              className="hover:text-cyan-400 hover:cursor-pointer transition-colors"
             >
               ABOUT
             </button>
             <button
               onClick={() => onScrollTo("PORTFOLIO")}
-              className="hover:text-primary transition-colors duration-300"
+              className="hover:text-cyan-400 hover:cursor-pointer transition-colors duration-300"
             >
               PORTFOLIO
             </button>
             <button
-              onClick={() => onScrollTo("DEEP_DIVE")}
-              className="hover:text-primary transition-colors duration-300"
-            >
-              DEEP DIVE
-            </button>
-            <button
               onClick={() => onScrollTo("CONTACT")}
-              className="hover:text-primary transition-colors duration-300"
+              className="hover:text-cyan-400 hover:cursor-pointer transition-colors duration-300"
             >
               CONTACT
             </button>
@@ -106,14 +101,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       {children}
 
       {/* Floating Button */}
-      {/* Floating Buttons: Terminal & Persona Toggle */}
       <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end space-y-2 font-mono text-xs sm:text-sm text-neutral-400">
-        <button
-          onClick={() => setPersona(persona === "hr" ? "developer" : "hr")}
-          className="hover:text-primary transition-colors duration-300"
-        >
-          [ switch_to_{persona === "hr" ? "dev" : "hr"}_mode ]
-        </button>
         <button
           onClick={onOpenTerminal}
           className="hover:text-primary transition-colors duration-300"

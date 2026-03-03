@@ -8,7 +8,7 @@ export const TRANSLATIONS: Translations = {
     },
     about: {
       title: "elevate your digital presence with",
-      description: "Junior Full-Stack Web Developer, specializing in Frontend.",
+      description: "Full-Stack Web Developer",
     },
     portfolio: {
       title: "PORTFOLIO",

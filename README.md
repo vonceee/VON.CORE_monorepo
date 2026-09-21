@@ -9,18 +9,6 @@
 
 ---
 
-## 🖥️ Featured Standalone Desktop Applications
-
-The developer tools and productivity systems originally prototyped within this project have been extracted into independent, standalone desktop software repositories powered by **Electron**, **React 19**, and **Local JSON File Persistence**:
-
-| Desktop Application | Description | Technology Stack | Repository |
-| :--- | :--- | :--- | :--- |
-| **Not Cute Anymore** | High-discipline routine manager, active task HUD, and daily quest logger. | Electron 34, React 19, TypeScript, Local JSON IPC | [`not-cute-anymore-desktop`](../not-cute-anymore-desktop) |
-| **Not Me** | Minimalist habit, vice, and relapse tracking app with milestone badges. | Electron 34, React 19, TypeScript, Local JSON IPC | [`not-me-desktop`](../not-me-desktop) |
-| **My World** | Hierarchical tree folder organizer and distraction-free markdown canvas. | Electron 34, React 19, TypeScript, Local JSON IPC | [`my-world-desktop`](../my-world-desktop) |
-
----
-
 ## 🚀 Getting Started with the Portfolio
 
 ### Prerequisites

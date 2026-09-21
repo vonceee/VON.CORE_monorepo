@@ -1,6 +1,6 @@
 import React from "react";
 import InteractiveSphere from "@/components/ui/InteractiveSphere";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Github, Linkedin, Mail, ChessPawn } from "lucide-react";
 
 interface HeroSectionProps {
   onEnter?: () => void;
@@ -14,7 +14,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onEnter, onAbout }) => {
     <section
       ref={containerRef}
       id="HERO"
-      className="snap-section h-screen min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-black selection:bg-white selection:text-black"
+      className="snap-section h-screen min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-black selection:bg-cyan-400 selection:text-black"
     >
       {/* 3D Interactive Sphere - anchored firmly to the right edge across laptops and desktops */}
       <div className="absolute inset-y-0 right-0 flex items-center justify-end translate-x-16 sm:translate-x-24 md:translate-x-32 lg:translate-x-52 xl:translate-x-70 pointer-events-none z-0">
@@ -26,10 +26,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onEnter, onAbout }) => {
       <div className="container mx-auto w-full h-full flex flex-col justify-center relative px-6 sm:px-10 lg:px-16 z-10 pointer-events-none">
         {/* Left Column: Architectural Text Content */}
         <div className="w-full max-w-2xl xl:max-w-3xl flex flex-col items-start text-left pointer-events-auto z-10 space-y-6 sm:space-y-8">
+          {/* Section Indicator in Brittany Chiang Line Accent Style */}
+          <div className="flex items-center gap-4 text-xs sm:text-sm font-bold tracking-[0.25em] uppercase text-cyan-400">
+            <span className="w-12 sm:w-16 h-px bg-cyan-400 inline-block" />
+            <span>VON CEDRIC C. RANOLA</span>
+          </div>
+
           {/* Primary Hook / Tagline */}
-          <div className="space-y-1 sm:space-y-2">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl tracking-tighter text-white leading-[1.06]">
-              Fast by default. <span className="text-zinc-400">Clear by design.</span>
+          <div className="space-y-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-tight text-white leading-[1.08]">
+              Fast by default. <span className="text-cyan-400">Clear by design.</span>
             </h1>
           </div>
 
@@ -43,16 +49,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onEnter, onAbout }) => {
             {onEnter && (
               <button
                 onClick={onEnter}
-                className="group inline-flex items-center justify-center gap-2.5 rounded bg-zinc-100 px-6 py-3 text-sm font-semibold tracking-wide text-black transition-all duration-150 hover:bg-transparent hover:text-white hover:ring-1 hover:ring-zinc-100 active:scale-[0.99] cursor-pointer"
+                className="group inline-flex items-center justify-center gap-2.5 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-6 sm:px-7 py-3.5 text-sm sm:text-base font-medium transition-all duration-300 cursor-pointer"
               >
                 <span>Explore Projects</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-1" />
               </button>
             )}
 
             <button
               onClick={onAbout || onEnter}
-              className="inline-flex items-center justify-center rounded border border-zinc-700 bg-transparent px-6 py-3 text-sm font-semibold tracking-wide text-zinc-200 transition-all duration-150 hover:border-zinc-100 hover:bg-zinc-100 hover:text-black active:scale-[0.99] cursor-pointer"
+              className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 sm:px-7 py-3.5 text-sm sm:text-base font-medium cursor-pointer"
             >
               About Me
             </button>
